@@ -1,0 +1,36 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Party Games</title>
+    <link rel="icon" href="/favicon.ico" sizes="any" />
+    <link rel="stylesheet" href="/normalize.css" />
+    <link rel="stylesheet" href="/styles.css" />
+  </head>
+  <body>
+    <main class="page">
+      <h1>🎈 Party Games</h1>
+      <p>Pick a game to host, or join with a room code.</p>
+
+      <section id="games" class="game-grid"></section>
+
+      <section class="join-panel">
+        <h2>Join a room</h2>
+        <form id="join-form">
+          <input
+            id="join-code"
+            maxlength="4"
+            placeholder="CODE"
+            autocomplete="off"
+            autocapitalize="characters"
+            required
+          />
+          <button type="submit">Join</button>
+        </form>
+        <p id="join-error" class="error"></p>
+      </section>
+    </main>
+    <script type="module" src="/home.js"></script>
+  </body>
+</html>
