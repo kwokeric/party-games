@@ -1,0 +1,119 @@
+[
+  {
+    "id": "ruby-throated-hummingbird",
+    "name": "Ruby-throated Hummingbird",
+    "length_m": 0.08,
+    "measured": "body length (7-9cm range, midpoint used)",
+    "svg": "objects/ruby-throated-hummingbird.svg",
+    "axis": "width",
+    "source": "https://en.wikipedia.org/wiki/Ruby-throated_hummingbird"
+  },
+  {
+    "id": "iphone-15",
+    "name": "iPhone 15",
+    "length_m": 0.1476,
+    "measured": "height",
+    "svg": "objects/iphone-15.svg",
+    "axis": "height",
+    "source": "https://en.wikipedia.org/wiki/IPhone_15"
+  },
+  {
+    "id": "basketball",
+    "name": "Basketball",
+    "length_m": 0.24,
+    "measured": "diameter (NBA/FIBA size 7)",
+    "svg": "objects/basketball.svg",
+    "axis": "width",
+    "source": "https://en.wikipedia.org/wiki/Basketball_(ball)"
+  },
+  {
+    "id": "skateboard",
+    "name": "Skateboard",
+    "length_m": 0.825,
+    "measured": "deck length (common popsicle-deck size)",
+    "svg": "objects/skateboard.svg",
+    "axis": "width",
+    "source": "https://en.wikipedia.org/wiki/Skateboard"
+  },
+  {
+    "id": "king-size-bed",
+    "name": "King-size Bed (US)",
+    "length_m": 2.02,
+    "measured": "length",
+    "svg": "objects/king-size-bed.svg",
+    "axis": "width",
+    "source": "https://en.wikipedia.org/wiki/Bed_size"
+  },
+  {
+    "id": "red-telephone-box",
+    "name": "Red Telephone Box (K6)",
+    "length_m": 2.51,
+    "measured": "height",
+    "svg": "objects/red-telephone-box.svg",
+    "axis": "height",
+    "source": "https://en.wikipedia.org/wiki/Red_telephone_box"
+  },
+  {
+    "id": "grand-piano",
+    "name": "Concert Grand Piano",
+    "length_m": 2.74,
+    "measured": "length (~9ft concert grand, within cited 2.2-3m range)",
+    "svg": "objects/grand-piano.svg",
+    "axis": "width",
+    "source": "https://en.wikipedia.org/wiki/Grand_piano"
+  },
+  {
+    "id": "saltwater-crocodile",
+    "name": "Saltwater Crocodile",
+    "length_m": 4.25,
+    "measured": "body length (adult male average, 4.0-4.5m range)",
+    "svg": "objects/saltwater-crocodile.svg",
+    "axis": "width",
+    "source": "https://en.wikipedia.org/wiki/Saltwater_crocodile"
+  },
+  {
+    "id": "giraffe",
+    "name": "Giraffe",
+    "length_m": 5.5,
+    "measured": "height (fully grown, 4.3-5.7m range)",
+    "svg": "objects/giraffe.svg",
+    "axis": "height",
+    "source": "https://en.wikipedia.org/wiki/Giraffe"
+  },
+  {
+    "id": "shipping-container",
+    "name": "Shipping Container (40ft)",
+    "length_m": 12.192,
+    "measured": "external length",
+    "svg": "objects/shipping-container.svg",
+    "axis": "width",
+    "source": "https://en.wikipedia.org/wiki/Intermodal_container"
+  },
+  {
+    "id": "school-bus",
+    "name": "Full-size School Bus",
+    "length_m": 13.7,
+    "measured": "length (US/Canada regulatory max)",
+    "svg": "objects/school-bus.svg",
+    "axis": "width",
+    "source": "https://en.wikipedia.org/wiki/School_bus"
+  },
+  {
+    "id": "humpback-whale",
+    "name": "Humpback Whale",
+    "length_m": 14.5,
+    "measured": "body length (adult, 14-15m typical range)",
+    "svg": "objects/humpback-whale.svg",
+    "axis": "width",
+    "source": "https://en.wikipedia.org/wiki/Humpback_whale"
+  },
+  {
+    "id": "boeing-737-800",
+    "name": "Boeing 737-800",
+    "length_m": 39.47,
+    "measured": "overall length",
+    "svg": "objects/boeing-737-800.svg",
+    "axis": "width",
+    "source": "https://en.wikipedia.org/wiki/Boeing_737_Next_Generation"
+  }
+]

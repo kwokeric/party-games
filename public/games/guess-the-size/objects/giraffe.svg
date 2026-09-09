@@ -1,0 +1,14 @@
+<svg viewBox="0 0 35 100" xmlns="http://www.w3.org/2000/svg">
+  <g fill="currentColor">
+    <rect x="6" y="55" width="4" height="43"/>
+    <rect x="14" y="55" width="4" height="43"/>
+    <rect x="20" y="55" width="4" height="43"/>
+    <rect x="27" y="55" width="4" height="43"/>
+    <ellipse cx="18" cy="52" rx="15" ry="9"/>
+    <path d="M22,46 L28,4 L33,4 L29,48 Z"/>
+    <circle cx="30" cy="4" r="5"/>
+    <rect x="27" y="0" width="1.5" height="4"/>
+    <rect x="32" y="0" width="1.5" height="4"/>
+    <path d="M6,54 L2,62 L7,58 Z"/>
+  </g>
+</svg>

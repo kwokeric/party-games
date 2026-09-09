@@ -1,0 +1,8 @@
+<svg viewBox="0 0 100 32" xmlns="http://www.w3.org/2000/svg">
+  <g fill="currentColor">
+    <rect x="8" y="10" width="75" height="10" rx="5"/>
+    <polygon points="80,10 100,15 80,20"/>
+    <polygon points="8,10 20,10 15,0 10,1"/>
+    <polygon points="35,19 58,19 48,31 34,28"/>
+  </g>
+</svg>

@@ -1,0 +1,9 @@
+<svg viewBox="0 0 100 45" xmlns="http://www.w3.org/2000/svg">
+  <g fill="currentColor">
+    <polygon points="26,25 0,13 0,37"/>
+    <ellipse cx="46" cy="25" rx="22" ry="10"/>
+    <circle cx="68" cy="19" r="8"/>
+    <polygon points="75,17 100,14 75,22"/>
+    <path d="M42,18 C50,2 62,0 70,6 C60,8 52,12 46,20 Z"/>
+  </g>
+</svg>
