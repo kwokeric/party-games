@@ -6,29 +6,48 @@
     <title>Party Games</title>
     <link rel="icon" href="/favicon.ico" sizes="any" />
     <link rel="stylesheet" href="/normalize.css" />
-    <link rel="stylesheet" href="/styles.css" />
+    <link rel="stylesheet" href="/home.css" />
   </head>
   <body>
-    <main class="page">
-      <h1>🎈 Party Games</h1>
-      <p>Pick a game to host, or join with a room code.</p>
+    <main class="home-page">
+      <div class="home-header">
+        <h1>Party Games</h1>
+      </div>
 
-      <section id="games" class="game-grid"></section>
-
-      <section class="join-panel">
-        <h2>Join a room</h2>
-        <form id="join-form">
+      <section class="join-section">
+        <h2>Join a Room</h2>
+        <div class="join-row">
+          <input
+            id="join-name"
+            class="home-input"
+            type="text"
+            placeholder="Your name"
+            autocomplete="off"
+            maxlength="20"
+          />
           <input
             id="join-code"
-            maxlength="4"
+            class="home-input"
+            type="text"
             placeholder="CODE"
+            maxlength="4"
             autocomplete="off"
             autocapitalize="characters"
-            required
           />
-          <button type="submit">Join</button>
-        </form>
+        </div>
+        <button id="join-btn" class="home-btn join-btn" type="button">Join Room</button>
         <p id="join-error" class="error"></p>
+      </section>
+
+      <div class="divider">
+        <div class="line"></div>
+        <span>or</span>
+        <div class="line"></div>
+      </div>
+
+      <section class="games-section">
+        <h2>Games</h2>
+        <div id="games" class="game-grid"></div>
       </section>
     </main>
     <script type="module" src="/home.js"></script>

@@ -1,6 +1,7 @@
 const params = new URLSearchParams(location.search);
 const room = params.get("room");
 const isHostUrl = params.get("host") === "1";
+const playerName = params.get("name") ?? "";
 
 const el = (id) => document.getElementById(id);
 
@@ -245,8 +246,12 @@ if (!room) {
   statusEl.textContent = "No room code provided.";
 } else {
   const protocol = location.protocol === "https:" ? "wss:" : "ws:";
+  const connectParams = new URLSearchParams();
+  if (isHostUrl) connectParams.set("host", "1");
+  if (playerName) connectParams.set("name", playerName);
+  const query = connectParams.toString();
   socket = new WebSocket(
-    `${protocol}//${location.host}/parties/guess-the-size/${room}${isHostUrl ? "?host=1" : ""}`
+    `${protocol}//${location.host}/parties/guess-the-size/${room}${query ? `?${query}` : ""}`
   );
 
   socket.addEventListener("open", () => {

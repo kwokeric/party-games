@@ -56,10 +56,11 @@ export default class GuessTheSize extends Server {
   onConnect(connection: Connection, ctx: ConnectionContext) {
     const url = new URL(ctx.request.url);
     const isHost = url.searchParams.get("host") === "1" && !this.hasHost();
+    const requestedName = url.searchParams.get("name")?.trim().slice(0, 20);
 
     this.players.set(connection.id, {
       id: connection.id,
-      name: `Player ${this.players.size + 1}`,
+      name: requestedName || `Player ${this.players.size + 1}`,
       isHost,
       guess: null,
     });
