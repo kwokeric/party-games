@@ -1,5 +1,7 @@
 // Registry of playable games. Shared by the home page (to list games)
 // and the lobby party (to validate room creation requests).
+
+/** @type {{id: string, title: string, description: string, path: string}[]} */
 export const GAMES = [
   {
     id: "guess-the-size",

@@ -1,0 +1,168 @@
+.game-page {
+  max-width: 900px;
+}
+
+.game-header {
+  display: flex;
+  align-items: baseline;
+  gap: 1rem;
+  flex-wrap: wrap;
+}
+
+.game-header h1 {
+  margin: 0;
+  font-size: 1.4rem;
+}
+
+.players-panel ul {
+  list-style: none;
+  padding: 0;
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.5rem;
+}
+
+.players-panel li {
+  background: #2a2a2a;
+  border-radius: 6px;
+  padding: 0.3rem 0.7rem;
+  font-size: 0.9rem;
+}
+
+.players-panel li.you {
+  outline: 2px solid #e63946;
+}
+
+.players-panel li.guessed::after {
+  content: " ✓";
+  color: #6ee7a7;
+}
+
+.view {
+  margin-top: 1rem;
+}
+
+.stage-toolbar {
+  display: flex;
+  align-items: center;
+  gap: 1rem;
+  margin-bottom: 0.5rem;
+  flex-wrap: wrap;
+}
+
+.zoom-controls button {
+  width: 2rem;
+  padding: 0.3rem 0;
+}
+
+.stage {
+  position: relative;
+  height: 340px;
+  background: #12141a;
+  border-radius: 8px;
+  overflow: visible;
+}
+
+.baseline {
+  position: absolute;
+  left: 0;
+  right: 0;
+  bottom: 48px;
+  border-top: 2px solid #445;
+}
+
+.obj {
+  position: absolute;
+  bottom: 48px;
+  color: #f4a261;
+}
+
+.obj img {
+  display: block;
+}
+
+.obj-label {
+  position: absolute;
+  bottom: 100%;
+  left: 0;
+  white-space: nowrap;
+  font-size: 0.8rem;
+  color: #ccc;
+  margin-bottom: 4px;
+}
+
+#object-a {
+  left: 30px;
+}
+
+#object-b {
+  left: 220px;
+}
+
+.resize-handle {
+  position: absolute;
+  width: 16px;
+  height: 16px;
+  border-radius: 50%;
+  background: #e63946;
+  border: 2px solid #fff;
+  cursor: grab;
+  touch-action: none;
+}
+
+.resize-handle.axis-width {
+  right: -8px;
+  top: 50%;
+  transform: translateY(-50%);
+  cursor: ew-resize;
+}
+
+.resize-handle.axis-height {
+  left: 50%;
+  top: -8px;
+  transform: translateX(-50%);
+  cursor: ns-resize;
+}
+
+.resize-handle.dragging {
+  cursor: grabbing;
+}
+
+.waiting-message {
+  color: #6ee7a7;
+}
+
+.obj-guess {
+  left: 30px;
+  color: #f5f5f5;
+  opacity: 0.55;
+}
+
+.obj-true {
+  left: 30px;
+  color: #e63946;
+}
+
+.obj-true img {
+  filter: drop-shadow(0 0 0 #e63946);
+}
+
+.true-line {
+  position: absolute;
+  top: 20px;
+  left: 30px;
+  right: 10px;
+  border-top: 2px dashed #e63946;
+}
+
+.true-line span {
+  position: absolute;
+  right: 0;
+  top: -1.4rem;
+  color: #e63946;
+  font-size: 0.85rem;
+}
+
+#results-list {
+  padding-left: 1.2rem;
+}
