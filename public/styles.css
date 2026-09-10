@@ -1,7 +1,7 @@
 body {
   font-family: system-ui, sans-serif;
-  background: #1a1a1a;
-  color: #f5f5f5;
+  background: #f0eee6;
+  color: rgba(0, 0, 0, 0.85);
 }
 
 .page {

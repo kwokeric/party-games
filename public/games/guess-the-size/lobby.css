@@ -1,0 +1,214 @@
+@import url("https://fonts.googleapis.com/css2?family=Fredoka:wght@500;600;700&display=swap");
+
+.lobby-view {
+  --blue: #067bc2;
+  --light-blue: #84bcda;
+  --cream: #f0eee6;
+  --coral: #d56062;
+  --ink: rgba(0, 0, 0, 0.85);
+  --ink-soft: rgba(0, 0, 0, 0.6);
+  --ink-faint: rgba(0, 0, 0, 0.4);
+
+  margin: -2rem calc(50% - 50vw) 0;
+  background: var(--cream);
+  color: var(--ink);
+  font-family: system-ui, -apple-system, sans-serif;
+  padding-bottom: 32px;
+}
+
+.lobby-banner {
+  background: var(--blue);
+  border-radius: 0 0 32px 32px;
+  padding: 26px 24px 22px;
+  display: flex;
+  align-items: center;
+  gap: 14px;
+}
+
+.lobby-icon-btn {
+  border: none;
+  cursor: pointer;
+  width: 40px;
+  height: 40px;
+  border-radius: 999px;
+  background: var(--light-blue);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+  padding: 0;
+}
+
+.lobby-banner-title {
+  font-family: "Fredoka", system-ui, sans-serif;
+  font-weight: 700;
+  font-size: 22px;
+  color: #ffffff;
+}
+
+.lobby-section {
+  padding: 18px 24px 0;
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  max-width: 440px;
+  margin: 0 auto;
+  box-sizing: border-box;
+}
+
+.lobby-section h2 {
+  margin: 0;
+  font-family: "Fredoka", system-ui, sans-serif;
+  font-size: 16px;
+  font-weight: 600;
+  color: var(--ink);
+}
+
+.lobby-card {
+  width: 100%;
+  background: #ffffff;
+  border-radius: 20px;
+  padding: 16px 18px;
+  box-sizing: border-box;
+  box-shadow: 0 10px 26px rgba(6, 123, 194, 0.14);
+}
+
+.lobby-code-card {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 14px 18px;
+}
+
+.lobby-code {
+  font-family: "Fredoka", system-ui, sans-serif;
+  font-weight: 700;
+  font-size: 28px;
+  color: var(--blue);
+  letter-spacing: 5px;
+}
+
+.lobby-copy-btn {
+  border: none;
+  cursor: pointer;
+  width: 36px;
+  height: 36px;
+  border-radius: 11px;
+  background: rgba(6, 123, 194, 0.1);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+  padding: 0;
+}
+
+.lobby-howto ul {
+  margin: 0;
+  padding-left: 18px;
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+
+.lobby-howto li {
+  font-size: 13.5px;
+  line-height: 1.4;
+  color: var(--ink-soft);
+}
+
+.lobby-player-list {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 13px;
+}
+
+.lobby-player-row {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+
+.lobby-avatar {
+  width: 40px;
+  height: 40px;
+  border-radius: 999px;
+  background: var(--light-blue);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-family: "Fredoka", system-ui, sans-serif;
+  font-weight: 600;
+  font-size: 14px;
+  color: #ffffff;
+  flex-shrink: 0;
+}
+
+.lobby-player-name {
+  font-family: "Fredoka", system-ui, sans-serif;
+  font-size: 15px;
+  letter-spacing: 1px;
+  color: var(--ink);
+  flex: 1;
+  text-transform: uppercase;
+}
+
+.lobby-host-badge {
+  background: var(--coral);
+  color: #ffffff;
+  font-size: 10px;
+  font-weight: 700;
+  letter-spacing: 0.5px;
+  padding: 4px 10px;
+  border-radius: 999px;
+}
+
+.lobby-ready-tag {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+  color: var(--blue);
+  font-size: 12px;
+  font-weight: 600;
+}
+
+.lobby-actions {
+  padding: 18px 24px 0;
+  max-width: 440px;
+  margin: 0 auto;
+  box-sizing: border-box;
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  align-items: center;
+}
+
+.lobby-action-btn {
+  width: 100%;
+  height: 54px;
+  box-sizing: border-box;
+  padding: 0;
+  border: none;
+  cursor: pointer;
+  border-radius: 15px;
+  background: var(--blue);
+  color: #ffffff;
+  font-family: "Fredoka", system-ui, sans-serif;
+  font-size: 17px;
+  font-weight: 600;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.lobby-action-btn.is-ready {
+  background: var(--light-blue);
+}
+
+.lobby-waiting {
+  margin: 0;
+  font-size: 12.5px;
+  color: var(--ink-faint);
+}

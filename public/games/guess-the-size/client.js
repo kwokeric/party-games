@@ -5,6 +5,8 @@ const playerName = params.get("name") ?? "";
 
 const el = (id) => document.getElementById(id);
 
+const gameHeaderEl = document.querySelector(".game-header");
+const playersPanelEl = document.querySelector(".players-panel");
 const roomCodeEl = el("room-code");
 const statusEl = el("connection-status");
 const playerListEl = el("player-list");
@@ -12,8 +14,13 @@ const playerListEl = el("player-list");
 const lobbyView = el("lobby-view");
 const guessingView = el("guessing-view");
 const revealView = el("reveal-view");
+const backBtn = el("back-btn");
+const lobbyRoomCodeEl = el("lobby-room-code");
+const copyCodeBtn = el("copy-code-btn");
+const lobbyPlayerListEl = el("lobby-player-list");
 const startBtn = el("start-btn");
-const lobbyMessage = el("lobby-message");
+const readyBtn = el("ready-btn");
+const lobbyWaitingEl = el("lobby-waiting");
 
 const objectANameEl = el("object-a-name");
 const objectASizeEl = el("object-a-size");
@@ -39,6 +46,7 @@ const resultsList = el("results-list");
 const playAgainBtn = el("play-again-btn");
 
 roomCodeEl.textContent = room ?? "(none)";
+lobbyRoomCodeEl.textContent = room ?? "(none)";
 
 let myId = null;
 let players = [];
@@ -59,6 +67,10 @@ function showView(view) {
   lobbyView.hidden = view !== "lobby";
   guessingView.hidden = view !== "guessing";
   revealView.hidden = view !== "reveal";
+  // The shared header/player-pill bar is only used during guessing/reveal;
+  // the lobby view has its own banner and player list.
+  gameHeaderEl.hidden = view === "lobby";
+  playersPanelEl.hidden = view === "lobby";
 }
 
 function isHost() {
@@ -75,13 +87,38 @@ function renderPlayers() {
     playerListEl.appendChild(li);
   }
 
-  startBtn.hidden = !isHost();
+  lobbyPlayerListEl.innerHTML = "";
+  for (const p of players) {
+    const li = document.createElement("li");
+    li.className = "lobby-player-row";
+    const initial = p.name.trim().charAt(0) || "?";
+    const badge = p.isHost
+      ? `<span class="lobby-host-badge">HOST</span>`
+      : p.ready
+      ? `<span class="lobby-ready-tag"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="#067bc2" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"></polyline></svg>Ready</span>`
+      : "";
+    li.innerHTML = `
+      <span class="lobby-avatar">${initial}</span>
+      <span class="lobby-player-name">${p.name}${p.id === myId ? " (you)" : ""}</span>
+      ${badge}
+    `;
+    lobbyPlayerListEl.appendChild(li);
+  }
+
   playAgainBtn.hidden = !isHost();
 
   if (phase === "lobby") {
-    lobbyMessage.textContent = isHost()
-      ? "Ready when you are."
-      : "Waiting for the host to start a round.";
+    const amHost = isHost();
+    startBtn.hidden = !amHost;
+    readyBtn.hidden = amHost;
+    lobbyWaitingEl.hidden = amHost;
+    if (!amHost) {
+      const host = players.find((p) => p.isHost);
+      lobbyWaitingEl.textContent = `Waiting for ${host?.name ?? "the host"} to start the round`;
+      const me = players.find((p) => p.id === myId);
+      readyBtn.textContent = me?.ready ? "Not ready" : "Ready up";
+      readyBtn.classList.toggle("is-ready", Boolean(me?.ready));
+    }
   }
 }
 
@@ -238,6 +275,25 @@ startBtn.addEventListener("click", () => {
 });
 playAgainBtn.addEventListener("click", () => {
   socket.send(JSON.stringify({ type: "start" }));
+});
+readyBtn.addEventListener("click", () => {
+  socket.send(JSON.stringify({ type: "ready" }));
+});
+backBtn.addEventListener("click", () => {
+  location.href = "/";
+});
+copyCodeBtn.addEventListener("click", async () => {
+  if (!room) return;
+  try {
+    await navigator.clipboard.writeText(room);
+    const original = copyCodeBtn.innerHTML;
+    copyCodeBtn.innerHTML =
+      '<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#067bc2" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"></polyline></svg>';
+    setTimeout(() => (copyCodeBtn.innerHTML = original), 1200);
+  } catch {
+    // Clipboard access can fail (permissions, insecure context); the code
+    // is already visible on screen, so this is a nice-to-have only.
+  }
 });
 
 let socket;

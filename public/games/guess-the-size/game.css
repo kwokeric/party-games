@@ -2,6 +2,14 @@
   max-width: 900px;
 }
 
+/* Several elements on this page (the header, lobby buttons) set an
+   unconditional `display` in their class rule, which — being equal
+   specificity to the UA default `[hidden]{display:none}` — would
+   otherwise win and keep them visible while `hidden` is set. */
+[hidden] {
+  display: none !important;
+}
+
 .game-header {
   display: flex;
   align-items: baseline;

@@ -19,6 +19,7 @@ type Player = {
   name: string;
   isHost: boolean;
   guess: number | null;
+  ready: boolean;
 };
 
 type Round = {
@@ -63,6 +64,7 @@ export default class GuessTheSize extends Server {
       name: requestedName || `Player ${this.players.size + 1}`,
       isHost,
       guess: null,
+      ready: false,
     });
 
     connection.send(JSON.stringify({ type: "you", id: connection.id }));
@@ -91,6 +93,12 @@ export default class GuessTheSize extends Server {
     } else if (data.type === "force-reveal") {
       const player = this.players.get(connection.id);
       if (player?.isHost && this.phase === "guessing") this.reveal();
+    } else if (data.type === "ready") {
+      const player = this.players.get(connection.id);
+      if (player && !player.isHost && this.phase === "lobby") {
+        player.ready = !player.ready;
+        this.broadcastPlayers();
+      }
     }
   }
 
@@ -195,6 +203,7 @@ export default class GuessTheSize extends Server {
           name: p.name,
           isHost: p.isHost,
           hasGuessed: p.guess !== null,
+          ready: p.ready,
         })),
       })
     );

@@ -8,6 +8,7 @@
     <link rel="stylesheet" href="/normalize.css" />
     <link rel="stylesheet" href="/styles.css" />
     <link rel="stylesheet" href="./game.css" />
+    <link rel="stylesheet" href="./lobby.css" />
   </head>
   <body>
     <main class="page game-page">
@@ -22,9 +23,48 @@
         <ul id="player-list"></ul>
       </section>
 
-      <section id="lobby-view" class="view">
-        <p id="lobby-message">Waiting for the host to start a round.</p>
-        <button id="start-btn" hidden>Start round</button>
+      <section id="lobby-view" class="view lobby-view">
+        <div class="lobby-banner">
+          <button id="back-btn" class="lobby-icon-btn" type="button" aria-label="Back to home">
+            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#067bc2" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><line x1="19" y1="12" x2="5" y2="12"></line><polyline points="12 19 5 12 12 5"></polyline></svg>
+          </button>
+          <div class="lobby-banner-title">Guess the size</div>
+        </div>
+
+        <div class="lobby-section">
+          <h2>Room code</h2>
+          <div class="lobby-card lobby-code-card">
+            <div id="lobby-room-code" class="lobby-code">-</div>
+            <button id="copy-code-btn" class="lobby-copy-btn" type="button" aria-label="Copy room code">
+              <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#067bc2" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="9" y="9" width="11" height="11" rx="2"></rect><path d="M5 15H4a1 1 0 0 1-1-1V4a1 1 0 0 1 1-1h10a1 1 0 0 1 1 1v1"></path></svg>
+            </button>
+          </div>
+        </div>
+
+        <div class="lobby-section">
+          <h2>How to play</h2>
+          <div class="lobby-card lobby-howto">
+            <ul>
+              <li>One object is shown at its real size — that's your reference.</li>
+              <li>Drag to resize the other object to what you think its real size is.</li>
+              <li>Submit your guess.</li>
+              <li>Closest guess wins the round!</li>
+            </ul>
+          </div>
+        </div>
+
+        <div class="lobby-section">
+          <h2>Players</h2>
+          <div class="lobby-card">
+            <ul id="lobby-player-list" class="lobby-player-list"></ul>
+          </div>
+        </div>
+
+        <div class="lobby-actions">
+          <button id="start-btn" class="lobby-action-btn" type="button" hidden>Start round</button>
+          <button id="ready-btn" class="lobby-action-btn" type="button" hidden>Ready up</button>
+          <p id="lobby-waiting" class="lobby-waiting" hidden></p>
+        </div>
       </section>
 
       <section id="guessing-view" class="view" hidden>
