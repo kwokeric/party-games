@@ -23,7 +23,7 @@ for (const game of GAMES) {
     <div class="game-icon">${rulerIcon}</div>
     <h3>${game.title}</h3>
     <p>${game.description}</p>
-    <button class="home-btn host-btn" data-game="${game.id}">Host a Room</button>
+    <button class="home-btn host-btn" data-game="${game.id}">Host a room</button>
   `;
   gamesEl.appendChild(card);
 }
@@ -33,7 +33,7 @@ gamesEl.addEventListener("click", async (event) => {
   if (!button) return;
 
   const gameId = button.dataset.game;
-  const name = nameInput.value.trim();
+  const name = nameInput.value.trim().toUpperCase();
   button.disabled = true;
   button.textContent = "Creating room...";
 
@@ -50,7 +50,7 @@ gamesEl.addEventListener("click", async (event) => {
     location.href = `${game.path}?room=${code}&host=1${nameParam}`;
   } catch (err) {
     button.disabled = false;
-    button.textContent = "Host a Room";
+    button.textContent = "Host a room";
     alert("Couldn't create a room. Please try again.");
   }
 });
@@ -58,7 +58,7 @@ gamesEl.addEventListener("click", async (event) => {
 async function joinRoom() {
   joinError.textContent = "";
 
-  const name = nameInput.value.trim();
+  const name = nameInput.value.trim().toUpperCase();
   const code = codeInput.value.trim().toUpperCase();
   if (!code) {
     joinError.textContent = "Enter a room code.";
@@ -93,3 +93,15 @@ for (const input of [nameInput, codeInput]) {
     if (event.key === "Enter") joinRoom();
   });
 }
+
+// Browsers restore this page from bfcache on back-navigation with whatever
+// DOM state it had when we navigated away (e.g. mid "Creating room..."),
+// so reset anything stateful when that happens.
+window.addEventListener("pageshow", (event) => {
+  if (!event.persisted) return;
+  for (const button of gamesEl.querySelectorAll("button[data-game]")) {
+    button.disabled = false;
+    button.textContent = "Host a room";
+  }
+  joinBtn.disabled = false;
+});

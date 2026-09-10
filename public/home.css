@@ -84,7 +84,10 @@ a:hover {
   flex: 1.2;
   min-width: 0;
   padding: 0 14px;
-  font-family: system-ui, sans-serif;
+  font-family: "Fredoka", system-ui, sans-serif;
+  font-size: 16px;
+  letter-spacing: 1px;
+  text-transform: uppercase;
 }
 
 #join-code {
@@ -132,9 +135,9 @@ a:hover {
   background: rgba(6, 123, 194, 0.18);
 }
 
-.divider span {
-  font-size: 13px;
-  color: var(--ink-faint);
+.divider .divider-icon {
+  display: flex;
+  flex-shrink: 0;
 }
 
 .games-section {
@@ -216,6 +219,10 @@ a:hover {
 
 .error {
   color: var(--coral);
-  font-size: 14px;
+  font-size: 13px;
+  line-height: 1.35;
+  min-height: 34px;
+  margin: 0;
   padding: 0 24px;
+  box-sizing: border-box;
 }
