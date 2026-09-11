@@ -9,6 +9,7 @@
     <link rel="stylesheet" href="/styles.css" />
     <link rel="stylesheet" href="./game.css" />
     <link rel="stylesheet" href="./lobby.css" />
+    <link rel="stylesheet" href="./guessing.css" />
   </head>
   <body>
     <main class="page game-page">
@@ -67,35 +68,62 @@
         </div>
       </section>
 
-      <section id="guessing-view" class="view" hidden>
-        <p>
-          Reference: <strong id="object-a-name"></strong> is exactly
-          <strong id="object-a-size"></strong>. Drag the handle to resize
-          <strong id="object-b-name"></strong> to what you think its real size is.
-        </p>
-        <div class="stage-toolbar">
-          <span id="guess-readout">Your guess: - </span>
-          <span class="zoom-controls">
-            <button id="zoom-out" type="button" aria-label="Zoom out">&minus;</button>
-            <button id="zoom-in" type="button" aria-label="Zoom in">+</button>
+      <section id="guessing-view" class="view guessing-view" hidden>
+        <div class="guess-banner">
+          <button id="guess-back-btn" class="guess-icon-btn" type="button" aria-label="Back to home">
+            <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="#ffffff" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><line x1="19" y1="12" x2="5" y2="12"></line><polyline points="12 19 5 12 12 5"></polyline></svg>
+          </button>
+          <div class="guess-banner-title">Guess the size</div>
+          <div class="guess-room-pill" id="guess-room-code">-</div>
+        </div>
+
+        <div class="guess-status-card">
+          <span id="guess-avatar-stack" class="guess-avatar-stack"></span>
+          <span id="guess-status-text" class="guess-status-text"></span>
+          <span class="guess-connection">
+            <span id="guess-connection-dot" class="guess-dot"></span>
+            <span id="guess-connection-text">Connecting…</span>
           </span>
-          <button id="submit-btn" type="button">Submit guess</button>
         </div>
-        <div id="stage" class="stage">
-          <div class="baseline"></div>
-          <div id="object-a" class="obj">
-            <img id="object-a-img" alt="" />
-            <span class="obj-label" id="object-a-stage-label"></span>
+
+        <div class="guessing-body">
+          <p class="guess-instruction">
+            Reference: <span id="object-a-article"></span> <strong id="object-a-name"></strong> is <strong id="object-a-size"></strong>.
+            <br />
+            How big is <span id="object-b-article"></span> <strong id="object-b-name"></strong>?
+          </p>
+
+          <div class="guess-toolbar">
+            <span id="guess-readout">Your guess: - </span>
+            <span class="zoom-controls">
+              <button id="zoom-out" type="button" aria-label="Zoom out">
+                <svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="10.5" cy="10.5" r="7"></circle><line x1="8" y1="10.5" x2="13" y2="10.5"></line><line x1="20" y1="20" x2="15.5" y2="15.5"></line></svg>
+              </button>
+              <button id="zoom-in" type="button" aria-label="Zoom in">
+                <svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="10.5" cy="10.5" r="7"></circle><line x1="8" y1="10.5" x2="13" y2="10.5"></line><line x1="10.5" y1="8" x2="10.5" y2="13"></line><line x1="20" y1="20" x2="15.5" y2="15.5"></line></svg>
+              </button>
+            </span>
           </div>
-          <div id="object-b" class="obj">
-            <img id="object-b-img" alt="" />
-            <span class="obj-label" id="object-b-stage-label"></span>
-            <div id="resize-handle" class="resize-handle"></div>
+
+          <div id="stage" class="stage guessing-stage">
+            <div class="baseline"></div>
+            <div id="object-a" class="obj">
+              <span id="object-a-img" class="obj-visual"></span>
+              <span class="obj-label" id="object-a-stage-label"></span>
+            </div>
+            <div id="object-b" class="obj">
+              <span id="object-b-img" class="obj-visual"></span>
+              <span class="obj-label" id="object-b-stage-label"></span>
+              <div id="resize-handle" class="resize-handle"></div>
+            </div>
           </div>
+
+          <p id="waiting-message" class="waiting-message" hidden>
+            Guess submitted — waiting for other players…
+          </p>
+
+          <button id="submit-btn" class="guess-submit-btn" type="button">Submit guess</button>
         </div>
-        <p id="waiting-message" class="waiting-message" hidden>
-          Guess submitted — waiting for other players…
-        </p>
       </section>
 
       <section id="reveal-view" class="view" hidden>
@@ -105,10 +133,10 @@
             <span id="reveal-true-label"></span>
           </div>
           <div id="reveal-object-b-guess" class="obj obj-guess">
-            <img id="reveal-guess-img" alt="" />
+            <span id="reveal-guess-img" class="obj-visual"></span>
           </div>
           <div id="reveal-object-b-true" class="obj obj-true">
-            <img id="reveal-true-img" alt="" />
+            <span id="reveal-true-img" class="obj-visual"></span>
           </div>
         </div>
         <p id="reveal-summary"></p>

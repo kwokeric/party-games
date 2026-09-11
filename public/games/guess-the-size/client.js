@@ -22,8 +22,17 @@ const startBtn = el("start-btn");
 const readyBtn = el("ready-btn");
 const lobbyWaitingEl = el("lobby-waiting");
 
+const guessBackBtn = el("guess-back-btn");
+const guessRoomCodeEl = el("guess-room-code");
+const guessAvatarStackEl = el("guess-avatar-stack");
+const guessStatusTextEl = el("guess-status-text");
+const guessConnectionDotEl = el("guess-connection-dot");
+const guessConnectionTextEl = el("guess-connection-text");
+
+const objectAArticleEl = el("object-a-article");
 const objectANameEl = el("object-a-name");
 const objectASizeEl = el("object-a-size");
+const objectBArticleEl = el("object-b-article");
 const objectBNameEl = el("object-b-name");
 const objectAImg = el("object-a-img");
 const objectBImg = el("object-b-img");
@@ -47,6 +56,7 @@ const playAgainBtn = el("play-again-btn");
 
 roomCodeEl.textContent = room ?? "(none)";
 lobbyRoomCodeEl.textContent = room ?? "(none)";
+guessRoomCodeEl.textContent = room ?? "(none)";
 
 let myId = null;
 let players = [];
@@ -56,6 +66,10 @@ let guessLength = 1;
 let zoom = 1;
 let basePxPerMeter = 100;
 let hasSubmitted = false;
+
+function article(name) {
+  return /^[aeiou]/i.test(name) ? "an" : "a";
+}
 
 function formatMeters(m) {
   if (m < 1) return `${m.toFixed(3)} m`;
@@ -67,10 +81,11 @@ function showView(view) {
   lobbyView.hidden = view !== "lobby";
   guessingView.hidden = view !== "guessing";
   revealView.hidden = view !== "reveal";
-  // The shared header/player-pill bar is only used during guessing/reveal;
-  // the lobby view has its own banner and player list.
-  gameHeaderEl.hidden = view === "lobby";
-  playersPanelEl.hidden = view === "lobby";
+  // The shared dark header/player-pill bar is only still used by the
+  // (not yet redesigned) reveal view — lobby and guessing each have
+  // their own banner and player list now.
+  gameHeaderEl.hidden = view !== "reveal";
+  playersPanelEl.hidden = view !== "reveal";
 }
 
 function isHost() {
@@ -105,6 +120,16 @@ function renderPlayers() {
     lobbyPlayerListEl.appendChild(li);
   }
 
+  guessAvatarStackEl.innerHTML = "";
+  for (const p of players) {
+    const span = document.createElement("span");
+    span.className = "guess-avatar";
+    span.textContent = p.name.trim().charAt(0) || "?";
+    guessAvatarStackEl.appendChild(span);
+  }
+  const guessedCount = players.filter((p) => p.hasGuessed).length;
+  guessStatusTextEl.textContent = `${guessedCount} of ${players.length} guessed`;
+
   playAgainBtn.hidden = !isHost();
 
   if (phase === "lobby") {
@@ -122,6 +147,27 @@ function renderPlayers() {
   }
 }
 
+// <img src="object.svg"> can't have its `currentColor` styled by CSS on
+// the page (the SVG is an isolated document as far as color inheritance
+// goes), which is why objects used to render solid black regardless of
+// the `color` set on their container. Inlining the SVG markup directly
+// into the DOM instead makes `currentColor` resolve normally.
+const svgTextCache = new Map();
+
+async function loadSvgText(url) {
+  if (!svgTextCache.has(url)) {
+    svgTextCache.set(
+      url,
+      fetch(url).then((res) => res.text())
+    );
+  }
+  return svgTextCache.get(url);
+}
+
+async function setObjectVisual(container, url) {
+  container.innerHTML = await loadSvgText(url);
+}
+
 function sizeStyle(pxPerMeter, obj, length_m) {
   const px = Math.max(4, length_m * pxPerMeter);
   return obj.axis === "width"
@@ -129,28 +175,56 @@ function sizeStyle(pxPerMeter, obj, length_m) {
     : { width: "auto", height: `${px}px` };
 }
 
-function applySize(img, style) {
-  img.style.width = style.width;
-  img.style.height = style.height;
+function applySize(container, style) {
+  const svg = container.querySelector("svg");
+  if (!svg) return;
+  svg.style.width = style.width;
+  svg.style.height = style.height;
 }
 
 function renderObjectA() {
   if (!round) return;
-  objectAImg.src = round.objectA.svg;
   applySize(objectAImg, sizeStyle(basePxPerMeter * zoom, round.objectA, round.objectA.length_m));
   objectAStageLabel.textContent = round.objectA.name;
 }
 
 function renderObjectB() {
   if (!round) return;
-  objectBImg.src = round.objectB.svg;
   applySize(objectBImg, sizeStyle(basePxPerMeter * zoom, round.objectB, guessLength));
   objectBStageLabel.textContent = round.objectB.name;
   resizeHandle.className = `resize-handle axis-${round.objectB.axis}`;
   guessReadout.textContent = `Your guess: ${formatMeters(guessLength)}`;
 }
 
-function startGuessing(objectA, objectB) {
+// Object B starts just to the right of wherever object A actually ends,
+// rather than a fixed offset, so a small reference object leaves more
+// room to drag before running off the visible stage.
+function positionObjectB() {
+  const stageRect = stage.getBoundingClientRect();
+  const aRect = el("object-a").getBoundingClientRect();
+  const gap = 24;
+  el("object-b").style.left = `${aRect.right - stageRect.left + gap}px`;
+}
+
+// Keeps the larger of the two objects within a comfortable size on
+// screen by zooming out (never in) — called after the user lets go of
+// the drag handle, since a big drag can otherwise leave the object
+// towering off the visible stage.
+const STAGE_FIT_PX = 300;
+
+function autoFitZoom() {
+  if (!round) return;
+  const aPx = round.objectA.length_m * basePxPerMeter * zoom;
+  const bPx = guessLength * basePxPerMeter * zoom;
+  const largest = Math.max(aPx, bPx);
+  if (largest <= STAGE_FIT_PX) return;
+  zoom = Math.max(0.2, zoom * (STAGE_FIT_PX / largest));
+  renderObjectA();
+  renderObjectB();
+  positionObjectB();
+}
+
+async function startGuessing(objectA, objectB) {
   round = { objectA, objectB };
   phase = "guessing";
   hasSubmitted = false;
@@ -158,20 +232,29 @@ function startGuessing(objectA, objectB) {
   zoom = 1;
   basePxPerMeter = 140 / objectA.length_m;
 
+  objectAArticleEl.textContent = article(objectA.name);
   objectANameEl.textContent = objectA.name;
   objectASizeEl.textContent = formatMeters(objectA.length_m);
+  objectBArticleEl.textContent = article(objectB.name);
   objectBNameEl.textContent = objectB.name;
 
   submitBtn.disabled = false;
   submitBtn.textContent = "Submit guess";
   waitingMessage.hidden = true;
 
+  await Promise.all([
+    setObjectVisual(objectAImg, objectA.svg),
+    setObjectVisual(objectBImg, objectB.svg),
+  ]);
   renderObjectA();
   renderObjectB();
+  // positionObjectB() measures object A's rendered box, which only has
+  // real layout once the (currently hidden) guessing view is shown.
   showView("guessing");
+  positionObjectB();
 }
 
-function showReveal(objectBTrueLength_m, guesses) {
+async function showReveal(objectBTrueLength_m, guesses) {
   phase = "reveal";
   if (!round) return;
 
@@ -181,10 +264,11 @@ function showReveal(objectBTrueLength_m, guesses) {
   const largest = Math.max(myGuess, objectBTrueLength_m);
   const revealPxPerMeter = 220 / largest;
 
-  revealGuessImg.src = round.objectB.svg;
+  await Promise.all([
+    setObjectVisual(revealGuessImg, round.objectB.svg),
+    setObjectVisual(revealTrueImg, round.objectB.svg),
+  ]);
   applySize(revealGuessImg, sizeStyle(revealPxPerMeter, round.objectB, myGuess));
-
-  revealTrueImg.src = round.objectB.svg;
   applySize(revealTrueImg, sizeStyle(revealPxPerMeter, round.objectB, objectBTrueLength_m));
 
   if (round.objectB.axis === "width") {
@@ -246,19 +330,22 @@ function endDrag() {
   if (!dragging) return;
   dragging = false;
   resizeHandle.classList.remove("dragging");
+  autoFitZoom();
 }
 resizeHandle.addEventListener("pointerup", endDrag);
 resizeHandle.addEventListener("pointercancel", endDrag);
 
 zoomInBtn.addEventListener("click", () => {
-  zoom = Math.min(5, zoom * 1.25);
+  zoom = Math.min(5, zoom * 2);
   renderObjectA();
   renderObjectB();
+  positionObjectB();
 });
 zoomOutBtn.addEventListener("click", () => {
-  zoom = Math.max(0.2, zoom / 1.25);
+  zoom = Math.max(0.2, zoom * 0.75);
   renderObjectA();
   renderObjectB();
+  positionObjectB();
 });
 
 submitBtn.addEventListener("click", () => {
@@ -280,6 +367,9 @@ readyBtn.addEventListener("click", () => {
   socket.send(JSON.stringify({ type: "ready" }));
 });
 backBtn.addEventListener("click", () => {
+  location.href = "/";
+});
+guessBackBtn.addEventListener("click", () => {
   location.href = "/";
 });
 copyCodeBtn.addEventListener("click", async () => {
@@ -312,10 +402,14 @@ if (!room) {
 
   socket.addEventListener("open", () => {
     statusEl.textContent = "Connected.";
+    guessConnectionDotEl.className = "guess-dot connected";
+    guessConnectionTextEl.textContent = "Connected";
   });
 
   socket.addEventListener("close", () => {
     statusEl.textContent = "Disconnected.";
+    guessConnectionDotEl.className = "guess-dot disconnected";
+    guessConnectionTextEl.textContent = "Disconnected";
   });
 
   socket.addEventListener("message", (event) => {
