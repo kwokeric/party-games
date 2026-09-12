@@ -6,7 +6,8 @@
     "measured": "body length (7-9cm range, midpoint used)",
     "svg": "objects/ruby-throated-hummingbird.svg",
     "axis": "width",
-    "source": "https://en.wikipedia.org/wiki/Ruby-throated_hummingbird"
+    "source": "https://en.wikipedia.org/wiki/Ruby-throated_hummingbird",
+    "category": "animal"
   },
   {
     "id": "iphone-16-pro",
@@ -15,7 +16,8 @@
     "measured": "height",
     "svg": "objects/iphone-16-pro.svg",
     "axis": "height",
-    "source": "https://en.wikipedia.org/wiki/IPhone_16_Pro"
+    "source": "https://en.wikipedia.org/wiki/IPhone_16_Pro",
+    "category": "object"
   },
   {
     "id": "basketball",
@@ -24,7 +26,8 @@
     "measured": "diameter (NBA/FIBA size 7)",
     "svg": "objects/basketball.svg",
     "axis": "width",
-    "source": "https://en.wikipedia.org/wiki/Basketball_(ball)"
+    "source": "https://en.wikipedia.org/wiki/Basketball_(ball)",
+    "category": "sports"
   },
   {
     "id": "skateboard",
@@ -33,7 +36,8 @@
     "measured": "deck length (common popsicle-deck size)",
     "svg": "objects/skateboard.svg",
     "axis": "width",
-    "source": "https://en.wikipedia.org/wiki/Skateboard"
+    "source": "https://en.wikipedia.org/wiki/Skateboard",
+    "category": "sports"
   },
   {
     "id": "king-size-bed",
@@ -42,7 +46,8 @@
     "measured": "length",
     "svg": "objects/king-size-bed.svg",
     "axis": "width",
-    "source": "https://en.wikipedia.org/wiki/Bed_size"
+    "source": "https://en.wikipedia.org/wiki/Bed_size",
+    "category": "object"
   },
   {
     "id": "red-telephone-box",
@@ -51,7 +56,8 @@
     "measured": "height",
     "svg": "objects/red-telephone-box.svg",
     "axis": "height",
-    "source": "https://en.wikipedia.org/wiki/Red_telephone_box"
+    "source": "https://en.wikipedia.org/wiki/Red_telephone_box",
+    "category": "object"
   },
   {
     "id": "grand-piano",
@@ -60,7 +66,8 @@
     "measured": "length (~9ft concert grand, within cited 2.2-3m range)",
     "svg": "objects/grand-piano.svg",
     "axis": "width",
-    "source": "https://en.wikipedia.org/wiki/Grand_piano"
+    "source": "https://en.wikipedia.org/wiki/Grand_piano",
+    "category": "object"
   },
   {
     "id": "saltwater-crocodile",
@@ -69,7 +76,8 @@
     "measured": "body length (adult male average, 4.0-4.5m range)",
     "svg": "objects/saltwater-crocodile.svg",
     "axis": "width",
-    "source": "https://en.wikipedia.org/wiki/Saltwater_crocodile"
+    "source": "https://en.wikipedia.org/wiki/Saltwater_crocodile",
+    "category": "animal"
   },
   {
     "id": "giraffe",
@@ -78,7 +86,8 @@
     "measured": "height (fully grown, 4.3-5.7m range)",
     "svg": "objects/giraffe.svg",
     "axis": "height",
-    "source": "https://en.wikipedia.org/wiki/Giraffe"
+    "source": "https://en.wikipedia.org/wiki/Giraffe",
+    "category": "animal"
   },
   {
     "id": "shipping-container",
@@ -87,7 +96,8 @@
     "measured": "external length",
     "svg": "objects/shipping-container.svg",
     "axis": "width",
-    "source": "https://en.wikipedia.org/wiki/Intermodal_container"
+    "source": "https://en.wikipedia.org/wiki/Intermodal_container",
+    "category": "object"
   },
   {
     "id": "school-bus",
@@ -96,7 +106,8 @@
     "measured": "length (US/Canada regulatory max)",
     "svg": "objects/school-bus.svg",
     "axis": "width",
-    "source": "https://en.wikipedia.org/wiki/School_bus"
+    "source": "https://en.wikipedia.org/wiki/School_bus",
+    "category": "vehicle"
   },
   {
     "id": "humpback-whale",
@@ -105,7 +116,8 @@
     "measured": "body length (adult, 14-15m typical range)",
     "svg": "objects/humpback-whale.svg",
     "axis": "width",
-    "source": "https://en.wikipedia.org/wiki/Humpback_whale"
+    "source": "https://en.wikipedia.org/wiki/Humpback_whale",
+    "category": "animal"
   },
   {
     "id": "boeing-737-800",
@@ -114,7 +126,8 @@
     "measured": "overall length",
     "svg": "objects/boeing-737-800.svg",
     "axis": "width",
-    "source": "https://en.wikipedia.org/wiki/Boeing_737_Next_Generation"
+    "source": "https://en.wikipedia.org/wiki/Boeing_737_Next_Generation",
+    "category": "vehicle"
   },
   {
     "id": "bowling-pin",
@@ -123,7 +136,8 @@
     "measured": "height (regulation ten-pin, 15in)",
     "svg": "objects/bowling-pin.svg",
     "axis": "height",
-    "source": "https://en.wikipedia.org/wiki/Bowling_pin"
+    "source": "https://en.wikipedia.org/wiki/Bowling_pin",
+    "category": "sports"
   },
   {
     "id": "traffic-cone",
@@ -132,7 +146,8 @@
     "measured": "height (common 18in outdoor size; sizes range 30cm-1m)",
     "svg": "objects/traffic-cone.svg",
     "axis": "height",
-    "source": "https://en.wikipedia.org/wiki/Traffic_cone"
+    "source": "https://en.wikipedia.org/wiki/Traffic_cone",
+    "category": "object"
   },
   {
     "id": "disco-ball",
@@ -141,7 +156,8 @@
     "measured": "diameter (common large-venue mirror ball size, 20in)",
     "svg": "objects/disco-ball.svg",
     "axis": "width",
-    "source": "https://mobiledjbasics.com/disco-ball/"
+    "source": "https://mobiledjbasics.com/disco-ball/",
+    "category": "object"
   },
   {
     "id": "red-panda",
@@ -150,7 +166,8 @@
     "measured": "head-body length, excludes tail (51-63.5cm range)",
     "svg": "objects/red-panda.svg",
     "axis": "width",
-    "source": "https://en.wikipedia.org/wiki/Red_panda"
+    "source": "https://en.wikipedia.org/wiki/Red_panda",
+    "category": "animal"
   },
   {
     "id": "greater-flamingo",
@@ -159,7 +176,8 @@
     "measured": "height (adult, 1.1-1.5m range)",
     "svg": "objects/greater-flamingo.svg",
     "axis": "height",
-    "source": "https://en.wikipedia.org/wiki/Greater_flamingo"
+    "source": "https://en.wikipedia.org/wiki/Greater_flamingo",
+    "category": "animal"
   },
   {
     "id": "emu",
@@ -168,7 +186,8 @@
     "measured": "height (adult, 1.5-1.9m range)",
     "svg": "objects/emu.svg",
     "axis": "height",
-    "source": "https://en.wikipedia.org/wiki/Emu"
+    "source": "https://en.wikipedia.org/wiki/Emu",
+    "category": "animal"
   },
   {
     "id": "pool-table",
@@ -177,7 +196,8 @@
     "measured": "playing surface length (regulation tournament size)",
     "svg": "objects/pool-table.svg",
     "axis": "width",
-    "source": "https://en.wikipedia.org/wiki/Pool_table"
+    "source": "https://en.wikipedia.org/wiki/Pool_table",
+    "category": "object"
   },
   {
     "id": "komodo-dragon",
@@ -186,7 +206,8 @@
     "measured": "body length (average adult male)",
     "svg": "objects/komodo-dragon.svg",
     "axis": "width",
-    "source": "https://en.wikipedia.org/wiki/Komodo_dragon"
+    "source": "https://en.wikipedia.org/wiki/Komodo_dragon",
+    "category": "animal"
   },
   {
     "id": "walrus",
@@ -195,7 +216,8 @@
     "measured": "body length (adult, 2.2-3.5m range)",
     "svg": "objects/walrus.svg",
     "axis": "width",
-    "source": "https://en.wikipedia.org/wiki/Walrus"
+    "source": "https://en.wikipedia.org/wiki/Walrus",
+    "category": "animal"
   },
   {
     "id": "trampoline",
@@ -204,7 +226,8 @@
     "measured": "frame diameter (common backyard round size)",
     "svg": "objects/trampoline.svg",
     "axis": "width",
-    "source": "https://www.trampolines.com/blogs/trampoline-news/12-foot-vs-14-foot-trampolines"
+    "source": "https://www.trampolines.com/blogs/trampoline-news/12-foot-vs-14-foot-trampolines",
+    "category": "object"
   },
   {
     "id": "african-elephant",
@@ -213,7 +236,8 @@
     "measured": "shoulder height (mature male average)",
     "svg": "objects/african-elephant.svg",
     "axis": "height",
-    "source": "https://en.wikipedia.org/wiki/African_bush_elephant"
+    "source": "https://en.wikipedia.org/wiki/African_bush_elephant",
+    "category": "animal"
   },
   {
     "id": "great-white-shark",
@@ -222,7 +246,8 @@
     "measured": "body length (mature female average, 4.6-4.9m range)",
     "svg": "objects/great-white-shark.svg",
     "axis": "width",
-    "source": "https://en.wikipedia.org/wiki/Great_white_shark"
+    "source": "https://en.wikipedia.org/wiki/Great_white_shark",
+    "category": "animal"
   },
   {
     "id": "olympic-diving-platform",
@@ -231,7 +256,8 @@
     "measured": "platform height above water (10m, FINA/Olympic regulation)",
     "svg": "objects/olympic-diving-platform.svg",
     "axis": "height",
-    "source": "https://en.wikipedia.org/wiki/Platform_diving"
+    "source": "https://en.wikipedia.org/wiki/Platform_diving",
+    "category": "sports"
   },
   {
     "id": "hot-air-balloon",
@@ -240,7 +266,8 @@
     "measured": "envelope height (standard passenger balloon, ~70ft)",
     "svg": "objects/hot-air-balloon.svg",
     "axis": "height",
-    "source": "https://sonomaballooning.com/how-big-is-a-hot-air-balloon/"
+    "source": "https://sonomaballooning.com/how-big-is-a-hot-air-balloon/",
+    "category": "vehicle"
   },
   {
     "id": "blue-whale",
@@ -249,7 +276,8 @@
     "measured": "body length (adult average ~24m; populations range 21-27m)",
     "svg": "objects/blue-whale.svg",
     "axis": "width",
-    "source": "https://en.wikipedia.org/wiki/Blue_whale"
+    "source": "https://en.wikipedia.org/wiki/Blue_whale",
+    "category": "animal"
   },
   {
     "id": "london-eye",
@@ -258,7 +286,8 @@
     "measured": "wheel diameter",
     "svg": "objects/london-eye.svg",
     "axis": "width",
-    "source": "https://en.wikipedia.org/wiki/London_Eye"
+    "source": "https://en.wikipedia.org/wiki/London_Eye",
+    "category": "landmark"
   },
   {
     "id": "hedgehog",
@@ -267,7 +296,8 @@
     "measured": "head-body length (adult, 16-26cm+ range)",
     "svg": "objects/hedgehog.svg",
     "axis": "width",
-    "source": "https://en.wikipedia.org/wiki/European_hedgehog"
+    "source": "https://en.wikipedia.org/wiki/European_hedgehog",
+    "category": "animal"
   },
   {
     "id": "alpaca",
@@ -276,7 +306,8 @@
     "measured": "height at shoulder (adult, 81-99cm range)",
     "svg": "objects/alpaca.svg",
     "axis": "height",
-    "source": "https://en.wikipedia.org/wiki/Alpaca"
+    "source": "https://en.wikipedia.org/wiki/Alpaca",
+    "category": "animal"
   },
   {
     "id": "whiteleg-shrimp",
@@ -285,7 +316,8 @@
     "measured": "body length (max, whiteleg/Pacific white shrimp)",
     "svg": "objects/whiteleg-shrimp.svg",
     "axis": "width",
-    "source": "https://en.wikipedia.org/wiki/Whiteleg_shrimp"
+    "source": "https://en.wikipedia.org/wiki/Whiteleg_shrimp",
+    "category": "animal"
   },
   {
     "id": "goliath-frog",
@@ -294,7 +326,8 @@
     "measured": "snout-vent length (large adult; up to 45cm max)",
     "svg": "objects/goliath-frog.svg",
     "axis": "width",
-    "source": "https://en.wikipedia.org/wiki/Goliath_frog"
+    "source": "https://en.wikipedia.org/wiki/Goliath_frog",
+    "category": "animal"
   },
   {
     "id": "capuchin-monkey",
@@ -303,7 +336,8 @@
     "measured": "body length, excludes tail (adult, 30-56cm range)",
     "svg": "objects/capuchin-monkey.svg",
     "axis": "width",
-    "source": "https://en.wikipedia.org/wiki/Capuchin_monkey"
+    "source": "https://en.wikipedia.org/wiki/Capuchin_monkey",
+    "category": "animal"
   },
   {
     "id": "humpback-anglerfish",
@@ -312,7 +346,8 @@
     "measured": "body length (female, up to 15.3cm)",
     "svg": "objects/humpback-anglerfish.svg",
     "axis": "width",
-    "source": "https://en.wikipedia.org/wiki/Humpback_anglerfish"
+    "source": "https://en.wikipedia.org/wiki/Humpback_anglerfish",
+    "category": "animal"
   },
   {
     "id": "coconut-crab",
@@ -321,7 +356,8 @@
     "measured": "leg span (up to 0.91m+)",
     "svg": "objects/coconut-crab.svg",
     "axis": "width",
-    "source": "https://en.wikipedia.org/wiki/Coconut_crab"
+    "source": "https://en.wikipedia.org/wiki/Coconut_crab",
+    "category": "animal"
   },
   {
     "id": "green-sea-turtle",
@@ -330,7 +366,8 @@
     "measured": "carapace length (adult average, 78-112cm range)",
     "svg": "objects/green-sea-turtle.svg",
     "axis": "width",
-    "source": "https://en.wikipedia.org/wiki/Green_sea_turtle"
+    "source": "https://en.wikipedia.org/wiki/Green_sea_turtle",
+    "category": "animal"
   },
   {
     "id": "giant-oceanic-manta-ray",
@@ -339,7 +376,8 @@
     "measured": "disc width (typical; up to 7m max)",
     "svg": "objects/giant-oceanic-manta-ray.svg",
     "axis": "width",
-    "source": "https://en.wikipedia.org/wiki/Giant_oceanic_manta_ray"
+    "source": "https://en.wikipedia.org/wiki/Giant_oceanic_manta_ray",
+    "category": "animal"
   },
   {
     "id": "giant-squid",
@@ -348,7 +386,8 @@
     "measured": "total length incl. tentacles (female, 12-13m range)",
     "svg": "objects/giant-squid.svg",
     "axis": "height",
-    "source": "https://en.wikipedia.org/wiki/Giant_squid"
+    "source": "https://en.wikipedia.org/wiki/Giant_squid",
+    "category": "animal"
   },
   {
     "id": "wild-turkey",
@@ -357,7 +396,8 @@
     "measured": "body length (adult male, 100-125cm range)",
     "svg": "objects/wild-turkey.svg",
     "axis": "width",
-    "source": "https://en.wikipedia.org/wiki/Wild_turkey"
+    "source": "https://en.wikipedia.org/wiki/Wild_turkey",
+    "category": "animal"
   },
   {
     "id": "trex-skull",
@@ -366,7 +406,8 @@
     "measured": "skull length (\"Sue\" specimen, one of the largest known)",
     "svg": "objects/trex-skull.svg",
     "axis": "width",
-    "source": "https://en.wikipedia.org/wiki/Sue_(dinosaur)"
+    "source": "https://en.wikipedia.org/wiki/Sue_(dinosaur)",
+    "category": "object"
   },
   {
     "id": "white-house",
@@ -375,7 +416,8 @@
     "measured": "building length (168ft)",
     "svg": "objects/white-house.svg",
     "axis": "width",
-    "source": "https://www.whitehousehistory.org/press-room/press-backgrounders/white-house-dimensions"
+    "source": "https://www.whitehousehistory.org/press-room/press-backgrounders/white-house-dimensions",
+    "category": "landmark"
   },
   {
     "id": "space-shuttle",
@@ -384,7 +426,8 @@
     "measured": "orbiter length (overall)",
     "svg": "objects/space-shuttle.svg",
     "axis": "height",
-    "source": "https://en.wikipedia.org/wiki/Space_Shuttle_orbiter"
+    "source": "https://en.wikipedia.org/wiki/Space_Shuttle_orbiter",
+    "category": "vehicle"
   },
   {
     "id": "golf-ball",
@@ -393,7 +436,8 @@
     "measured": "diameter (USGA/R&A minimum conforming diameter)",
     "svg": "objects/golf-ball.svg",
     "axis": "width",
-    "source": "https://en.wikipedia.org/wiki/Golf_ball"
+    "source": "https://en.wikipedia.org/wiki/Golf_ball",
+    "category": "sports"
   },
   {
     "id": "rubiks-cube",
@@ -402,7 +446,8 @@
     "measured": "edge length (standard 3x3x3 cube)",
     "svg": "objects/rubiks-cube.svg",
     "axis": "width",
-    "source": "https://en.wikipedia.org/wiki/Rubik%27s_Cube"
+    "source": "https://en.wikipedia.org/wiki/Rubik%27s_Cube",
+    "category": "object"
   },
   {
     "id": "praying-mantis",
@@ -411,7 +456,8 @@
     "measured": "body length (European mantis, females 6-8cm range, midpoint used)",
     "svg": "objects/praying-mantis.svg",
     "axis": "width",
-    "source": "https://en.wikipedia.org/wiki/Mantis_religiosa"
+    "source": "https://en.wikipedia.org/wiki/Mantis_religiosa",
+    "category": "animal"
   },
   {
     "id": "chess-king",
@@ -420,7 +466,8 @@
     "measured": "height (FIDE-recommended Staunton tournament king height, 3.75in/95mm)",
     "svg": "objects/chess-king.svg",
     "axis": "height",
-    "source": "https://www.houseofstaunton.com/blogs/general/chess-piece-sizes"
+    "source": "https://www.houseofstaunton.com/blogs/general/chess-piece-sizes",
+    "category": "object"
   },
   {
     "id": "soccer-ball",
@@ -429,7 +476,8 @@
     "measured": "diameter (calculated from FIFA circumference spec of 68-70cm, midpoint)",
     "svg": "objects/soccer-ball.svg",
     "axis": "width",
-    "source": "https://en.wikipedia.org/wiki/Football_(ball)"
+    "source": "https://en.wikipedia.org/wiki/Football_(ball)",
+    "category": "sports"
   },
   {
     "id": "vinyl-record",
@@ -438,7 +486,8 @@
     "measured": "diameter (12-inch LP standard, 11-7/8in ± 1/32in)",
     "svg": "objects/vinyl-record.svg",
     "axis": "width",
-    "source": "https://en.wikipedia.org/wiki/Phonograph_record"
+    "source": "https://en.wikipedia.org/wiki/Phonograph_record",
+    "category": "object"
   },
   {
     "id": "saxophone-alto",
@@ -447,7 +496,8 @@
     "measured": "overall length (with neck and mouthpiece attached)",
     "svg": "objects/saxophone-alto.svg",
     "axis": "height",
-    "source": "https://saxtalk.com/describe-the-typical-weight-and-dimensions-of-the-most-common-saxophones-soprano-alto-tenor-and-baritone.html"
+    "source": "https://saxtalk.com/describe-the-typical-weight-and-dimensions-of-the-most-common-saxophones-soprano-alto-tenor-and-baritone.html",
+    "category": "object"
   },
   {
     "id": "bald-eagle",
@@ -456,7 +506,8 @@
     "measured": "wingspan (1.8-2.3m range, midpoint used)",
     "svg": "objects/bald-eagle.svg",
     "axis": "width",
-    "source": "https://en.wikipedia.org/wiki/Bald_eagle"
+    "source": "https://en.wikipedia.org/wiki/Bald_eagle",
+    "category": "animal"
   },
   {
     "id": "acoustic-guitar",
@@ -465,7 +516,8 @@
     "measured": "overall length (standard dreadnought, 38-40in range, midpoint used)",
     "svg": "objects/acoustic-guitar.svg",
     "axis": "height",
-    "source": "https://www.guitarchalk.com/acoustic-guitar-dimensions/"
+    "source": "https://www.guitarchalk.com/acoustic-guitar-dimensions/",
+    "category": "object"
   },
   {
     "id": "open-umbrella",
@@ -474,7 +526,8 @@
     "measured": "open canopy diameter (standard walking umbrella, 42-48in/107-122cm range, midpoint used)",
     "svg": "objects/open-umbrella.svg",
     "axis": "width",
-    "source": "https://artisanumbrellas.com/blogs/journal/umbrella-size-guide-what-canopy-diameter-do-you-actually-need-inches-cm"
+    "source": "https://artisanumbrellas.com/blogs/journal/umbrella-size-guide-what-canopy-diameter-do-you-actually-need-inches-cm",
+    "category": "object"
   },
   {
     "id": "sunflower",
@@ -483,7 +536,8 @@
     "measured": "stem height (cultivated common sunflower, typical mature height)",
     "svg": "objects/sunflower.svg",
     "axis": "height",
-    "source": "https://en.wikipedia.org/wiki/Helianthus_annuus"
+    "source": "https://en.wikipedia.org/wiki/Helianthus_annuus",
+    "category": "nature"
   },
   {
     "id": "vw-beetle",
@@ -492,7 +546,8 @@
     "measured": "overall length (original air-cooled Beetle, 4079-4140mm range, midpoint used)",
     "svg": "objects/vw-beetle.svg",
     "axis": "width",
-    "source": "https://en.wikipedia.org/wiki/Volkswagen_Beetle"
+    "source": "https://en.wikipedia.org/wiki/Volkswagen_Beetle",
+    "category": "vehicle"
   },
   {
     "id": "green-anaconda",
@@ -501,7 +556,8 @@
     "measured": "body length (longest scientifically verified specimen; typical mature female average ~4.6m)",
     "svg": "objects/green-anaconda.svg",
     "axis": "width",
-    "source": "https://en.wikipedia.org/wiki/Green_anaconda"
+    "source": "https://en.wikipedia.org/wiki/Green_anaconda",
+    "category": "animal"
   },
   {
     "id": "orca",
@@ -510,7 +566,8 @@
     "measured": "body length (adult male typical range 6-8m, midpoint used)",
     "svg": "objects/orca.svg",
     "axis": "width",
-    "source": "https://en.wikipedia.org/wiki/Orca"
+    "source": "https://en.wikipedia.org/wiki/Orca",
+    "category": "animal"
   },
   {
     "id": "stretch-limousine",
@@ -519,7 +576,8 @@
     "measured": "length (standard stretch limousine, commonly 25-30ft range; 30ft used)",
     "svg": "objects/stretch-limousine.svg",
     "axis": "width",
-    "source": "https://nationallimoservices.com/how-long-is-a-limousine/"
+    "source": "https://nationallimoservices.com/how-long-is-a-limousine/",
+    "category": "vehicle"
   },
   {
     "id": "double-decker-bus",
@@ -528,7 +586,8 @@
     "measured": "overall length (New Routemaster, current London double-decker)",
     "svg": "objects/double-decker-bus.svg",
     "axis": "width",
-    "source": "https://en.wikipedia.org/wiki/New_Routemaster"
+    "source": "https://en.wikipedia.org/wiki/New_Routemaster",
+    "category": "vehicle"
   },
   {
     "id": "t-rex",
@@ -537,7 +596,8 @@
     "measured": "body length (specimen \"Sue\", one of the most complete known skeletons)",
     "svg": "objects/t-rex.svg",
     "axis": "width",
-    "source": "https://en.wikipedia.org/wiki/Tyrannosaurus"
+    "source": "https://en.wikipedia.org/wiki/Tyrannosaurus",
+    "category": "animal"
   },
   {
     "id": "sperm-whale",
@@ -546,7 +606,8 @@
     "measured": "body length (adult male average)",
     "svg": "objects/sperm-whale.svg",
     "axis": "width",
-    "source": "https://en.wikipedia.org/wiki/Sperm_whale"
+    "source": "https://en.wikipedia.org/wiki/Sperm_whale",
+    "category": "animal"
   },
   {
     "id": "statue-of-liberty",
@@ -555,7 +616,8 @@
     "measured": "height (ground level to tip of torch)",
     "svg": "objects/statue-of-liberty.svg",
     "axis": "height",
-    "source": "https://en.wikipedia.org/wiki/Statue_of_Liberty"
+    "source": "https://en.wikipedia.org/wiki/Statue_of_Liberty",
+    "category": "landmark"
   },
   {
     "id": "eiffel-tower",
@@ -564,7 +626,8 @@
     "measured": "height (including broadcasting antennas)",
     "svg": "objects/eiffel-tower.svg",
     "axis": "height",
-    "source": "https://en.wikipedia.org/wiki/Eiffel_Tower"
+    "source": "https://en.wikipedia.org/wiki/Eiffel_Tower",
+    "category": "landmark"
   },
   {
     "id": "helicopter",
@@ -573,7 +636,8 @@
     "measured": "overall length (Robinson R44, common civilian helicopter)",
     "svg": "objects/helicopter.svg",
     "axis": "width",
-    "source": "https://en.wikipedia.org/wiki/Robinson_R44"
+    "source": "https://en.wikipedia.org/wiki/Robinson_R44",
+    "category": "vehicle"
   },
   {
     "id": "yacht",
@@ -582,7 +646,8 @@
     "measured": "length (average superyacht, 50-60m typical range)",
     "svg": "objects/yacht.svg",
     "axis": "width",
-    "source": "https://blog.yatco.com/yacht-sizes/"
+    "source": "https://blog.yatco.com/yacht-sizes/",
+    "category": "vehicle"
   },
   {
     "id": "gondola",
@@ -591,7 +656,8 @@
     "measured": "length (traditional Venetian gondola, up to 11m)",
     "svg": "objects/gondola.svg",
     "axis": "width",
-    "source": "https://en.wikipedia.org/wiki/Gondola"
+    "source": "https://en.wikipedia.org/wiki/Gondola",
+    "category": "vehicle"
   },
   {
     "id": "snowmobile",
@@ -600,16 +666,18 @@
     "measured": "length (full-size snowmobile, 2.9-3.4m range)",
     "svg": "objects/snowmobile.svg",
     "axis": "width",
-    "source": "https://powersportsguide.com/snowmobile-dimensions/"
+    "source": "https://powersportsguide.com/snowmobile-dimensions/",
+    "category": "vehicle"
   },
   {
     "id": "motorcycle",
     "name": "Motorcycle",
-    "length_m": 2.0,
+    "length_m": 2,
     "measured": "length (typical street motorcycle)",
     "svg": "objects/motorcycle.svg",
     "axis": "width",
-    "source": "https://powersportsguide.com/average-motorcycle-dimensions/"
+    "source": "https://powersportsguide.com/average-motorcycle-dimensions/",
+    "category": "vehicle"
   },
   {
     "id": "football-helmet",
@@ -618,7 +686,8 @@
     "measured": "height (authentic full-size NFL helmet, ~11in)",
     "svg": "objects/football-helmet.svg",
     "axis": "height",
-    "source": "https://www.riddell.com/riddell/en/Open-Catalogue/Collectibles/NFL/Authentic-Full-Size/NFL-Shield-Authentic-Speedflex/p/000000000008058698"
+    "source": "https://www.riddell.com/riddell/en/Open-Catalogue/Collectibles/NFL/Authentic-Full-Size/NFL-Shield-Authentic-Speedflex/p/000000000008058698",
+    "category": "sports"
   },
   {
     "id": "golf-club",
@@ -627,7 +696,8 @@
     "measured": "length (standard men's driver, 45.5-45.75in range)",
     "svg": "objects/golf-club.svg",
     "axis": "height",
-    "source": "https://golf.com/gear/drivers/which-driver-length-should-you-play/"
+    "source": "https://golf.com/gear/drivers/which-driver-length-should-you-play/",
+    "category": "sports"
   },
   {
     "id": "maple-leaf",
@@ -636,7 +706,8 @@
     "measured": "leaf width (sugar maple, 8-20cm range)",
     "svg": "objects/maple-leaf.svg",
     "axis": "width",
-    "source": "https://mortonarb.org/plant-and-protect/trees-and-plants/sugar-maple/"
+    "source": "https://mortonarb.org/plant-and-protect/trees-and-plants/sugar-maple/",
+    "category": "nature"
   },
   {
     "id": "mexican-coke",
@@ -645,7 +716,8 @@
     "measured": "bottle height (12 fl oz Mexican Coca-Cola glass bottle)",
     "svg": "objects/mexican-coke.svg",
     "axis": "height",
-    "source": "https://getacademy.blog/coca-cola-bottle-measurements"
+    "source": "https://getacademy.blog/coca-cola-bottle-measurements",
+    "category": "food"
   },
   {
     "id": "pear",
@@ -654,7 +726,8 @@
     "measured": "length (medium pear, ~10-12cm typical)",
     "svg": "objects/pear.svg",
     "axis": "height",
-    "source": "https://specialtyproduce.com/produce/Bartlett_Pears_3341.php"
+    "source": "https://specialtyproduce.com/produce/Bartlett_Pears_3341.php",
+    "category": "food"
   },
   {
     "id": "apple",
@@ -663,7 +736,8 @@
     "measured": "diameter (medium apple, ~70mm grading standard)",
     "svg": "objects/apple.svg",
     "axis": "width",
-    "source": "https://www.researchgate.net/figure/Size-parameters-of-whole-apple-fruit-fruit-core-and-seed-of-different-cultivars-of_tbl1_316829619"
+    "source": "https://www.researchgate.net/figure/Size-parameters-of-whole-apple-fruit-fruit-core-and-seed-of-different-cultivars-of_tbl1_316829619",
+    "category": "food"
   },
   {
     "id": "light-bulb",
@@ -672,6 +746,167 @@
     "measured": "height (standard A19 bulb, ~4.1in)",
     "svg": "objects/light-bulb.svg",
     "axis": "height",
-    "source": "https://www.attainablehome.com/typical-a19-light-bulb-sizes-inches-and-cm/"
+    "source": "https://www.attainablehome.com/typical-a19-light-bulb-sizes-inches-and-cm/",
+    "category": "object"
+  },
+  {
+    "id": "excavator",
+    "name": "Excavator",
+    "length_m": 9.53,
+    "measured": "transport length (mid-size hydraulic excavator, e.g. Caterpillar 320)",
+    "svg": "objects/excavator.svg",
+    "axis": "width",
+    "source": "https://www.veritread.com/specs/construction/excavators/caterpillar/320",
+    "category": "vehicle"
+  },
+  {
+    "id": "mount-everest",
+    "name": "Mount Everest",
+    "length_m": 8848.86,
+    "measured": "elevation above sea level (official 2020 China-Nepal joint survey)",
+    "svg": "objects/mount-everest.svg",
+    "axis": "height",
+    "source": "https://kathmandupost.com/national/2020/12/08/it-s-official-mount-everest-is-8-848-86-metres-tall",
+    "category": "landmark"
+  },
+  {
+    "id": "empire-state-building",
+    "name": "Empire State Building",
+    "length_m": 443.2,
+    "measured": "height to tip (including antenna)",
+    "svg": "objects/empire-state-building.svg",
+    "axis": "height",
+    "source": "https://en.wikipedia.org/wiki/Empire_State_Building",
+    "category": "landmark"
+  },
+  {
+    "id": "taj-mahal",
+    "name": "Taj Mahal",
+    "length_m": 73,
+    "measured": "overall height",
+    "svg": "objects/taj-mahal.svg",
+    "axis": "height",
+    "source": "https://en.wikipedia.org/wiki/Taj_Mahal",
+    "category": "landmark"
+  },
+  {
+    "id": "leaning-tower-of-pisa",
+    "name": "Leaning Tower of Pisa",
+    "length_m": 55.86,
+    "measured": "height on the low side",
+    "svg": "objects/leaning-tower-of-pisa.svg",
+    "axis": "height",
+    "source": "https://en.wikipedia.org/wiki/Leaning_Tower_of_Pisa",
+    "category": "landmark"
+  },
+  {
+    "id": "colosseum",
+    "name": "Colosseum",
+    "length_m": 189,
+    "measured": "length (major axis of the elliptical outer wall)",
+    "svg": "objects/colosseum.svg",
+    "axis": "width",
+    "source": "https://visitingthecolosseum.com/how-big-is-the-colosseum/",
+    "category": "landmark"
+  },
+  {
+    "id": "burj-al-arab",
+    "name": "Burj Al Arab",
+    "length_m": 321,
+    "measured": "architectural height",
+    "svg": "objects/burj-al-arab.svg",
+    "axis": "height",
+    "category": "landmark",
+    "source": "https://en.wikipedia.org/wiki/Burj_Al_Arab"
+  },
+  {
+    "id": "sagrada-familia",
+    "name": "Sagrada Familia",
+    "length_m": 172.5,
+    "measured": "height (Tower of Jesus Christ, completed 2026)",
+    "svg": "objects/sagrada-familia.svg",
+    "axis": "height",
+    "category": "landmark",
+    "source": "https://www.catalannews.com/society-science/item/sagrada-familia-reaches-1725-metres"
+  },
+  {
+    "id": "golden-gate-bridge",
+    "name": "Golden Gate Bridge",
+    "length_m": 2737,
+    "measured": "total length",
+    "svg": "objects/golden-gate-bridge.svg",
+    "axis": "width",
+    "category": "landmark",
+    "source": "https://en.wikipedia.org/wiki/Golden_Gate_Bridge"
+  },
+  {
+    "id": "moai",
+    "name": "Moai Statue",
+    "length_m": 4,
+    "measured": "average height (Easter Island statues, 13ft typical)",
+    "svg": "objects/moai.svg",
+    "axis": "height",
+    "category": "landmark",
+    "source": "https://theculturetrip.com/south-america/chile/articles/easter-islands-moai-statues-8-things-you-always-wanted-to-know"
+  },
+  {
+    "id": "giant-wild-goose-pagoda",
+    "name": "Giant Wild Goose Pagoda",
+    "length_m": 64.517,
+    "measured": "height (7-story Tang dynasty pagoda, Xi'an)",
+    "svg": "objects/giant-wild-goose-pagoda.svg",
+    "axis": "height",
+    "category": "landmark",
+    "source": "https://en.wikipedia.org/wiki/Giant_Wild_Goose_Pagoda"
+  },
+  {
+    "id": "gherkin",
+    "name": "The Gherkin",
+    "length_m": 180,
+    "measured": "height (30 St Mary Axe, London)",
+    "svg": "objects/gherkin.svg",
+    "axis": "height",
+    "category": "landmark",
+    "source": "https://en.wikipedia.org/wiki/The_Gherkin"
+  },
+  {
+    "id": "croissant",
+    "name": "Croissant",
+    "length_m": 0.15,
+    "measured": "length (typical bakery croissant, 12-18cm range, midpoint used)",
+    "svg": "objects/croissant.svg",
+    "axis": "width",
+    "category": "food",
+    "source": "https://www.answers.com/food-ec/What_is_the_average_length_of_a_croissant"
+  },
+  {
+    "id": "costco-hot-dog",
+    "name": "Costco Food Court Hot Dog",
+    "length_m": 0.2095,
+    "measured": "length (8.25in)",
+    "svg": "objects/costco-hot-dog.svg",
+    "axis": "width",
+    "category": "food",
+    "source": "https://thegrubbypuppy.com/how-long-is-a-costco-hot-dog/"
+  },
+  {
+    "id": "can-of-soda",
+    "name": "Can of Soda",
+    "length_m": 0.122,
+    "measured": "height (standard 12oz/355ml aluminum can)",
+    "svg": "objects/can-of-soda.svg",
+    "axis": "height",
+    "category": "food",
+    "source": "https://www.dimensions.com/element/beverage-can-12-oz"
+  },
+  {
+    "id": "2l-bottle-of-soda",
+    "name": "2L Bottle of Soda",
+    "length_m": 0.315,
+    "measured": "height (standard 2-liter PET bottle)",
+    "svg": "objects/2l-bottle-of-soda.svg",
+    "axis": "height",
+    "category": "food",
+    "source": "https://www.dimensions.com/element/soda-bottle-2-liter"
   }
 ]

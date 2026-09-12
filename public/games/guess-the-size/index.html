@@ -11,6 +11,7 @@
     <link rel="stylesheet" href="./lobby.css" />
     <link rel="stylesheet" href="./guessing.css" />
     <link rel="stylesheet" href="./reveal.css" />
+    <link rel="stylesheet" href="./final.css" />
   </head>
   <body>
     <main class="page game-page">
@@ -125,13 +126,15 @@
           <div class="guess-room-pill" id="reveal-room-code">-</div>
         </div>
 
-        <div class="guess-status-card">
-          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#3fb27f" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="9"></circle><polyline points="8 12 11 15 16 9"></polyline></svg>
-          <span class="reveal-status-text">Round complete</span>
-          <span class="guess-connection">
-            <span id="reveal-connection-dot" class="guess-dot"></span>
-            <span id="reveal-connection-text">Connecting…</span>
-          </span>
+        <div class="guess-status-card reveal-status-card">
+          <div class="reveal-status-top">
+            <span class="reveal-round-label" id="reveal-round-label">Round 1 of 10</span>
+            <span class="guess-connection">
+              <span id="reveal-connection-dot" class="guess-dot"></span>
+              <span id="reveal-connection-text">Connecting…</span>
+            </span>
+          </div>
+          <div class="round-track" id="reveal-round-track"></div>
         </div>
 
         <div class="reveal-body">
@@ -146,6 +149,7 @@
             <div id="reveal-object-b-true" class="obj obj-true">
               <span id="reveal-true-img" class="obj-visual"></span>
             </div>
+            <div id="reveal-markers"></div>
           </div>
 
           <p id="reveal-summary" class="reveal-summary"></p>
@@ -153,13 +157,57 @@
           <div class="reveal-results-section">
             <div class="reveal-results-heading">Results</div>
             <div class="reveal-results-card">
+              <div class="roster-col-heads">
+                <span class="roster-col-sp"></span>
+                <span class="roster-col guess-col">Guess</span>
+                <span class="roster-col score-col">Score</span>
+                <span class="roster-col ready-col"></span>
+              </div>
               <ol id="results-list" class="reveal-results-list"></ol>
             </div>
           </div>
 
-          <div class="reveal-spacer"></div>
-          <button id="play-again-btn" class="guess-submit-btn" type="button" hidden>Play again</button>
-          <p id="reveal-waiting" class="lobby-waiting" hidden></p>
+          <div class="reveal-cta-area">
+            <button id="reveal-ready-btn" class="guess-submit-btn" type="button">Ready</button>
+          </div>
+        </div>
+      </section>
+
+      <section id="final-view" class="view final-view" hidden>
+        <div class="guess-banner">
+          <button id="final-back-btn" class="guess-icon-btn" type="button" aria-label="Back to home">
+            <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="#ffffff" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><line x1="19" y1="12" x2="5" y2="12"></line><polyline points="12 19 5 12 12 5"></polyline></svg>
+          </button>
+          <div class="guess-banner-title">Guess the size</div>
+          <div class="guess-room-pill" id="final-room-code">-</div>
+        </div>
+
+        <div class="guess-status-card">
+          <div class="final-status-top">
+            <span class="final-status-label">Game complete</span>
+            <span class="final-status-sub">10 rounds played</span>
+          </div>
+          <div class="final-winner-spot">
+            <span class="final-winner-avatar" id="final-winner-avatar"></span>
+            <span class="final-winner-text">
+              <span class="final-winner-tag">Winner</span>
+              <span class="final-winner-name" id="final-winner-name"></span>
+              <span class="final-winner-score"><b id="final-winner-score"></b> avg score</span>
+            </span>
+          </div>
+        </div>
+
+        <div class="reveal-body final-body">
+          <div class="reveal-results-section">
+            <div class="reveal-results-heading">Final standings</div>
+            <div class="reveal-results-card">
+              <ol id="final-standings-list" class="reveal-results-list"></ol>
+            </div>
+          </div>
+
+          <div class="reveal-cta-area">
+            <button id="final-play-again-btn" class="guess-submit-btn" type="button">Play again</button>
+          </div>
         </div>
       </section>
     </main>

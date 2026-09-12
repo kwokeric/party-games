@@ -3,10 +3,46 @@
   padding-bottom: 32px;
 }
 
-.reveal-status-text {
-  font-size: 12.5px;
-  color: rgba(0, 0, 0, 0.5);
+/* .guess-status-card (shared with the guessing view) lays its children out
+   as a single flex row; the reveal header needs two stacked rows instead
+   (the round label/connection line, then the progress track below it). */
+.reveal-status-card {
+  flex-direction: column;
+  align-items: stretch;
+  gap: 8px;
+}
+
+.reveal-status-top {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.reveal-round-label {
+  font-family: "Fredoka", system-ui, sans-serif;
+  font-weight: 600;
+  font-size: 14.5px;
+  color: rgba(0, 0, 0, 0.85);
   flex: 1;
+}
+
+.round-track {
+  /* Spacing above this comes from the parent's flex `gap`, not a margin here
+     — a margin-top would stack on top of that gap and make the reveal
+     header noticeably taller than the guessing view's status card. */
+  display: flex;
+  gap: 4px;
+}
+
+.round-track span {
+  height: 5px;
+  flex: 1;
+  border-radius: 999px;
+  background: rgba(6, 123, 194, 0.14);
+}
+
+.round-track span.done {
+  background: #067bc2;
 }
 
 .reveal-body {
@@ -60,6 +96,40 @@
   white-space: nowrap;
 }
 
+/* Opponents' guesses, plotted on the same stage as small markers rather
+   than full silhouettes — left/top or left/bottom are set from JS to match
+   each guess's position on the same scale the two silhouettes use. */
+.reveal-marker {
+  position: absolute;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  transform: translateX(-50%);
+  z-index: 3;
+}
+
+.reveal-marker .reveal-marker-tick {
+  width: 2px;
+  height: 12px;
+  background: rgba(0, 0, 0, 0.28);
+}
+
+.reveal-marker .reveal-marker-chip {
+  width: 20px;
+  height: 20px;
+  border-radius: 999px;
+  background: #ffffff;
+  color: rgba(0, 0, 0, 0.65);
+  font-family: "Fredoka", system-ui, sans-serif;
+  font-weight: 600;
+  font-size: 9.5px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border: 1.5px solid rgba(0, 0, 0, 0.18);
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.12);
+}
+
 .reveal-summary {
   width: 100%;
   margin: 14px 0 0;
@@ -90,30 +160,63 @@
 .reveal-results-card {
   width: 100%;
   background: #ffffff;
-  border-radius: 18px;
-  padding: 14px 16px;
+  border-radius: 16px;
+  padding: 0 16px;
   box-sizing: border-box;
   box-shadow: 0 8px 20px rgba(6, 123, 194, 0.12);
+}
+
+.roster-col-heads {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 10px 0 6px;
+  font-size: 10px;
+  font-weight: 600;
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
+  color: rgba(0, 0, 0, 0.32);
+}
+
+.roster-col-sp {
+  flex: 1;
+}
+
+.roster-col.guess-col {
+  width: 60px;
+  text-align: right;
+}
+
+.roster-col.score-col {
+  width: 34px;
+  text-align: right;
+}
+
+.roster-col.ready-col {
+  width: 21px;
 }
 
 .reveal-results-list {
   list-style: none;
   margin: 0;
   padding: 0;
-  display: flex;
-  flex-direction: column;
-  gap: 12px;
 }
 
 .reveal-result-row {
   display: flex;
   align-items: center;
-  gap: 12px;
+  gap: 10px;
+  padding: 10px 0;
+  border-bottom: 1px solid rgba(0, 0, 0, 0.06);
+}
+
+.reveal-result-row:last-child {
+  border-bottom: none;
 }
 
 .reveal-avatar {
-  width: 34px;
-  height: 34px;
+  width: 32px;
+  height: 32px;
   border-radius: 999px;
   background: #84bcda;
   color: rgba(0, 0, 0, 0.8);
@@ -127,22 +230,51 @@
 }
 
 .reveal-result-name {
-  font-size: 15px;
-  color: rgba(0, 0, 0, 0.85);
+  font-size: 14.5px;
+  color: rgba(0, 0, 0, 0.8);
   flex: 1;
+  min-width: 0;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.reveal-result-row.is-you .reveal-result-name {
+  font-weight: 600;
+}
+
+.reveal-result-name .you-tag {
+  font-weight: 400;
+  color: rgba(0, 0, 0, 0.4);
+  font-size: 12.5px;
+}
+
+.reveal-result-guess {
+  width: 60px;
+  text-align: right;
+  font-size: 13px;
+  color: rgba(0, 0, 0, 0.45);
+  font-variant-numeric: tabular-nums;
+  flex-shrink: 0;
 }
 
 .reveal-result-score {
+  width: 34px;
+  text-align: right;
   font-family: "Fredoka", system-ui, sans-serif;
   font-weight: 700;
-  font-size: 15px;
+  font-size: 14.5px;
   color: rgba(0, 0, 0, 0.6);
+  font-variant-numeric: tabular-nums;
+  flex-shrink: 0;
 }
 
 .reveal-result-score.top {
   color: #067bc2;
 }
 
-.reveal-spacer {
-  flex: 1;
+.reveal-cta-area {
+  width: 100%;
+  margin-top: auto;
+  padding-top: 20px;
 }

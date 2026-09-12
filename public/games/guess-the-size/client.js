@@ -8,6 +8,7 @@ const el = (id) => document.getElementById(id);
 const lobbyView = el("lobby-view");
 const guessingView = el("guessing-view");
 const revealView = el("reveal-view");
+const finalView = el("final-view");
 const backBtn = el("back-btn");
 const lobbyRoomCodeEl = el("lobby-room-code");
 const copyCodeBtn = el("copy-code-btn");
@@ -44,6 +45,8 @@ const revealBackBtn = el("reveal-back-btn");
 const revealRoomCodeEl = el("reveal-room-code");
 const revealConnectionDotEl = el("reveal-connection-dot");
 const revealConnectionTextEl = el("reveal-connection-text");
+const revealRoundLabelEl = el("reveal-round-label");
+const revealRoundTrackEl = el("reveal-round-track");
 const revealStageEl = el("reveal-stage");
 const revealGuessObj = el("reveal-object-b-guess");
 const revealTrueObj = el("reveal-object-b-true");
@@ -51,14 +54,23 @@ const revealGuessImg = el("reveal-guess-img");
 const revealTrueImg = el("reveal-true-img");
 const revealTrueLine = el("reveal-true-line");
 const revealTrueLabel = el("reveal-true-label");
+const revealMarkersEl = el("reveal-markers");
 const revealSummary = el("reveal-summary");
 const resultsList = el("results-list");
-const playAgainBtn = el("play-again-btn");
-const revealWaitingEl = el("reveal-waiting");
+const revealReadyBtn = el("reveal-ready-btn");
+
+const finalBackBtn = el("final-back-btn");
+const finalRoomCodeEl = el("final-room-code");
+const finalWinnerAvatarEl = el("final-winner-avatar");
+const finalWinnerNameEl = el("final-winner-name");
+const finalWinnerScoreEl = el("final-winner-score");
+const finalStandingsListEl = el("final-standings-list");
+const finalPlayAgainBtn = el("final-play-again-btn");
 
 lobbyRoomCodeEl.textContent = room ?? "(none)";
 guessRoomCodeEl.textContent = room ?? "(none)";
 revealRoomCodeEl.textContent = room ?? "(none)";
+finalRoomCodeEl.textContent = room ?? "(none)";
 
 let myId = null;
 let players = [];
@@ -83,6 +95,31 @@ function showView(view) {
   lobbyView.hidden = view !== "lobby";
   guessingView.hidden = view !== "guessing";
   revealView.hidden = view !== "reveal";
+  finalView.hidden = view !== "final";
+}
+
+const READY_CHECK_SVG =
+  '<svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="3.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"></polyline></svg>';
+
+// Ready dots live inside per-row list items (results-list, final-standings-list)
+// tagged with data-player-id, so a "players" update can flip them live without
+// rebuilding the whole list (which would also wipe the guess/score columns).
+function updateReadyDots() {
+  for (const p of players) {
+    for (const list of [resultsList, finalStandingsListEl]) {
+      const dot = list.querySelector(`[data-player-id="${p.id}"] .status-dot`);
+      if (dot) dot.classList.toggle("on", Boolean(p.ready));
+    }
+  }
+}
+
+function renderRoundTrack(container, roundNumber, maxRounds) {
+  container.innerHTML = "";
+  for (let i = 1; i <= maxRounds; i++) {
+    const span = document.createElement("span");
+    if (i <= roundNumber) span.classList.add("done");
+    container.appendChild(span);
+  }
 }
 
 function isHost() {
@@ -132,8 +169,6 @@ function renderPlayers() {
   const guessedCount = players.filter((p) => p.hasGuessed).length;
   guessStatusTextEl.textContent = `${guessedCount} of ${players.length} guessed`;
 
-  playAgainBtn.hidden = !isHost();
-
   if (phase === "lobby") {
     const amHost = isHost();
     startBtn.hidden = !amHost;
@@ -149,13 +184,18 @@ function renderPlayers() {
   }
 
   if (phase === "reveal") {
-    const amHost = isHost();
-    revealWaitingEl.hidden = amHost;
-    if (!amHost) {
-      const host = players.find((p) => p.isHost);
-      revealWaitingEl.textContent = `Waiting for ${host?.name ?? "the host"} to start the next round`;
-    }
+    const me = players.find((p) => p.id === myId);
+    revealReadyBtn.disabled = Boolean(me?.ready);
+    revealReadyBtn.textContent = me?.ready ? "Waiting for others…" : "Ready";
   }
+
+  if (phase === "final") {
+    const me = players.find((p) => p.id === myId);
+    finalPlayAgainBtn.disabled = Boolean(me?.ready);
+    finalPlayAgainBtn.textContent = me?.ready ? "Waiting for others…" : "Play again";
+  }
+
+  updateReadyDots();
 }
 
 // <img src="object.svg"> can't have its `currentColor` styled by CSS on
@@ -268,14 +308,19 @@ async function startGuessing(objectA, objectB) {
   positionObjectB();
 }
 
-async function showReveal(objectBTrueLength_m, guesses) {
+async function showReveal(roundNumber, maxRounds, objectBTrueLength_m, guesses) {
   phase = "reveal";
   if (!round) return;
 
   const mine = guesses.find((g) => g.id === myId);
   const myGuess = mine?.guess_m ?? guessLength;
 
-  const largest = Math.max(myGuess, objectBTrueLength_m);
+  // Scale is picked across every guess (not just mine) plus the true size, so
+  // no opponent marker ever falls off the edge of the stage.
+  const allSizes = guesses
+    .map((g) => g.guess_m)
+    .filter((v) => typeof v === "number");
+  const largest = Math.max(objectBTrueLength_m, myGuess, ...allSizes);
   const revealPxPerMeter = 220 / largest;
 
   await Promise.all([
@@ -286,6 +331,9 @@ async function showReveal(objectBTrueLength_m, guesses) {
   // Show the view before measuring reveal-stage's clientHeight below —
   // a hidden element reports 0, which broke the height-axis tick position.
   showView("reveal");
+
+  revealRoundLabelEl.textContent = `Round ${roundNumber} of ${maxRounds}`;
+  renderRoundTrack(revealRoundTrackEl, roundNumber, maxRounds);
 
   applySize(revealGuessImg, sizeStyle(revealPxPerMeter, round.objectB, myGuess));
   applySize(revealTrueImg, sizeStyle(revealPxPerMeter, round.objectB, objectBTrueLength_m));
@@ -299,10 +347,14 @@ async function showReveal(objectBTrueLength_m, guesses) {
   revealTrueLine.hidden = false;
   revealTrueLabel.textContent = `${formatMeters(objectBTrueLength_m)} true size`;
   if (round.objectB.axis === "width") {
-    // Horizontal dashed line spans the true shape's width.
-    const truePx = objectBTrueLength_m * revealPxPerMeter;
-    revealTrueLine.style.left = "26px";
-    revealTrueLine.style.width = `${truePx + 30}px`;
+    // Horizontal dashed line spans exactly to the true shape's rendered
+    // right edge — measured from the actual SVG box rather than computed
+    // from length_m, so it lines up with the silhouette even when the
+    // cropped viewBox doesn't start flush at its container's left edge.
+    const stageRect = revealStageEl.getBoundingClientRect();
+    const trueSvgRect = revealTrueImg.querySelector("svg").getBoundingClientRect();
+    revealTrueLine.style.left = `${trueSvgRect.left - stageRect.left}px`;
+    revealTrueLine.style.width = `${trueSvgRect.width}px`;
     revealTrueLine.style.top = "38px";
   } else {
     // A full-width line doesn't mean anything for a height comparison —
@@ -314,6 +366,32 @@ async function showReveal(objectBTrueLength_m, guesses) {
     revealTrueLine.style.width = "40px";
     revealTrueLine.style.top = `${topPx}px`;
   }
+
+  // Opponents' guesses are plotted as small markers on the same scale as the
+  // two silhouettes, rather than full shapes, to keep the stage legible.
+  revealMarkersEl.innerHTML = "";
+  const opponents = guesses.filter((g) => g.id !== myId && typeof g.guess_m === "number");
+  opponents.forEach((g, index) => {
+    const marker = document.createElement("div");
+    marker.className = "reveal-marker";
+
+    const tick = document.createElement("span");
+    tick.className = "reveal-marker-tick";
+    const chip = document.createElement("span");
+    chip.className = "reveal-marker-chip";
+    chip.textContent = g.name.trim().charAt(0) || "?";
+    marker.append(tick, chip);
+
+    const px = g.guess_m * revealPxPerMeter;
+    if (round.objectB.axis === "width") {
+      marker.style.left = `${26 + px}px`;
+      marker.style.bottom = `${BASELINE_OFFSET}px`;
+    } else {
+      marker.style.left = `${40 + index * 18}px`;
+      marker.style.bottom = `${BASELINE_OFFSET + px}px`;
+    }
+    revealMarkersEl.appendChild(marker);
+  });
 
   if (mine) {
     const pctOff = Math.round((Math.abs(myGuess - objectBTrueLength_m) / objectBTrueLength_m) * 100);
@@ -329,7 +407,8 @@ async function showReveal(objectBTrueLength_m, guesses) {
   resultsList.innerHTML = "";
   guesses.forEach((g, index) => {
     const li = document.createElement("li");
-    li.className = "reveal-result-row";
+    li.className = "reveal-result-row" + (g.id === myId ? " is-you" : "");
+    li.dataset.playerId = g.id;
 
     const avatar = document.createElement("span");
     avatar.className = "reveal-avatar";
@@ -338,13 +417,76 @@ async function showReveal(objectBTrueLength_m, guesses) {
     const nameEl = document.createElement("span");
     nameEl.className = "reveal-result-name";
     nameEl.textContent = g.name;
+    if (g.id === myId) {
+      const tag = document.createElement("span");
+      tag.className = "you-tag";
+      tag.textContent = " (you)";
+      nameEl.appendChild(tag);
+    }
+
+    const guessEl = document.createElement("span");
+    guessEl.className = "reveal-result-guess";
+    guessEl.textContent = typeof g.guess_m === "number" ? formatMeters(g.guess_m) : "-";
 
     const scoreEl = document.createElement("span");
     scoreEl.className = index === 0 ? "reveal-result-score top" : "reveal-result-score";
     scoreEl.textContent = String(g.score);
 
-    li.append(avatar, nameEl, scoreEl);
+    const readyDot = document.createElement("span");
+    readyDot.className = "status-dot";
+    readyDot.innerHTML = READY_CHECK_SVG;
+
+    li.append(avatar, nameEl, guessEl, scoreEl, readyDot);
     resultsList.appendChild(li);
+  });
+
+  renderPlayers();
+}
+
+function showFinal(standings) {
+  phase = "final";
+  showView("final");
+
+  const winner = standings[0];
+  finalWinnerAvatarEl.textContent = winner?.name.trim().charAt(0) || "?";
+  finalWinnerNameEl.textContent = winner?.name ?? "-";
+  finalWinnerScoreEl.textContent = winner ? winner.avgScore.toFixed(1) : "-";
+
+  finalStandingsListEl.innerHTML = "";
+  standings.forEach((s, index) => {
+    const li = document.createElement("li");
+    li.className =
+      "reveal-result-row" + (s.id === myId ? " is-you" : "") + (index === 0 ? " champ" : "");
+    li.dataset.playerId = s.id;
+
+    const rank = document.createElement("span");
+    rank.className = `roster-rank r${index + 1}`;
+    rank.textContent = String(index + 1);
+
+    const avatar = document.createElement("span");
+    avatar.className = "reveal-avatar";
+    avatar.textContent = s.name.trim().charAt(0) || "?";
+
+    const nameEl = document.createElement("span");
+    nameEl.className = "reveal-result-name";
+    nameEl.textContent = s.name;
+    if (s.id === myId) {
+      const tag = document.createElement("span");
+      tag.className = "you-tag";
+      tag.textContent = " (you)";
+      nameEl.appendChild(tag);
+    }
+
+    const scoreEl = document.createElement("span");
+    scoreEl.className = index === 0 ? "reveal-result-score top" : "reveal-result-score";
+    scoreEl.textContent = s.avgScore.toFixed(1);
+
+    const readyDot = document.createElement("span");
+    readyDot.className = "status-dot";
+    readyDot.innerHTML = READY_CHECK_SVG;
+
+    li.append(rank, avatar, nameEl, scoreEl, readyDot);
+    finalStandingsListEl.appendChild(li);
   });
 
   renderPlayers();
@@ -370,21 +512,33 @@ resizeHandle.addEventListener("pointerdown", (e) => {
 // same increments as the manual controls.
 const EDGE_MARGIN_PX = 28;
 
-function isHandleOverflowing() {
-  const stageRect = stage.getBoundingClientRect();
-  const handleRect = resizeHandle.getBoundingClientRect();
-  return round.objectB.axis === "width"
-    ? handleRect.right - (stageRect.right - EDGE_MARGIN_PX) > 0
-    : stageRect.top + EDGE_MARGIN_PX - handleRect.top > 0;
-}
-
-function keepHandleInBounds() {
+// After a correction, the drag anchor (dragStartPos/dragStartGuess) is
+// rebased to the pointer's current position and the now-corrected guess.
+// Without this, the NEXT pointermove recomputes guessLength from the
+// original anchor using the new (smaller) zoom — since that division by a
+// smaller pxPerMeter inflates the result, it springs the object right back
+// past the edge it was just pulled back from.
+function keepHandleInBounds(e) {
   if (!round) return;
-  for (let i = 0; i < 30 && zoom > 0.2 && isHandleOverflowing(); i++) {
+  let corrected = false;
+  for (let i = 0; i < 30 && zoom > 0.2 && isStageOverflowing(EDGE_MARGIN_PX); i++) {
     zoom = Math.max(0.2, zoom / 1.5);
     renderObjectA();
     renderObjectB();
     positionObjectB();
+    corrected = true;
+  }
+  // An extreme/fast drag can still overflow even at the minimum zoom — as a
+  // last resort, shrink the guess itself so the silhouette never bleeds past
+  // the stage no matter how far or fast the pointer moved.
+  for (let i = 0; i < 60 && isStageOverflowing(EDGE_MARGIN_PX); i++) {
+    guessLength = Math.max(0.01, guessLength / 1.1);
+    renderObjectB();
+    corrected = true;
+  }
+  if (corrected) {
+    dragStartGuess = guessLength;
+    dragStartPos = round.objectB.axis === "width" ? e.clientX : e.clientY;
   }
 }
 
@@ -399,7 +553,7 @@ resizeHandle.addEventListener("pointermove", (e) => {
   }
   guessLength = Math.max(0.01, dragStartGuess + deltaPx / pxPerMeter);
   renderObjectB();
-  keepHandleInBounds();
+  keepHandleInBounds(e);
 });
 
 function endDrag() {
@@ -412,19 +566,22 @@ resizeHandle.addEventListener("pointerup", endDrag);
 resizeHandle.addEventListener("pointercancel", endDrag);
 
 // Neither object's own anchor point (object A's left edge, object B's
-// bottom via the baseline) ever moves when zoom changes — only their far
-// edge (right for a width-axis object, top for a height-axis one) can grow
-// past the stage. So overflow only needs checking on those two edges.
-function isStageOverflowing() {
+// bottom via the baseline) ever moves when zoom changes — but since each
+// object's aspect ratio is locked, growing along EITHER axis grows both the
+// right edge (width) and the top edge (height) at once. So both edges need
+// checking regardless of which axis a given object measures. An optional
+// margin lets a caller (the live drag correction) react before the edge is
+// actually reached, rather than only once it's truly overflowing.
+function isStageOverflowing(marginPx = 0) {
   if (!round) return false;
   const stageRect = stage.getBoundingClientRect();
   const aRect = el("object-a").getBoundingClientRect();
   const bRect = el("object-b").getBoundingClientRect();
   return (
-    aRect.right > stageRect.right ||
-    aRect.top < stageRect.top ||
-    bRect.right > stageRect.right ||
-    bRect.top < stageRect.top
+    aRect.right > stageRect.right - marginPx ||
+    aRect.top < stageRect.top + marginPx ||
+    bRect.right > stageRect.right - marginPx ||
+    bRect.top < stageRect.top + marginPx
   );
 }
 
@@ -462,10 +619,13 @@ submitBtn.addEventListener("click", () => {
 startBtn.addEventListener("click", () => {
   socket.send(JSON.stringify({ type: "start" }));
 });
-playAgainBtn.addEventListener("click", () => {
-  socket.send(JSON.stringify({ type: "start" }));
-});
 readyBtn.addEventListener("click", () => {
+  socket.send(JSON.stringify({ type: "ready" }));
+});
+revealReadyBtn.addEventListener("click", () => {
+  socket.send(JSON.stringify({ type: "ready" }));
+});
+finalPlayAgainBtn.addEventListener("click", () => {
   socket.send(JSON.stringify({ type: "ready" }));
 });
 backBtn.addEventListener("click", () => {
@@ -475,6 +635,9 @@ guessBackBtn.addEventListener("click", () => {
   location.href = "/";
 });
 revealBackBtn.addEventListener("click", () => {
+  location.href = "/";
+});
+finalBackBtn.addEventListener("click", () => {
   location.href = "/";
 });
 copyCodeBtn.addEventListener("click", async () => {
@@ -538,7 +701,10 @@ if (!room) {
         startGuessing(data.objectA, data.objectB);
         break;
       case "reveal":
-        showReveal(data.objectBTrueLength_m, data.guesses);
+        showReveal(data.roundNumber, data.maxRounds, data.objectBTrueLength_m, data.guesses);
+        break;
+      case "final":
+        showFinal(data.standings);
         break;
     }
   });

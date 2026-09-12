@@ -80,6 +80,8 @@
 
 .resize-handle {
   position: absolute;
+  right: -8px;
+  top: -8px;
   width: 16px;
   height: 16px;
   border-radius: 50%;
@@ -89,17 +91,15 @@
   touch-action: none;
 }
 
+/* The pin always sits at the top-right corner regardless of axis: since
+   aspect ratio is locked, growing along either axis moves BOTH the right
+   and top edges outward, so the handle needs to track the corner where
+   overflow can actually happen, not just the edge for its own axis. */
 .resize-handle.axis-width {
-  right: -8px;
-  top: 50%;
-  transform: translateY(-50%);
   cursor: ew-resize;
 }
 
 .resize-handle.axis-height {
-  left: 50%;
-  top: -8px;
-  transform: translateX(-50%);
   cursor: ns-resize;
 }
 
@@ -117,4 +117,33 @@
 
 .obj-true {
   left: 30px;
+}
+
+/* Shared ready/rematch indicator, used in both the per-round results list
+   and the final standings list. */
+.status-dot {
+  width: 21px;
+  height: 21px;
+  border-radius: 999px;
+  flex-shrink: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border: 1.5px solid rgba(0, 0, 0, 0.15);
+  background: transparent;
+  transition: background 0.15s ease, border-color 0.15s ease;
+}
+
+.status-dot.on {
+  background: #3fb27f;
+  border-color: #3fb27f;
+}
+
+.status-dot svg {
+  opacity: 0;
+  transition: opacity 0.1s ease;
+}
+
+.status-dot.on svg {
+  opacity: 1;
 }
