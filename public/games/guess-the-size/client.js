@@ -365,23 +365,27 @@ resizeHandle.addEventListener("pointerdown", (e) => {
 
 // Keeps the drag handle from reaching the edge of the stage mid-drag by
 // zooming out live, rather than only correcting after the drag ends.
+// Steps by the same 1/1.5 factor as the zoom-out button (rather than a
+// continuous exact-fit ratio) so drag-triggered zoom always lands on the
+// same increments as the manual controls.
 const EDGE_MARGIN_PX = 28;
+
+function isHandleOverflowing() {
+  const stageRect = stage.getBoundingClientRect();
+  const handleRect = resizeHandle.getBoundingClientRect();
+  return round.objectB.axis === "width"
+    ? handleRect.right - (stageRect.right - EDGE_MARGIN_PX) > 0
+    : stageRect.top + EDGE_MARGIN_PX - handleRect.top > 0;
+}
 
 function keepHandleInBounds() {
   if (!round) return;
-  const stageRect = stage.getBoundingClientRect();
-  const handleRect = resizeHandle.getBoundingClientRect();
-  const overflow =
-    round.objectB.axis === "width"
-      ? handleRect.right - (stageRect.right - EDGE_MARGIN_PX)
-      : stageRect.top + EDGE_MARGIN_PX - handleRect.top;
-  if (overflow <= 0) return;
-  const bPx = guessLength * basePxPerMeter * zoom;
-  const availablePx = Math.max(10, bPx - overflow);
-  zoom = Math.max(0.2, zoom * (availablePx / bPx));
-  renderObjectA();
-  renderObjectB();
-  positionObjectB();
+  for (let i = 0; i < 30 && zoom > 0.2 && isHandleOverflowing(); i++) {
+    zoom = Math.max(0.2, zoom / 1.5);
+    renderObjectA();
+    renderObjectB();
+    positionObjectB();
+  }
 }
 
 resizeHandle.addEventListener("pointermove", (e) => {
@@ -407,11 +411,37 @@ function endDrag() {
 resizeHandle.addEventListener("pointerup", endDrag);
 resizeHandle.addEventListener("pointercancel", endDrag);
 
+// Neither object's own anchor point (object A's left edge, object B's
+// bottom via the baseline) ever moves when zoom changes — only their far
+// edge (right for a width-axis object, top for a height-axis one) can grow
+// past the stage. So overflow only needs checking on those two edges.
+function isStageOverflowing() {
+  if (!round) return false;
+  const stageRect = stage.getBoundingClientRect();
+  const aRect = el("object-a").getBoundingClientRect();
+  const bRect = el("object-b").getBoundingClientRect();
+  return (
+    aRect.right > stageRect.right ||
+    aRect.top < stageRect.top ||
+    bRect.right > stageRect.right ||
+    bRect.top < stageRect.top
+  );
+}
+
 zoomInBtn.addEventListener("click", () => {
+  const previousZoom = zoom;
   zoom = Math.min(5, zoom * 1.5);
   renderObjectA();
   renderObjectB();
   positionObjectB();
+  if (isStageOverflowing()) {
+    // This step would push an object past the stage background — undo it
+    // rather than let the silhouette clip out of view.
+    zoom = previousZoom;
+    renderObjectA();
+    renderObjectB();
+    positionObjectB();
+  }
 });
 zoomOutBtn.addEventListener("click", () => {
   zoom = Math.max(0.2, zoom / 1.5);

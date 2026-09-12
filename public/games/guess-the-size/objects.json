@@ -82,7 +82,7 @@
   },
   {
     "id": "shipping-container",
-    "name": "Shipping Container (40ft)",
+    "name": "Shipping Container",
     "length_m": 12.192,
     "measured": "external length",
     "svg": "objects/shipping-container.svg",
@@ -172,7 +172,7 @@
   },
   {
     "id": "pool-table",
-    "name": "Pool Table (9-foot)",
+    "name": "Pool Table",
     "length_m": 2.54,
     "measured": "playing surface length (regulation tournament size)",
     "svg": "objects/pool-table.svg",
@@ -199,7 +199,7 @@
   },
   {
     "id": "trampoline",
-    "name": "Trampoline (12-foot)",
+    "name": "Trampoline",
     "length_m": 3.66,
     "measured": "frame diameter (common backyard round size)",
     "svg": "objects/trampoline.svg",
