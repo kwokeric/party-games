@@ -5,12 +5,6 @@ const playerName = params.get("name") ?? "";
 
 const el = (id) => document.getElementById(id);
 
-const gameHeaderEl = document.querySelector(".game-header");
-const playersPanelEl = document.querySelector(".players-panel");
-const roomCodeEl = el("room-code");
-const statusEl = el("connection-status");
-const playerListEl = el("player-list");
-
 const lobbyView = el("lobby-view");
 const guessingView = el("guessing-view");
 const revealView = el("reveal-view");
@@ -46,6 +40,13 @@ const waitingMessage = el("waiting-message");
 const zoomInBtn = el("zoom-in");
 const zoomOutBtn = el("zoom-out");
 
+const revealBackBtn = el("reveal-back-btn");
+const revealRoomCodeEl = el("reveal-room-code");
+const revealConnectionDotEl = el("reveal-connection-dot");
+const revealConnectionTextEl = el("reveal-connection-text");
+const revealStageEl = el("reveal-stage");
+const revealGuessObj = el("reveal-object-b-guess");
+const revealTrueObj = el("reveal-object-b-true");
 const revealGuessImg = el("reveal-guess-img");
 const revealTrueImg = el("reveal-true-img");
 const revealTrueLine = el("reveal-true-line");
@@ -53,10 +54,11 @@ const revealTrueLabel = el("reveal-true-label");
 const revealSummary = el("reveal-summary");
 const resultsList = el("results-list");
 const playAgainBtn = el("play-again-btn");
+const revealWaitingEl = el("reveal-waiting");
 
-roomCodeEl.textContent = room ?? "(none)";
 lobbyRoomCodeEl.textContent = room ?? "(none)";
 guessRoomCodeEl.textContent = room ?? "(none)";
+revealRoomCodeEl.textContent = room ?? "(none)";
 
 let myId = null;
 let players = [];
@@ -81,11 +83,6 @@ function showView(view) {
   lobbyView.hidden = view !== "lobby";
   guessingView.hidden = view !== "guessing";
   revealView.hidden = view !== "reveal";
-  // The shared dark header/player-pill bar is only still used by the
-  // (not yet redesigned) reveal view — lobby and guessing each have
-  // their own banner and player list now.
-  gameHeaderEl.hidden = view !== "reveal";
-  playersPanelEl.hidden = view !== "reveal";
 }
 
 function isHost() {
@@ -93,30 +90,35 @@ function isHost() {
 }
 
 function renderPlayers() {
-  playerListEl.innerHTML = "";
-  for (const p of players) {
-    const li = document.createElement("li");
-    li.textContent = p.name + (p.isHost ? " (host)" : "");
-    if (p.id === myId) li.classList.add("you");
-    if (p.hasGuessed) li.classList.add("guessed");
-    playerListEl.appendChild(li);
-  }
-
   lobbyPlayerListEl.innerHTML = "";
   for (const p of players) {
     const li = document.createElement("li");
     li.className = "lobby-player-row";
-    const initial = p.name.trim().charAt(0) || "?";
-    const badge = p.isHost
-      ? `<span class="lobby-host-badge">HOST</span>`
-      : p.ready
-      ? `<span class="lobby-ready-tag"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="#067bc2" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"></polyline></svg>Ready</span>`
-      : "";
-    li.innerHTML = `
-      <span class="lobby-avatar">${initial}</span>
-      <span class="lobby-player-name">${p.name}${p.id === myId ? " (you)" : ""}</span>
-      ${badge}
-    `;
+
+    const avatar = document.createElement("span");
+    avatar.className = "lobby-avatar";
+    avatar.textContent = p.name.trim().charAt(0) || "?";
+
+    const nameEl = document.createElement("span");
+    nameEl.className = "lobby-player-name";
+    nameEl.textContent = p.name + (p.id === myId ? " (you)" : "");
+
+    li.append(avatar, nameEl);
+
+    if (p.isHost) {
+      const badge = document.createElement("span");
+      badge.className = "lobby-host-badge";
+      badge.textContent = "HOST";
+      li.append(badge);
+    } else if (p.ready) {
+      const tag = document.createElement("span");
+      tag.className = "lobby-ready-tag";
+      tag.innerHTML =
+        '<svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="#067bc2" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"></polyline></svg>';
+      tag.append("Ready");
+      li.append(tag);
+    }
+
     lobbyPlayerListEl.appendChild(li);
   }
 
@@ -143,6 +145,15 @@ function renderPlayers() {
       const me = players.find((p) => p.id === myId);
       readyBtn.textContent = me?.ready ? "Not ready" : "Ready up";
       readyBtn.classList.toggle("is-ready", Boolean(me?.ready));
+    }
+  }
+
+  if (phase === "reveal") {
+    const amHost = isHost();
+    revealWaitingEl.hidden = amHost;
+    if (!amHost) {
+      const host = players.find((p) => p.isHost);
+      revealWaitingEl.textContent = `Waiting for ${host?.name ?? "the host"} to start the next round`;
     }
   }
 }
@@ -195,6 +206,9 @@ function renderObjectB() {
   resizeHandle.className = `resize-handle axis-${round.objectB.axis}`;
   guessReadout.textContent = `Your guess: ${formatMeters(guessLength)}`;
 }
+
+// Matches .baseline{bottom:48px} in game.css.
+const BASELINE_OFFSET = 48;
 
 // Object B starts just to the right of wherever object A actually ends,
 // rather than a fixed offset, so a small reference object leaves more
@@ -268,36 +282,72 @@ async function showReveal(objectBTrueLength_m, guesses) {
     setObjectVisual(revealGuessImg, round.objectB.svg),
     setObjectVisual(revealTrueImg, round.objectB.svg),
   ]);
+
+  // Show the view before measuring reveal-stage's clientHeight below —
+  // a hidden element reports 0, which broke the height-axis tick position.
+  showView("reveal");
+
   applySize(revealGuessImg, sizeStyle(revealPxPerMeter, round.objectB, myGuess));
   applySize(revealTrueImg, sizeStyle(revealPxPerMeter, round.objectB, objectBTrueLength_m));
 
+  // Whichever silhouette is smaller sits in front, so it's never fully
+  // hidden behind the larger one when the two are close in size.
+  const guessIsSmaller = myGuess <= objectBTrueLength_m;
+  revealGuessObj.style.zIndex = guessIsSmaller ? "2" : "1";
+  revealTrueObj.style.zIndex = guessIsSmaller ? "1" : "2";
+
+  revealTrueLine.hidden = false;
+  revealTrueLabel.textContent = `${formatMeters(objectBTrueLength_m)} true size`;
   if (round.objectB.axis === "width") {
-    revealTrueLine.hidden = false;
+    // Horizontal dashed line spans the true shape's width.
     const truePx = objectBTrueLength_m * revealPxPerMeter;
+    revealTrueLine.style.left = "26px";
     revealTrueLine.style.width = `${truePx + 30}px`;
-    revealTrueLabel.textContent = `${formatMeters(objectBTrueLength_m)} true size`;
+    revealTrueLine.style.top = "38px";
   } else {
-    revealTrueLine.hidden = true;
+    // A full-width line doesn't mean anything for a height comparison —
+    // use a short tick at the true shape's actual height instead.
+    const trueHeightPx = objectBTrueLength_m * revealPxPerMeter;
+    const stageHeight = revealStageEl.clientHeight;
+    const topPx = Math.max(8, stageHeight - BASELINE_OFFSET - trueHeightPx - 12);
+    revealTrueLine.style.left = "26px";
+    revealTrueLine.style.width = "40px";
+    revealTrueLine.style.top = `${topPx}px`;
   }
 
   if (mine) {
     const pctOff = Math.round((Math.abs(myGuess - objectBTrueLength_m) / objectBTrueLength_m) * 100);
-    revealSummary.textContent = `You said ${formatMeters(myGuess)} · true size ${formatMeters(
+    // Safe to use innerHTML here: every interpolated value is a number we
+    // formatted ourselves, never raw user text (unlike player names below).
+    revealSummary.innerHTML = `You said <strong>${formatMeters(myGuess)}</strong> · true size <strong>${formatMeters(
       objectBTrueLength_m
-    )} · off by ${pctOff}% · score ${mine.score}/100`;
+    )}</strong> · off by ${pctOff}% · score <strong style="color: #067bc2;">${mine.score}/100</strong>`;
   } else {
     revealSummary.textContent = `True size: ${formatMeters(objectBTrueLength_m)}`;
   }
 
   resultsList.innerHTML = "";
-  for (const g of guesses) {
+  guesses.forEach((g, index) => {
     const li = document.createElement("li");
-    const guessText = g.guess_m === null ? "no guess" : formatMeters(g.guess_m);
-    li.textContent = `${g.name} — ${guessText} — ${g.score}/100`;
-    resultsList.appendChild(li);
-  }
+    li.className = "reveal-result-row";
 
-  showView("reveal");
+    const avatar = document.createElement("span");
+    avatar.className = "reveal-avatar";
+    avatar.textContent = g.name.trim().charAt(0) || "?";
+
+    const nameEl = document.createElement("span");
+    nameEl.className = "reveal-result-name";
+    nameEl.textContent = g.name;
+
+    const scoreEl = document.createElement("span");
+    scoreEl.className = index === 0 ? "reveal-result-score top" : "reveal-result-score";
+    scoreEl.textContent = String(g.score);
+
+    li.append(avatar, nameEl, scoreEl);
+    resultsList.appendChild(li);
+  });
+
+  renderPlayers();
 }
 
 let dragging = false;
@@ -372,6 +422,9 @@ backBtn.addEventListener("click", () => {
 guessBackBtn.addEventListener("click", () => {
   location.href = "/";
 });
+revealBackBtn.addEventListener("click", () => {
+  location.href = "/";
+});
 copyCodeBtn.addEventListener("click", async () => {
   if (!room) return;
   try {
@@ -389,7 +442,9 @@ copyCodeBtn.addEventListener("click", async () => {
 let socket;
 
 if (!room) {
-  statusEl.textContent = "No room code provided.";
+  // No room code in the URL — nothing to connect to. The lobby view's
+  // room code display already falls back to "(none)" in this case.
+  console.warn("Guess the Size loaded without a room code.");
 } else {
   const protocol = location.protocol === "https:" ? "wss:" : "ws:";
   const connectParams = new URLSearchParams();
@@ -401,15 +456,17 @@ if (!room) {
   );
 
   socket.addEventListener("open", () => {
-    statusEl.textContent = "Connected.";
     guessConnectionDotEl.className = "guess-dot connected";
     guessConnectionTextEl.textContent = "Connected";
+    revealConnectionDotEl.className = "guess-dot connected";
+    revealConnectionTextEl.textContent = "Connected";
   });
 
   socket.addEventListener("close", () => {
-    statusEl.textContent = "Disconnected.";
     guessConnectionDotEl.className = "guess-dot disconnected";
     guessConnectionTextEl.textContent = "Disconnected";
+    revealConnectionDotEl.className = "guess-dot disconnected";
+    revealConnectionTextEl.textContent = "Disconnected";
   });
 
   socket.addEventListener("message", (event) => {

@@ -10,20 +10,10 @@
     <link rel="stylesheet" href="./game.css" />
     <link rel="stylesheet" href="./lobby.css" />
     <link rel="stylesheet" href="./guessing.css" />
+    <link rel="stylesheet" href="./reveal.css" />
   </head>
   <body>
     <main class="page game-page">
-      <header class="game-header">
-        <h1>Guess the Size</h1>
-        <span>Room: <strong id="room-code">-</strong></span>
-        <span id="connection-status">Connecting…</span>
-      </header>
-
-      <section class="players-panel">
-        <h2>Players</h2>
-        <ul id="player-list"></ul>
-      </section>
-
       <section id="lobby-view" class="view lobby-view">
         <div class="lobby-banner">
           <button id="back-btn" class="lobby-icon-btn" type="button" aria-label="Back to home">
@@ -126,23 +116,51 @@
         </div>
       </section>
 
-      <section id="reveal-view" class="view" hidden>
-        <div id="reveal-stage" class="stage">
-          <div class="baseline"></div>
-          <div id="reveal-true-line" class="true-line">
-            <span id="reveal-true-label"></span>
-          </div>
-          <div id="reveal-object-b-guess" class="obj obj-guess">
-            <span id="reveal-guess-img" class="obj-visual"></span>
-          </div>
-          <div id="reveal-object-b-true" class="obj obj-true">
-            <span id="reveal-true-img" class="obj-visual"></span>
-          </div>
+      <section id="reveal-view" class="view reveal-view" hidden>
+        <div class="guess-banner">
+          <button id="reveal-back-btn" class="guess-icon-btn" type="button" aria-label="Back to home">
+            <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="#ffffff" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><line x1="19" y1="12" x2="5" y2="12"></line><polyline points="12 19 5 12 12 5"></polyline></svg>
+          </button>
+          <div class="guess-banner-title">Guess the size</div>
+          <div class="guess-room-pill" id="reveal-room-code">-</div>
         </div>
-        <p id="reveal-summary"></p>
-        <h2>Results</h2>
-        <ol id="results-list"></ol>
-        <button id="play-again-btn" type="button" hidden>Play again</button>
+
+        <div class="guess-status-card">
+          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#3fb27f" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="9"></circle><polyline points="8 12 11 15 16 9"></polyline></svg>
+          <span class="reveal-status-text">Round complete</span>
+          <span class="guess-connection">
+            <span id="reveal-connection-dot" class="guess-dot"></span>
+            <span id="reveal-connection-text">Connecting…</span>
+          </span>
+        </div>
+
+        <div class="reveal-body">
+          <div id="reveal-stage" class="stage reveal-stage">
+            <div class="baseline"></div>
+            <div id="reveal-true-line" class="true-line">
+              <span id="reveal-true-label" class="reveal-true-pill"></span>
+            </div>
+            <div id="reveal-object-b-guess" class="obj obj-guess">
+              <span id="reveal-guess-img" class="obj-visual"></span>
+            </div>
+            <div id="reveal-object-b-true" class="obj obj-true">
+              <span id="reveal-true-img" class="obj-visual"></span>
+            </div>
+          </div>
+
+          <p id="reveal-summary" class="reveal-summary"></p>
+
+          <div class="reveal-results-section">
+            <div class="reveal-results-heading">Results</div>
+            <div class="reveal-results-card">
+              <ol id="results-list" class="reveal-results-list"></ol>
+            </div>
+          </div>
+
+          <div class="reveal-spacer"></div>
+          <button id="play-again-btn" class="guess-submit-btn" type="button" hidden>Play again</button>
+          <p id="reveal-waiting" class="lobby-waiting" hidden></p>
+        </div>
       </section>
     </main>
     <script type="module" src="./client.js"></script>

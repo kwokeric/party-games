@@ -1,0 +1,148 @@
+.reveal-view {
+  margin: -2rem calc(50% - 50vw) 0;
+  padding-bottom: 32px;
+}
+
+.reveal-status-text {
+  font-size: 12.5px;
+  color: rgba(0, 0, 0, 0.5);
+  flex: 1;
+}
+
+.reveal-body {
+  max-width: 900px;
+  margin: 0 auto;
+  padding: 0 20px;
+  box-sizing: border-box;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  flex: 1;
+  min-height: 0;
+}
+
+.reveal-stage {
+  width: 100%;
+  margin-top: 16px;
+  background: #e6e4dc;
+}
+
+.reveal-stage .baseline {
+  border-top-color: rgba(6, 123, 194, 0.18);
+}
+
+.obj-guess {
+  color: #84bcda;
+  opacity: 0.55;
+}
+
+.obj-true {
+  color: #d56062;
+}
+
+.true-line {
+  /* left/top/width are set from JS — they depend on the object's axis
+     and the true size's rendered pixel length, computed at reveal time. */
+  position: absolute;
+  border-top: 2px dashed #d56062;
+}
+
+.reveal-true-pill {
+  position: absolute;
+  left: 0;
+  top: -30px;
+  background: #d56062;
+  color: #ffffff;
+  font-size: 11px;
+  font-weight: 600;
+  padding: 3px 8px;
+  border-radius: 999px;
+  white-space: nowrap;
+}
+
+.reveal-summary {
+  width: 100%;
+  margin: 14px 0 0;
+  font-size: 14px;
+  line-height: 1.5;
+  color: rgba(0, 0, 0, 0.65);
+}
+
+.reveal-summary strong {
+  color: rgba(0, 0, 0, 0.85);
+}
+
+.reveal-results-section {
+  width: 100%;
+  margin-top: 18px;
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.reveal-results-heading {
+  font-family: "Fredoka", system-ui, sans-serif;
+  font-size: 16px;
+  font-weight: 600;
+  color: rgba(0, 0, 0, 0.85);
+}
+
+.reveal-results-card {
+  width: 100%;
+  background: #ffffff;
+  border-radius: 18px;
+  padding: 14px 16px;
+  box-sizing: border-box;
+  box-shadow: 0 8px 20px rgba(6, 123, 194, 0.12);
+}
+
+.reveal-results-list {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+
+.reveal-result-row {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+
+.reveal-avatar {
+  width: 34px;
+  height: 34px;
+  border-radius: 999px;
+  background: #84bcda;
+  color: rgba(0, 0, 0, 0.8);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-family: "Fredoka", system-ui, sans-serif;
+  font-weight: 600;
+  font-size: 12px;
+  flex-shrink: 0;
+}
+
+.reveal-result-name {
+  font-size: 15px;
+  color: rgba(0, 0, 0, 0.85);
+  flex: 1;
+}
+
+.reveal-result-score {
+  font-family: "Fredoka", system-ui, sans-serif;
+  font-weight: 700;
+  font-size: 15px;
+  color: rgba(0, 0, 0, 0.6);
+}
+
+.reveal-result-score.top {
+  color: #067bc2;
+}
+
+.reveal-spacer {
+  flex: 1;
+}
