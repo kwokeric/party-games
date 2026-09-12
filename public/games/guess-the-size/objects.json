@@ -9,13 +9,13 @@
     "source": "https://en.wikipedia.org/wiki/Ruby-throated_hummingbird"
   },
   {
-    "id": "iphone-15",
-    "name": "iPhone 15",
-    "length_m": 0.1476,
+    "id": "iphone-16-pro",
+    "name": "iPhone 16 Pro",
+    "length_m": 0.1496,
     "measured": "height",
-    "svg": "objects/iphone-15.svg",
+    "svg": "objects/iphone-16-pro.svg",
     "axis": "height",
-    "source": "https://en.wikipedia.org/wiki/IPhone_15"
+    "source": "https://en.wikipedia.org/wiki/IPhone_16_Pro"
   },
   {
     "id": "basketball",
@@ -637,5 +637,41 @@
     "svg": "objects/maple-leaf.svg",
     "axis": "width",
     "source": "https://mortonarb.org/plant-and-protect/trees-and-plants/sugar-maple/"
+  },
+  {
+    "id": "mexican-coke",
+    "name": "Mexican Coke",
+    "length_m": 0.2,
+    "measured": "bottle height (12 fl oz Mexican Coca-Cola glass bottle)",
+    "svg": "objects/mexican-coke.svg",
+    "axis": "height",
+    "source": "https://getacademy.blog/coca-cola-bottle-measurements"
+  },
+  {
+    "id": "pear",
+    "name": "Pear",
+    "length_m": 0.11,
+    "measured": "length (medium pear, ~10-12cm typical)",
+    "svg": "objects/pear.svg",
+    "axis": "height",
+    "source": "https://specialtyproduce.com/produce/Bartlett_Pears_3341.php"
+  },
+  {
+    "id": "apple",
+    "name": "Apple",
+    "length_m": 0.07,
+    "measured": "diameter (medium apple, ~70mm grading standard)",
+    "svg": "objects/apple.svg",
+    "axis": "width",
+    "source": "https://www.researchgate.net/figure/Size-parameters-of-whole-apple-fruit-fruit-core-and-seed-of-different-cultivars-of_tbl1_316829619"
+  },
+  {
+    "id": "light-bulb",
+    "name": "Light Bulb",
+    "length_m": 0.105,
+    "measured": "height (standard A19 bulb, ~4.1in)",
+    "svg": "objects/light-bulb.svg",
+    "axis": "height",
+    "source": "https://www.attainablehome.com/typical-a19-light-bulb-sizes-inches-and-cm/"
   }
 ]
