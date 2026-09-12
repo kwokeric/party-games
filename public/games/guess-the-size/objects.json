@@ -115,5 +115,239 @@
     "svg": "objects/boeing-737-800.svg",
     "axis": "width",
     "source": "https://en.wikipedia.org/wiki/Boeing_737_Next_Generation"
+  },
+  {
+    "id": "bowling-pin",
+    "name": "Bowling Pin",
+    "length_m": 0.381,
+    "measured": "height (regulation ten-pin, 15in)",
+    "svg": "objects/bowling-pin.svg",
+    "axis": "height",
+    "source": "https://en.wikipedia.org/wiki/Bowling_pin"
+  },
+  {
+    "id": "traffic-cone",
+    "name": "Traffic Cone",
+    "length_m": 0.457,
+    "measured": "height (common 18in outdoor size; sizes range 30cm-1m)",
+    "svg": "objects/traffic-cone.svg",
+    "axis": "height",
+    "source": "https://en.wikipedia.org/wiki/Traffic_cone"
+  },
+  {
+    "id": "disco-ball",
+    "name": "Disco Ball",
+    "length_m": 0.508,
+    "measured": "diameter (common large-venue mirror ball size, 20in)",
+    "svg": "objects/disco-ball.svg",
+    "axis": "width",
+    "source": "https://mobiledjbasics.com/disco-ball/"
+  },
+  {
+    "id": "red-panda",
+    "name": "Red Panda",
+    "length_m": 0.58,
+    "measured": "head-body length, excludes tail (51-63.5cm range)",
+    "svg": "objects/red-panda.svg",
+    "axis": "width",
+    "source": "https://en.wikipedia.org/wiki/Red_panda"
+  },
+  {
+    "id": "greater-flamingo",
+    "name": "Greater Flamingo",
+    "length_m": 1.3,
+    "measured": "height (adult, 1.1-1.5m range)",
+    "svg": "objects/greater-flamingo.svg",
+    "axis": "height",
+    "source": "https://en.wikipedia.org/wiki/Greater_flamingo"
+  },
+  {
+    "id": "emu",
+    "name": "Emu",
+    "length_m": 1.7,
+    "measured": "height (adult, 1.5-1.9m range)",
+    "svg": "objects/emu.svg",
+    "axis": "height",
+    "source": "https://en.wikipedia.org/wiki/Emu"
+  },
+  {
+    "id": "pool-table",
+    "name": "Pool Table (9-foot)",
+    "length_m": 2.54,
+    "measured": "playing surface length (regulation tournament size)",
+    "svg": "objects/pool-table.svg",
+    "axis": "width",
+    "source": "https://en.wikipedia.org/wiki/Pool_table"
+  },
+  {
+    "id": "komodo-dragon",
+    "name": "Komodo Dragon",
+    "length_m": 2.59,
+    "measured": "body length (average adult male)",
+    "svg": "objects/komodo-dragon.svg",
+    "axis": "width",
+    "source": "https://en.wikipedia.org/wiki/Komodo_dragon"
+  },
+  {
+    "id": "walrus",
+    "name": "Walrus",
+    "length_m": 2.85,
+    "measured": "body length (adult, 2.2-3.5m range)",
+    "svg": "objects/walrus.svg",
+    "axis": "width",
+    "source": "https://en.wikipedia.org/wiki/Walrus"
+  },
+  {
+    "id": "trampoline",
+    "name": "Trampoline (12-foot)",
+    "length_m": 3.66,
+    "measured": "frame diameter (common backyard round size)",
+    "svg": "objects/trampoline.svg",
+    "axis": "width",
+    "source": "https://www.trampolines.com/blogs/trampoline-news/12-foot-vs-14-foot-trampolines"
+  },
+  {
+    "id": "african-elephant",
+    "name": "African Elephant",
+    "length_m": 3.2,
+    "measured": "shoulder height (mature male average)",
+    "svg": "objects/african-elephant.svg",
+    "axis": "height",
+    "source": "https://en.wikipedia.org/wiki/African_bush_elephant"
+  },
+  {
+    "id": "great-white-shark",
+    "name": "Great White Shark",
+    "length_m": 4.6,
+    "measured": "body length (mature female average, 4.6-4.9m range)",
+    "svg": "objects/great-white-shark.svg",
+    "axis": "width",
+    "source": "https://en.wikipedia.org/wiki/Great_white_shark"
+  },
+  {
+    "id": "olympic-diving-platform",
+    "name": "Olympic Diving Platform",
+    "length_m": 10,
+    "measured": "platform height above water (10m, FINA/Olympic regulation)",
+    "svg": "objects/olympic-diving-platform.svg",
+    "axis": "height",
+    "source": "https://en.wikipedia.org/wiki/Platform_diving"
+  },
+  {
+    "id": "hot-air-balloon",
+    "name": "Hot Air Balloon",
+    "length_m": 21.3,
+    "measured": "envelope height (standard passenger balloon, ~70ft)",
+    "svg": "objects/hot-air-balloon.svg",
+    "axis": "height",
+    "source": "https://sonomaballooning.com/how-big-is-a-hot-air-balloon/"
+  },
+  {
+    "id": "blue-whale",
+    "name": "Blue Whale",
+    "length_m": 24,
+    "measured": "body length (adult average ~24m; populations range 21-27m)",
+    "svg": "objects/blue-whale.svg",
+    "axis": "width",
+    "source": "https://en.wikipedia.org/wiki/Blue_whale"
+  },
+  {
+    "id": "london-eye",
+    "name": "London Eye",
+    "length_m": 120,
+    "measured": "wheel diameter",
+    "svg": "objects/london-eye.svg",
+    "axis": "width",
+    "source": "https://en.wikipedia.org/wiki/London_Eye"
+  },
+  {
+    "id": "hedgehog",
+    "name": "Hedgehog",
+    "length_m": 0.22,
+    "measured": "head-body length (adult, 16-26cm+ range)",
+    "svg": "objects/hedgehog.svg",
+    "axis": "width",
+    "source": "https://en.wikipedia.org/wiki/European_hedgehog"
+  },
+  {
+    "id": "alpaca",
+    "name": "Alpaca",
+    "length_m": 0.9,
+    "measured": "height at shoulder (adult, 81-99cm range)",
+    "svg": "objects/alpaca.svg",
+    "axis": "height",
+    "source": "https://en.wikipedia.org/wiki/Alpaca"
+  },
+  {
+    "id": "whiteleg-shrimp",
+    "name": "Shrimp",
+    "length_m": 0.23,
+    "measured": "body length (max, whiteleg/Pacific white shrimp)",
+    "svg": "objects/whiteleg-shrimp.svg",
+    "axis": "width",
+    "source": "https://en.wikipedia.org/wiki/Whiteleg_shrimp"
+  },
+  {
+    "id": "goliath-frog",
+    "name": "Goliath Frog",
+    "length_m": 0.32,
+    "measured": "snout-vent length (large adult; up to 45cm max)",
+    "svg": "objects/goliath-frog.svg",
+    "axis": "width",
+    "source": "https://en.wikipedia.org/wiki/Goliath_frog"
+  },
+  {
+    "id": "capuchin-monkey",
+    "name": "Capuchin Monkey",
+    "length_m": 0.43,
+    "measured": "body length, excludes tail (adult, 30-56cm range)",
+    "svg": "objects/capuchin-monkey.svg",
+    "axis": "width",
+    "source": "https://en.wikipedia.org/wiki/Capuchin_monkey"
+  },
+  {
+    "id": "humpback-anglerfish",
+    "name": "Lantern Anglerfish",
+    "length_m": 0.153,
+    "measured": "body length (female, up to 15.3cm)",
+    "svg": "objects/humpback-anglerfish.svg",
+    "axis": "width",
+    "source": "https://en.wikipedia.org/wiki/Humpback_anglerfish"
+  },
+  {
+    "id": "coconut-crab",
+    "name": "Coconut Crab",
+    "length_m": 0.91,
+    "measured": "leg span (up to 0.91m+)",
+    "svg": "objects/coconut-crab.svg",
+    "axis": "width",
+    "source": "https://en.wikipedia.org/wiki/Coconut_crab"
+  },
+  {
+    "id": "green-sea-turtle",
+    "name": "Green Sea Turtle",
+    "length_m": 0.95,
+    "measured": "carapace length (adult average, 78-112cm range)",
+    "svg": "objects/green-sea-turtle.svg",
+    "axis": "width",
+    "source": "https://en.wikipedia.org/wiki/Green_sea_turtle"
+  },
+  {
+    "id": "giant-oceanic-manta-ray",
+    "name": "Giant Oceanic Manta Ray",
+    "length_m": 4.5,
+    "measured": "disc width (typical; up to 7m max)",
+    "svg": "objects/giant-oceanic-manta-ray.svg",
+    "axis": "width",
+    "source": "https://en.wikipedia.org/wiki/Giant_oceanic_manta_ray"
+  },
+  {
+    "id": "giant-squid",
+    "name": "Giant Squid",
+    "length_m": 12.5,
+    "measured": "total length incl. tentacles (female, 12-13m range)",
+    "svg": "objects/giant-squid.svg",
+    "axis": "height",
+    "source": "https://en.wikipedia.org/wiki/Giant_squid"
   }
 ]

@@ -1,0 +1,21 @@
+<svg viewBox="0 0 100 26" xmlns="http://www.w3.org/2000/svg">
+  <g fill="currentColor">
+    <rect x="10" y="18" width="4" height="7"/>
+    <rect x="22" y="18" width="4" height="7"/>
+    <rect x="62" y="18" width="4" height="7"/>
+    <rect x="74" y="18" width="4" height="7"/>
+    <path d="
+      M2,14
+      C2,9 8,6 16,6
+      L60,5
+      C68,5 74,7 78,10
+      L84,8
+      L88,11
+      L80,13
+      C76,17 68,20 58,20
+      L16,19
+      C8,19 2,18 2,14
+      Z"/>
+    <polygon points="78,10 100,4 84,14"/>
+  </g>
+</svg>

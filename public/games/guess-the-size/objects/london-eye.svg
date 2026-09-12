@@ -1,0 +1,18 @@
+<svg viewBox="0 0 100 112" xmlns="http://www.w3.org/2000/svg">
+  <g fill="currentColor">
+    <path fill-rule="evenodd" d="
+      M50,50 m-48,0 a48,48 0 1,0 96,0 a48,48 0 1,0 -96,0
+      M50,50 m-42,0 a42,42 0 1,0 84,0 a42,42 0 1,0 -84,0
+    "/>
+    <circle cx="50" cy="2" r="3.2"/>
+    <circle cx="50" cy="98" r="3.2"/>
+    <circle cx="2" cy="50" r="3.2"/>
+    <circle cx="98" cy="50" r="3.2"/>
+    <circle cx="15.9" cy="15.9" r="3.2"/>
+    <circle cx="84.1" cy="15.9" r="3.2"/>
+    <circle cx="15.9" cy="84.1" r="3.2"/>
+    <circle cx="84.1" cy="84.1" r="3.2"/>
+    <path d="M50,50 L18,112 L26,112 L54,56 Z"/>
+    <path d="M50,50 L82,112 L74,112 L46,56 Z"/>
+  </g>
+</svg>

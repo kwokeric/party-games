@@ -1,0 +1,9 @@
+<svg viewBox="0 0 70 100" xmlns="http://www.w3.org/2000/svg">
+  <g fill="currentColor">
+    <path d="M35,2 C54,2 64,24 64,40 C64,60 51,72 35,72 C19,72 6,60 6,40 C6,24 16,2 35,2 Z"/>
+    <rect x="19" y="72" width="2" height="18"/>
+    <rect x="34" y="72" width="2" height="18"/>
+    <rect x="49" y="72" width="2" height="18"/>
+    <rect x="25" y="88" width="20" height="11" rx="2"/>
+  </g>
+</svg>

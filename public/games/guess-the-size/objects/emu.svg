@@ -1,0 +1,11 @@
+<svg viewBox="0 0 45 100" xmlns="http://www.w3.org/2000/svg">
+  <g fill="currentColor">
+    <ellipse cx="20" cy="58" rx="18" ry="22"/>
+    <path d="M24,38 C22,26 24,12 30,3 C33,9 32,17 34,23 C36,17 38,11 40,9 C40,17 36,27 30,35 Z"/>
+    <circle cx="31" cy="7" r="3.6"/>
+    <rect x="13" y="76" width="4" height="22"/>
+    <rect x="24" y="76" width="4" height="22"/>
+    <path d="M10,98 L20,98 L17,94 L13,94 Z"/>
+    <path d="M21,98 L31,98 L28,94 L24,94 Z"/>
+  </g>
+</svg>
