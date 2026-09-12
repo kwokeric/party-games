@@ -363,6 +363,27 @@ resizeHandle.addEventListener("pointerdown", (e) => {
   dragStartPos = round.objectB.axis === "width" ? e.clientX : e.clientY;
 });
 
+// Keeps the drag handle from reaching the edge of the stage mid-drag by
+// zooming out live, rather than only correcting after the drag ends.
+const EDGE_MARGIN_PX = 28;
+
+function keepHandleInBounds() {
+  if (!round) return;
+  const stageRect = stage.getBoundingClientRect();
+  const handleRect = resizeHandle.getBoundingClientRect();
+  const overflow =
+    round.objectB.axis === "width"
+      ? handleRect.right - (stageRect.right - EDGE_MARGIN_PX)
+      : stageRect.top + EDGE_MARGIN_PX - handleRect.top;
+  if (overflow <= 0) return;
+  const bPx = guessLength * basePxPerMeter * zoom;
+  const availablePx = Math.max(10, bPx - overflow);
+  zoom = Math.max(0.2, zoom * (availablePx / bPx));
+  renderObjectA();
+  renderObjectB();
+  positionObjectB();
+}
+
 resizeHandle.addEventListener("pointermove", (e) => {
   if (!dragging || !round) return;
   const pxPerMeter = basePxPerMeter * zoom;
@@ -374,6 +395,7 @@ resizeHandle.addEventListener("pointermove", (e) => {
   }
   guessLength = Math.max(0.01, dragStartGuess + deltaPx / pxPerMeter);
   renderObjectB();
+  keepHandleInBounds();
 });
 
 function endDrag() {
@@ -386,13 +408,13 @@ resizeHandle.addEventListener("pointerup", endDrag);
 resizeHandle.addEventListener("pointercancel", endDrag);
 
 zoomInBtn.addEventListener("click", () => {
-  zoom = Math.min(5, zoom * 2);
+  zoom = Math.min(5, zoom * 1.5);
   renderObjectA();
   renderObjectB();
   positionObjectB();
 });
 zoomOutBtn.addEventListener("click", () => {
-  zoom = Math.max(0.2, zoom * 0.75);
+  zoom = Math.max(0.2, zoom / 1.5);
   renderObjectA();
   renderObjectB();
   positionObjectB();

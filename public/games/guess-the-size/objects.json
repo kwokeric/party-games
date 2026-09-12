@@ -349,5 +349,293 @@
     "svg": "objects/giant-squid.svg",
     "axis": "height",
     "source": "https://en.wikipedia.org/wiki/Giant_squid"
+  },
+  {
+    "id": "wild-turkey",
+    "name": "Wild Turkey",
+    "length_m": 1.125,
+    "measured": "body length (adult male, 100-125cm range)",
+    "svg": "objects/wild-turkey.svg",
+    "axis": "width",
+    "source": "https://en.wikipedia.org/wiki/Wild_turkey"
+  },
+  {
+    "id": "trex-skull",
+    "name": "T. Rex Skull",
+    "length_m": 1.394,
+    "measured": "skull length (\"Sue\" specimen, one of the largest known)",
+    "svg": "objects/trex-skull.svg",
+    "axis": "width",
+    "source": "https://en.wikipedia.org/wiki/Sue_(dinosaur)"
+  },
+  {
+    "id": "white-house",
+    "name": "The White House",
+    "length_m": 51.2,
+    "measured": "building length (168ft)",
+    "svg": "objects/white-house.svg",
+    "axis": "width",
+    "source": "https://www.whitehousehistory.org/press-room/press-backgrounders/white-house-dimensions"
+  },
+  {
+    "id": "space-shuttle",
+    "name": "Space Shuttle",
+    "length_m": 37.237,
+    "measured": "orbiter length (overall)",
+    "svg": "objects/space-shuttle.svg",
+    "axis": "height",
+    "source": "https://en.wikipedia.org/wiki/Space_Shuttle_orbiter"
+  },
+  {
+    "id": "golf-ball",
+    "name": "Golf Ball",
+    "length_m": 0.04267,
+    "measured": "diameter (USGA/R&A minimum conforming diameter)",
+    "svg": "objects/golf-ball.svg",
+    "axis": "width",
+    "source": "https://en.wikipedia.org/wiki/Golf_ball"
+  },
+  {
+    "id": "rubiks-cube",
+    "name": "Rubik's Cube",
+    "length_m": 0.056,
+    "measured": "edge length (standard 3x3x3 cube)",
+    "svg": "objects/rubiks-cube.svg",
+    "axis": "width",
+    "source": "https://en.wikipedia.org/wiki/Rubik%27s_Cube"
+  },
+  {
+    "id": "praying-mantis",
+    "name": "Praying Mantis",
+    "length_m": 0.07,
+    "measured": "body length (European mantis, females 6-8cm range, midpoint used)",
+    "svg": "objects/praying-mantis.svg",
+    "axis": "width",
+    "source": "https://en.wikipedia.org/wiki/Mantis_religiosa"
+  },
+  {
+    "id": "chess-king",
+    "name": "Chess King (Piece)",
+    "length_m": 0.095,
+    "measured": "height (FIDE-recommended Staunton tournament king height, 3.75in/95mm)",
+    "svg": "objects/chess-king.svg",
+    "axis": "height",
+    "source": "https://www.houseofstaunton.com/blogs/general/chess-piece-sizes"
+  },
+  {
+    "id": "soccer-ball",
+    "name": "Soccer Ball",
+    "length_m": 0.2196,
+    "measured": "diameter (calculated from FIFA circumference spec of 68-70cm, midpoint)",
+    "svg": "objects/soccer-ball.svg",
+    "axis": "width",
+    "source": "https://en.wikipedia.org/wiki/Football_(ball)"
+  },
+  {
+    "id": "vinyl-record",
+    "name": "Vinyl Record (LP)",
+    "length_m": 0.302,
+    "measured": "diameter (12-inch LP standard, 11-7/8in ± 1/32in)",
+    "svg": "objects/vinyl-record.svg",
+    "axis": "width",
+    "source": "https://en.wikipedia.org/wiki/Phonograph_record"
+  },
+  {
+    "id": "saxophone-alto",
+    "name": "Alto Saxophone",
+    "length_m": 0.65,
+    "measured": "overall length (with neck and mouthpiece attached)",
+    "svg": "objects/saxophone-alto.svg",
+    "axis": "height",
+    "source": "https://saxtalk.com/describe-the-typical-weight-and-dimensions-of-the-most-common-saxophones-soprano-alto-tenor-and-baritone.html"
+  },
+  {
+    "id": "bald-eagle",
+    "name": "Bald Eagle",
+    "length_m": 2.05,
+    "measured": "wingspan (1.8-2.3m range, midpoint used)",
+    "svg": "objects/bald-eagle.svg",
+    "axis": "width",
+    "source": "https://en.wikipedia.org/wiki/Bald_eagle"
+  },
+  {
+    "id": "acoustic-guitar",
+    "name": "Acoustic Guitar",
+    "length_m": 0.99,
+    "measured": "overall length (standard dreadnought, 38-40in range, midpoint used)",
+    "svg": "objects/acoustic-guitar.svg",
+    "axis": "height",
+    "source": "https://www.guitarchalk.com/acoustic-guitar-dimensions/"
+  },
+  {
+    "id": "open-umbrella",
+    "name": "Open Umbrella",
+    "length_m": 1.14,
+    "measured": "open canopy diameter (standard walking umbrella, 42-48in/107-122cm range, midpoint used)",
+    "svg": "objects/open-umbrella.svg",
+    "axis": "width",
+    "source": "https://artisanumbrellas.com/blogs/journal/umbrella-size-guide-what-canopy-diameter-do-you-actually-need-inches-cm"
+  },
+  {
+    "id": "sunflower",
+    "name": "Sunflower",
+    "length_m": 3,
+    "measured": "stem height (cultivated common sunflower, typical mature height)",
+    "svg": "objects/sunflower.svg",
+    "axis": "height",
+    "source": "https://en.wikipedia.org/wiki/Helianthus_annuus"
+  },
+  {
+    "id": "vw-beetle",
+    "name": "Volkswagen Beetle (Classic)",
+    "length_m": 4.11,
+    "measured": "overall length (original air-cooled Beetle, 4079-4140mm range, midpoint used)",
+    "svg": "objects/vw-beetle.svg",
+    "axis": "width",
+    "source": "https://en.wikipedia.org/wiki/Volkswagen_Beetle"
+  },
+  {
+    "id": "green-anaconda",
+    "name": "Green Anaconda",
+    "length_m": 5.21,
+    "measured": "body length (longest scientifically verified specimen; typical mature female average ~4.6m)",
+    "svg": "objects/green-anaconda.svg",
+    "axis": "width",
+    "source": "https://en.wikipedia.org/wiki/Green_anaconda"
+  },
+  {
+    "id": "orca",
+    "name": "Orca (Killer Whale)",
+    "length_m": 7,
+    "measured": "body length (adult male typical range 6-8m, midpoint used)",
+    "svg": "objects/orca.svg",
+    "axis": "width",
+    "source": "https://en.wikipedia.org/wiki/Orca"
+  },
+  {
+    "id": "stretch-limousine",
+    "name": "Stretch Limousine",
+    "length_m": 9.14,
+    "measured": "length (standard stretch limousine, commonly 25-30ft range; 30ft used)",
+    "svg": "objects/stretch-limousine.svg",
+    "axis": "width",
+    "source": "https://nationallimoservices.com/how-long-is-a-limousine/"
+  },
+  {
+    "id": "double-decker-bus",
+    "name": "London Double-Decker Bus",
+    "length_m": 11.23,
+    "measured": "overall length (New Routemaster, current London double-decker)",
+    "svg": "objects/double-decker-bus.svg",
+    "axis": "width",
+    "source": "https://en.wikipedia.org/wiki/New_Routemaster"
+  },
+  {
+    "id": "t-rex",
+    "name": "Tyrannosaurus Rex",
+    "length_m": 12.3,
+    "measured": "body length (specimen \"Sue\", one of the most complete known skeletons)",
+    "svg": "objects/t-rex.svg",
+    "axis": "width",
+    "source": "https://en.wikipedia.org/wiki/Tyrannosaurus"
+  },
+  {
+    "id": "sperm-whale",
+    "name": "Sperm Whale",
+    "length_m": 16,
+    "measured": "body length (adult male average)",
+    "svg": "objects/sperm-whale.svg",
+    "axis": "width",
+    "source": "https://en.wikipedia.org/wiki/Sperm_whale"
+  },
+  {
+    "id": "statue-of-liberty",
+    "name": "Statue of Liberty",
+    "length_m": 93,
+    "measured": "height (ground level to tip of torch)",
+    "svg": "objects/statue-of-liberty.svg",
+    "axis": "height",
+    "source": "https://en.wikipedia.org/wiki/Statue_of_Liberty"
+  },
+  {
+    "id": "eiffel-tower",
+    "name": "Eiffel Tower",
+    "length_m": 330,
+    "measured": "height (including broadcasting antennas)",
+    "svg": "objects/eiffel-tower.svg",
+    "axis": "height",
+    "source": "https://en.wikipedia.org/wiki/Eiffel_Tower"
+  },
+  {
+    "id": "helicopter",
+    "name": "Helicopter",
+    "length_m": 11.66,
+    "measured": "overall length (Robinson R44, common civilian helicopter)",
+    "svg": "objects/helicopter.svg",
+    "axis": "width",
+    "source": "https://en.wikipedia.org/wiki/Robinson_R44"
+  },
+  {
+    "id": "yacht",
+    "name": "Yacht",
+    "length_m": 55,
+    "measured": "length (average superyacht, 50-60m typical range)",
+    "svg": "objects/yacht.svg",
+    "axis": "width",
+    "source": "https://blog.yatco.com/yacht-sizes/"
+  },
+  {
+    "id": "gondola",
+    "name": "Gondola",
+    "length_m": 11,
+    "measured": "length (traditional Venetian gondola, up to 11m)",
+    "svg": "objects/gondola.svg",
+    "axis": "width",
+    "source": "https://en.wikipedia.org/wiki/Gondola"
+  },
+  {
+    "id": "snowmobile",
+    "name": "Snowmobile",
+    "length_m": 3.15,
+    "measured": "length (full-size snowmobile, 2.9-3.4m range)",
+    "svg": "objects/snowmobile.svg",
+    "axis": "width",
+    "source": "https://powersportsguide.com/snowmobile-dimensions/"
+  },
+  {
+    "id": "motorcycle",
+    "name": "Motorcycle",
+    "length_m": 2.0,
+    "measured": "length (typical street motorcycle)",
+    "svg": "objects/motorcycle.svg",
+    "axis": "width",
+    "source": "https://powersportsguide.com/average-motorcycle-dimensions/"
+  },
+  {
+    "id": "football-helmet",
+    "name": "Football Helmet",
+    "length_m": 0.2794,
+    "measured": "height (authentic full-size NFL helmet, ~11in)",
+    "svg": "objects/football-helmet.svg",
+    "axis": "height",
+    "source": "https://www.riddell.com/riddell/en/Open-Catalogue/Collectibles/NFL/Authentic-Full-Size/NFL-Shield-Authentic-Speedflex/p/000000000008058698"
+  },
+  {
+    "id": "golf-club",
+    "name": "Golf Club (Driver)",
+    "length_m": 1.156,
+    "measured": "length (standard men's driver, 45.5-45.75in range)",
+    "svg": "objects/golf-club.svg",
+    "axis": "height",
+    "source": "https://golf.com/gear/drivers/which-driver-length-should-you-play/"
+  },
+  {
+    "id": "maple-leaf",
+    "name": "Maple Leaf",
+    "length_m": 0.14,
+    "measured": "leaf width (sugar maple, 8-20cm range)",
+    "svg": "objects/maple-leaf.svg",
+    "axis": "width",
+    "source": "https://mortonarb.org/plant-and-protect/trees-and-plants/sugar-maple/"
   }
 ]
