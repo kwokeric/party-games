@@ -908,5 +908,45 @@
     "axis": "height",
     "category": "food",
     "source": "https://www.dimensions.com/element/soda-bottle-2-liter"
+  },
+  {
+    "id": "jason-ski-mask",
+    "name": "Hockey Goalie Mask",
+    "length_m": 0.26,
+    "measured": "approximate height (full-face ice hockey goalie mask)",
+    "svg": "objects/jason-ski-mask.svg",
+    "axis": "height",
+    "category": "object",
+    "source": "https://www.icewarehouse.com/lc/goaliemasks.html"
+  },
+  {
+    "id": "life-jacket",
+    "name": "Life Jacket",
+    "length_m": 0.61,
+    "measured": "length (standard adult size)",
+    "svg": "objects/life-jacket.svg",
+    "axis": "height",
+    "category": "object",
+    "source": "https://www.westmarine.com/safety-gear-hub/life-jacket-sizing-charts.html"
+  },
+  {
+    "id": "kangaroo",
+    "name": "Red Kangaroo",
+    "length_m": 1.5,
+    "measured": "standing height (adult, 1.5-1.8m range)",
+    "svg": "objects/kangaroo.svg",
+    "axis": "height",
+    "category": "animal",
+    "source": "https://www.nationalgeographic.com/animals/mammals/facts/red-kangaroo"
+  },
+  {
+    "id": "tortoise",
+    "name": "Galapagos Tortoise",
+    "length_m": 1.3,
+    "measured": "body length (adult, 1.2-1.5m range)",
+    "svg": "objects/tortoise.svg",
+    "axis": "width",
+    "category": "animal",
+    "source": "https://www.dimensions.com/element/galapagos-giant-tortoise"
   }
 ]

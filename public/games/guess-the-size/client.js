@@ -252,12 +252,16 @@ const BASELINE_OFFSET = 48;
 
 // Object B starts just to the right of wherever object A actually ends,
 // rather than a fixed offset, so a small reference object leaves more
-// room to drag before running off the visible stage.
+// room to drag before running off the visible stage. The label can be much
+// wider than a narrow icon (e.g. "Chess King (Piece)"), so its right edge
+// has to be considered too or it overlaps object B's own label.
 function positionObjectB() {
   const stageRect = stage.getBoundingClientRect();
   const aRect = el("object-a").getBoundingClientRect();
+  const aLabelRect = objectAStageLabel.getBoundingClientRect();
+  const rightEdge = Math.max(aRect.right, aLabelRect.right);
   const gap = 24;
-  el("object-b").style.left = `${aRect.right - stageRect.left + gap}px`;
+  el("object-b").style.left = `${rightEdge - stageRect.left + gap}px`;
 }
 
 // Keeps the larger of the two objects within a comfortable size on
