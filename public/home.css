@@ -25,16 +25,35 @@ a:hover {
 }
 
 .home-page {
-  max-width: 440px;
-  margin: 0 auto;
   padding-bottom: 40px;
 }
 
+/* Full-bleed edge-to-edge banner, matching the lobby/game views' shell —
+   the homepage previously capped this at 440px like a floating card, which
+   looked inconsistent with every other page in the app. */
 .home-header {
   background: var(--blue);
   border-radius: 0 0 32px 32px;
   padding: 40px 24px 32px;
   text-align: center;
+}
+
+/* The join form is a couple of short inputs — it stays a comfortable,
+   narrow reading width even though the page shell itself is wide. The
+   games section gets the full 1000px so its grid has room to breathe. */
+.join-section,
+.divider {
+  max-width: 480px;
+  margin-left: auto;
+  margin-right: auto;
+  box-sizing: border-box;
+}
+
+.games-section {
+  max-width: 1000px;
+  margin-left: auto;
+  margin-right: auto;
+  box-sizing: border-box;
 }
 
 .home-header h1 {
@@ -155,10 +174,15 @@ a:hover {
   color: var(--ink);
 }
 
+/* auto-fill (not auto-fit) so a lone card takes one 400px-ish column
+   instead of stretching to fill the whole row — cards stay a consistent
+   size whether there's one game or a dozen. On narrow/mobile screens this
+   naturally collapses to a single vertically-scrolling column. */
 .game-grid {
-  display: flex;
-  flex-direction: column;
-  gap: 14px;
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(320px, 400px));
+  justify-content: center;
+  gap: 16px;
 }
 
 .game-card {
@@ -170,6 +194,7 @@ a:hover {
   display: flex;
   flex-direction: column;
   gap: 10px;
+  box-sizing: border-box;
 }
 
 .game-badge {

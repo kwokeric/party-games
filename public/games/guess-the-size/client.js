@@ -502,6 +502,12 @@ let dragStartGuess = 0;
 
 resizeHandle.addEventListener("pointerdown", (e) => {
   if (hasSubmitted) return;
+  // On desktop (mouse, not touch) a drag that passes over the object labels
+  // can otherwise kick off the browser's native text-selection/drag-ghost
+  // behavior, which steals the remaining pointermove events from us — the
+  // resize visually "sticks" mid-drag and then reverts on release since our
+  // state was never updated. preventDefault blocks that native behavior.
+  e.preventDefault();
   dragging = true;
   resizeHandle.setPointerCapture(e.pointerId);
   resizeHandle.classList.add("dragging");

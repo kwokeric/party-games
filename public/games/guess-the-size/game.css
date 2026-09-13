@@ -1,5 +1,5 @@
 .game-page {
-  max-width: 900px;
+  max-width: 1000px;
 }
 
 /* Several elements on this page (the header, lobby buttons) set an
@@ -55,6 +55,12 @@
 
 .obj-visual {
   display: block;
+  /* Inline SVGs are natively draggable in some desktop browsers; without
+     this, a drag that starts slightly off the small resize handle grabs the
+     icon instead, kicking off a native drag-ghost that swallows the
+     pointermove events our own resize logic needs. */
+  -webkit-user-drag: none;
+  user-drag: none;
 }
 
 .obj-visual svg {
@@ -69,6 +75,10 @@
   font-size: 0.8rem;
   color: #ccc;
   margin-top: 4px;
+  /* Prevents a drag that passes over the label from turning into a native
+     text selection on desktop, which otherwise steals the drag. */
+  user-select: none;
+  -webkit-user-select: none;
 }
 
 #object-a {

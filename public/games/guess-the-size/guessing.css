@@ -46,9 +46,13 @@
 }
 
 .guess-status-card {
-  max-width: calc(900px - 40px);
+  /* width+margin:auto (not the old margin:0 20px) so this centers within
+     the full-bleed .guessing-view/.reveal-view/.final-view on wide desktop
+     screens, while still keeping the same 20px gutter on narrow ones. */
+  width: calc(100% - 40px);
+  max-width: calc(1000px - 40px);
   min-height: 50px;
-  margin: 0 20px;
+  margin: 0 auto;
   background: #ffffff;
   border-radius: 0 0 16px 16px;
   padding: 10px 14px;
@@ -115,7 +119,7 @@
 }
 
 .guessing-body {
-  max-width: 900px;
+  max-width: 1000px;
   margin: 0 auto;
   padding: 0 20px;
   box-sizing: border-box;

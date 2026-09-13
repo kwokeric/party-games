@@ -948,5 +948,115 @@
     "axis": "width",
     "category": "animal",
     "source": "https://www.dimensions.com/element/galapagos-giant-tortoise"
+  },
+  {
+    "id": "costco-shopping-cart",
+    "name": "Costco Shopping Cart",
+    "length_m": 1.064,
+    "measured": "length (industry estimate; Costco doesn't publish exact specs)",
+    "svg": "objects/costco-shopping-cart.svg",
+    "axis": "width",
+    "category": "object",
+    "source": "https://www.trolleymfg.com/what-type-of-shopping-carts-does-costco-use/"
+  },
+  {
+    "id": "hand-grenade",
+    "name": "Hand Grenade",
+    "length_m": 0.0897,
+    "measured": "body height (M67 fragmentation grenade)",
+    "svg": "objects/hand-grenade.svg",
+    "axis": "height",
+    "category": "object",
+    "source": "https://en.wikipedia.org/wiki/M67_grenade"
+  },
+  {
+    "id": "dutch-oven",
+    "name": "6-Quart Dutch Oven",
+    "length_m": 0.305,
+    "measured": "diameter (12in, typical 6qt cast iron dutch oven)",
+    "svg": "objects/dutch-oven.svg",
+    "axis": "width",
+    "category": "object",
+    "source": "https://www.dutchovenscookware.com/6-qt-vs-8-qt-dutch-oven/"
+  },
+  {
+    "id": "martini-glass",
+    "name": "Martini Glass",
+    "length_m": 0.175,
+    "measured": "overall height (standard glass, 6.875in)",
+    "svg": "objects/martini-glass.svg",
+    "axis": "height",
+    "category": "object",
+    "source": "https://www.dimensions.com/element/martini-glass"
+  },
+  {
+    "id": "electric-razor",
+    "name": "Electric Razor",
+    "length_m": 0.13,
+    "measured": "body length (typical full-size electric shaver)",
+    "svg": "objects/electric-razor.svg",
+    "axis": "width",
+    "category": "object",
+    "source": "https://en.wikipedia.org/wiki/Electric_shaver"
+  },
+  {
+    "id": "stegosaurus",
+    "name": "Stegosaurus",
+    "length_m": 9,
+    "measured": "body length (larger adult specimens, 7-9m typical)",
+    "svg": "objects/stegosaurus.svg",
+    "axis": "width",
+    "category": "animal",
+    "source": "https://study.com/academy/lesson/stegosaurus-dinosaur-facts-size.html"
+  },
+  {
+    "id": "triceratops",
+    "name": "Triceratops",
+    "length_m": 9,
+    "measured": "body length (average adult, 8-9m range)",
+    "svg": "objects/triceratops.svg",
+    "axis": "width",
+    "category": "animal",
+    "source": "https://biologyinsights.com/how-big-was-a-triceratops-length-height-and-weight/"
+  },
+  {
+    "id": "albatross",
+    "name": "Wandering Albatross",
+    "length_m": 3.63,
+    "measured": "wingspan (longest wingspan of any living bird)",
+    "svg": "objects/albatross.svg",
+    "axis": "width",
+    "category": "animal",
+    "source": "https://en.wikipedia.org/wiki/Wandering_albatross"
+  },
+  {
+    "id": "camel",
+    "name": "Dromedary Camel",
+    "length_m": 2,
+    "measured": "height at the hump (adult, 1.8-2.4m range)",
+    "svg": "objects/camel.svg",
+    "axis": "height",
+    "category": "animal",
+    "source": "https://en.wikipedia.org/wiki/Dromedary"
+  },
+  {
+    "id": "dove",
+    "name": "Mourning Dove",
+    "length_m": 0.28,
+    "measured": "body length (23-33cm range, midpoint used)",
+    "svg": "objects/dove.svg",
+    "axis": "width",
+    "category": "animal",
+    "source": "https://en.wikipedia.org/wiki/Mourning_dove"
+  },
+  {
+    "id": "tophat",
+    "name": "Top Hat",
+    "length_m": 0.14,
+    "measured": "crown height (modern standard, ~5.5in)",
+    "svg": "objects/tophat.svg",
+    "axis": "height",
+    "category": "object",
+    "source": "https://www.hatrealm.com/top-hats-how-tall-should-they-be/"
   }
 ]
