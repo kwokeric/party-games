@@ -6,51 +6,57 @@
     <title>Party Games</title>
     <link rel="icon" href="/favicon.ico" sizes="any" />
     <link rel="stylesheet" href="/normalize.css" />
+    <link rel="stylesheet" href="/shared/app-shell.css" />
     <link rel="stylesheet" href="/home.css" />
   </head>
   <body>
+    <div class="app-topbar">
+      <span class="app-topbar-dot"></span>
+      <span class="app-topbar-word">PARTY GAMES</span>
+    </div>
     <main class="home-page">
-      <div class="home-header">
-        <h1>Party Games</h1>
-      </div>
-
-      <section class="join-section">
-        <h2>Join a room</h2>
-        <div class="join-row">
-          <input
-            id="join-name"
-            class="home-input"
-            type="text"
-            placeholder="Your name"
-            autocomplete="off"
-            maxlength="20"
-          />
-          <input
-            id="join-code"
-            class="home-input"
-            type="text"
-            placeholder="CODE"
-            maxlength="4"
-            autocomplete="off"
-            autocapitalize="characters"
-          />
+      <div class="app-shell">
+        <div class="app-pagehead">
+          <div class="app-pagehead-left">
+            <div class="app-pagehead-titles">
+              <h1>Party Games</h1>
+              <p>Pick a game and start playing with friends</p>
+            </div>
+          </div>
         </div>
-        <button id="join-btn" class="home-btn join-btn" type="button">Join a room</button>
-        <p id="join-error" class="error"></p>
-      </section>
 
-      <div class="divider">
-        <div class="line"></div>
-        <span class="divider-icon" aria-hidden="true">
-          <svg xmlns="http://www.w3.org/2000/svg" version="1.1" xmlns:xlink="http://www.w3.org/1999/xlink" width="40" height="40" x="0" y="0" viewBox="0 0 682.667 682.667" style="enable-background:new 0 0 512 512" xml:space="preserve" class=""><g><defs><clipPath id="a" clipPathUnits="userSpaceOnUse"><path d="M0 512h512V0H0Z" fill="#000000" opacity="1" data-original="#000000"></path></clipPath></defs><g clip-path="url(#a)" transform="matrix(1.33333 0 0 -1.33333 0 682.667)"><path d="M0 0c4.307 15.431 6.61 31.698 6.61 48.503 0 99.411-80.588 180-180 180-99.411 0-180-80.589-180-180s80.589-180 180-180c50.456 0 96.063 20.759 128.745 54.203" style="stroke-width:20;stroke-linecap:round;stroke-linejoin:round;stroke-miterlimit:10;stroke-dasharray:none;stroke-opacity:1" transform="translate(429.39 141.497)" fill="none" stroke="#067bc2" stroke-width="20" stroke-linecap="round" stroke-linejoin="round" stroke-miterlimit="10" stroke-dasharray="none" stroke-opacity="1" data-original="#000000" class=""></path><path d="M0 0c0 99.411-40.294 180-90 180s-90-80.589-90-180 40.294-180 90-180S0-99.411 0 0" style="stroke-width:20;stroke-linecap:round;stroke-linejoin:round;stroke-miterlimit:10;stroke-dasharray:none;stroke-opacity:1" transform="translate(346 190)" fill="none" stroke="#067bc2" stroke-width="20" stroke-linecap="round" stroke-linejoin="round" stroke-miterlimit="10" stroke-dasharray="none" stroke-opacity="1" data-original="#000000" class=""></path><path d="M0 0v30.885C0 38.128-5.872 44-13.115 44h-54.154c-7.244 0-13.116-5.872-13.116-13.115V0Z" style="stroke-width:20;stroke-linecap:round;stroke-linejoin:round;stroke-miterlimit:10;stroke-dasharray:none;stroke-opacity:1" transform="translate(296.192 370)" fill="none" stroke="#067bc2" stroke-width="20" stroke-linecap="round" stroke-linejoin="round" stroke-miterlimit="10" stroke-dasharray="none" stroke-opacity="1" data-original="#000000" class=""></path><path d="M0 0v84" style="stroke-width:20;stroke-linecap:round;stroke-linejoin:round;stroke-miterlimit:10;stroke-dasharray:none;stroke-opacity:1" transform="translate(256 418)" fill="none" stroke="#067bc2" stroke-width="20" stroke-linecap="round" stroke-linejoin="round" stroke-miterlimit="10" stroke-dasharray="none" stroke-opacity="1" data-original="#000000" class=""></path><path d="M0 0h311.135" style="stroke-width:20;stroke-linecap:round;stroke-linejoin:round;stroke-miterlimit:10;stroke-dasharray:none;stroke-opacity:1" transform="translate(100.433 280)" fill="none" stroke="#067bc2" stroke-width="20" stroke-linecap="round" stroke-linejoin="round" stroke-miterlimit="10" stroke-dasharray="none" stroke-opacity="1" data-original="#000000" class=""></path><path d="M0 0h340.2" style="stroke-width:20;stroke-linecap:round;stroke-linejoin:round;stroke-miterlimit:10;stroke-dasharray:none;stroke-opacity:1" transform="translate(85.9 190)" fill="none" stroke="#067bc2" stroke-width="20" stroke-linecap="round" stroke-linejoin="round" stroke-miterlimit="10" stroke-dasharray="none" stroke-opacity="1" data-original="#000000" class=""></path><path d="M0 0h264.599" style="stroke-width:20;stroke-linecap:round;stroke-linejoin:round;stroke-miterlimit:10;stroke-dasharray:none;stroke-opacity:1" transform="translate(102.358 100)" fill="none" stroke="#067bc2" stroke-width="20" stroke-linecap="round" stroke-linejoin="round" stroke-miterlimit="10" stroke-dasharray="none" stroke-opacity="1" data-original="#000000" class=""></path><path d="M0 0v-340.2" style="stroke-width:20;stroke-linecap:round;stroke-linejoin:round;stroke-miterlimit:10;stroke-dasharray:none;stroke-opacity:1" transform="translate(256 360.1)" fill="none" stroke="#067bc2" stroke-width="20" stroke-linecap="round" stroke-linejoin="round" stroke-miterlimit="10" stroke-dasharray="none" stroke-opacity="1" data-original="#000000" class=""></path><path d="M0 0v13.333" style="stroke-width:20;stroke-linecap:round;stroke-linejoin:round;stroke-miterlimit:10;stroke-dasharray:none;stroke-opacity:1" transform="translate(426.1 463.499)" fill="none" stroke="#067bc2" stroke-width="20" stroke-linecap="round" stroke-linejoin="round" stroke-miterlimit="10" stroke-dasharray="none" stroke-opacity="1" data-original="#000000" class=""></path><path d="M0 0v-13.333" style="stroke-width:20;stroke-linecap:round;stroke-linejoin:round;stroke-miterlimit:10;stroke-dasharray:none;stroke-opacity:1" transform="translate(426.1 410.165)" fill="none" stroke="#067bc2" stroke-width="20" stroke-linecap="round" stroke-linejoin="round" stroke-miterlimit="10" stroke-dasharray="none" stroke-opacity="1" data-original="#000000" class=""></path><path d="M0 0h-13.333" style="stroke-width:20;stroke-linecap:round;stroke-linejoin:round;stroke-miterlimit:10;stroke-dasharray:none;stroke-opacity:1" transform="translate(399.433 436.832)" fill="none" stroke="#067bc2" stroke-width="20" stroke-linecap="round" stroke-linejoin="round" stroke-miterlimit="10" stroke-dasharray="none" stroke-opacity="1" data-original="#000000" class=""></path><path d="M0 0h13.333" style="stroke-width:20;stroke-linecap:round;stroke-linejoin:round;stroke-miterlimit:10;stroke-dasharray:none;stroke-opacity:1" transform="translate(452.767 436.832)" fill="none" stroke="#067bc2" stroke-width="20" stroke-linecap="round" stroke-linejoin="round" stroke-miterlimit="10" stroke-dasharray="none" stroke-opacity="1" data-original="#000000" class=""></path><path d="M0 0v13.333" style="stroke-width:20;stroke-linecap:round;stroke-linejoin:round;stroke-miterlimit:10;stroke-dasharray:none;stroke-opacity:1" transform="translate(50 407.333)" fill="none" stroke="#067bc2" stroke-width="20" stroke-linecap="round" stroke-linejoin="round" stroke-miterlimit="10" stroke-dasharray="none" stroke-opacity="1" data-original="#000000" class=""></path><path d="M0 0v-13.333" style="stroke-width:20;stroke-linecap:round;stroke-linejoin:round;stroke-miterlimit:10;stroke-dasharray:none;stroke-opacity:1" transform="translate(50 354)" fill="none" stroke="#067bc2" stroke-width="20" stroke-linecap="round" stroke-linejoin="round" stroke-miterlimit="10" stroke-dasharray="none" stroke-opacity="1" data-original="#000000" class=""></path><path d="M0 0h-13.333" style="stroke-width:20;stroke-linecap:round;stroke-linejoin:round;stroke-miterlimit:10;stroke-dasharray:none;stroke-opacity:1" transform="translate(23.333 380.667)" fill="none" stroke="#067bc2" stroke-width="20" stroke-linecap="round" stroke-linejoin="round" stroke-miterlimit="10" stroke-dasharray="none" stroke-opacity="1" data-original="#000000" class=""></path><path d="M0 0h13.333" style="stroke-width:20;stroke-linecap:round;stroke-linejoin:round;stroke-miterlimit:10;stroke-dasharray:none;stroke-opacity:1" transform="translate(76.667 380.667)" fill="none" stroke="#067bc2" stroke-width="20" stroke-linecap="round" stroke-linejoin="round" stroke-miterlimit="10" stroke-dasharray="none" stroke-opacity="1" data-original="#000000" class=""></path><path d="M0 0" style="stroke-width:20;stroke-linecap:round;stroke-linejoin:round;stroke-miterlimit:10;stroke-dasharray:none;stroke-opacity:1" transform="translate(411.956 100)" fill="none" stroke="#067bc2" stroke-width="20" stroke-linecap="round" stroke-linejoin="round" stroke-miterlimit="10" stroke-dasharray="none" stroke-opacity="1" data-original="#000000" class=""></path><path d="m0 0-34.641-34.641L-69.282 0l34.641 34.641Z" style="stroke-width:20;stroke-linecap:round;stroke-linejoin:round;stroke-miterlimit:10;stroke-dasharray:none;stroke-opacity:1" transform="translate(502 44.64)" fill="none" stroke="#067bc2" stroke-width="20" stroke-linecap="round" stroke-linejoin="round" stroke-miterlimit="10" stroke-dasharray="none" stroke-opacity="1" data-original="#000000" class=""></path><path d="m0 0-34.641-34.641L-69.282 0l34.641 34.641Z" style="stroke-width:20;stroke-linecap:round;stroke-linejoin:round;stroke-miterlimit:10;stroke-dasharray:none;stroke-opacity:1" transform="translate(79.282 44.64)" fill="none" stroke="#067bc2" stroke-width="20" stroke-linecap="round" stroke-linejoin="round" stroke-miterlimit="10" stroke-dasharray="none" stroke-opacity="1" data-original="#000000" class=""></path><path d="m0 0-34.641-34.641L-69.282 0l34.641 34.641Z" style="stroke-width:20;stroke-linecap:round;stroke-linejoin:round;stroke-miterlimit:10;stroke-dasharray:none;stroke-opacity:1" transform="translate(162.64 467.36)" fill="none" stroke="#067bc2" stroke-width="20" stroke-linecap="round" stroke-linejoin="round" stroke-miterlimit="10" stroke-dasharray="none" stroke-opacity="1" data-original="#000000" class=""></path></g></g></svg>
-        </span>
-        <div class="line"></div>
+        <section class="join-section">
+          <h2>Join a room</h2>
+          <div class="join-row">
+            <input
+              id="join-name"
+              class="home-input"
+              type="text"
+              placeholder="Your name"
+              autocomplete="off"
+              maxlength="20"
+            />
+            <input
+              id="join-code"
+              class="home-input"
+              type="text"
+              placeholder="CODE"
+              maxlength="4"
+              autocomplete="off"
+              autocapitalize="characters"
+            />
+          </div>
+          <button id="join-btn" class="home-btn join-btn" type="button">Join a room</button>
+          <p id="join-error" class="error"></p>
+        </section>
+
+        <hr class="section-divider" />
+
+        <section class="games-section">
+          <h2>Games</h2>
+          <div id="games" class="game-grid"></div>
+        </section>
       </div>
-
-      <section class="games-section">
-        <h2>Games</h2>
-        <div id="games" class="game-grid"></div>
-      </section>
     </main>
     <script type="module" src="/home.js"></script>
   </body>

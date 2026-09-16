@@ -1,0 +1,96 @@
+/* Shared page chrome used by every top-level page (home, lobby, …): a slim
+   global topbar plus an in-column page header with a divider. Using one
+   stylesheet for both keeps them pixel-identical rather than two pages
+   independently approximating "the same look". */
+
+.app-topbar {
+  height: 52px;
+  background: #0b3b57;
+  display: flex;
+  align-items: center;
+  padding: 0 28px;
+  gap: 10px;
+  box-sizing: border-box;
+}
+
+.app-topbar-dot {
+  width: 8px;
+  height: 8px;
+  border-radius: 999px;
+  background: #d56062;
+  flex-shrink: 0;
+}
+
+.app-topbar-word {
+  color: #ffffff;
+  font-family: "Fredoka", system-ui, sans-serif;
+  font-size: 14px;
+  font-weight: 600;
+  letter-spacing: 0.04em;
+}
+
+/* The one centered column every page's content lives in. */
+.app-shell {
+  max-width: 1000px;
+  margin: 0 auto;
+  padding: 40px 32px 64px;
+  box-sizing: border-box;
+}
+
+.app-pagehead {
+  display: flex;
+  align-items: baseline;
+  justify-content: space-between;
+  gap: 16px;
+  padding-bottom: 20px;
+  border-bottom: 1px solid rgba(0, 0, 0, 0.1);
+  margin-bottom: 32px;
+  flex-wrap: wrap;
+}
+
+.app-pagehead-left {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  min-width: 0;
+}
+
+.app-pagehead-titles h1 {
+  margin: 0;
+  font-family: "Fredoka", system-ui, sans-serif;
+  font-size: 28px;
+  color: rgba(0, 0, 0, 0.85);
+}
+
+.app-pagehead-titles p {
+  margin: 4px 0 0;
+  font-size: 14px;
+  color: rgba(0, 0, 0, 0.55);
+}
+
+.app-back-btn {
+  width: 34px;
+  height: 34px;
+  border-radius: 999px;
+  background: rgba(0, 0, 0, 0.06);
+  border: none;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+  padding: 0;
+}
+
+.app-code-chip {
+  font-family: "Fredoka", system-ui, sans-serif;
+  font-weight: 600;
+  font-size: 14px;
+  letter-spacing: 3px;
+  color: #067bc2;
+  background: rgba(6, 123, 194, 0.1);
+  padding: 6px 12px;
+  border-radius: 8px;
+  flex-shrink: 0;
+  white-space: nowrap;
+}

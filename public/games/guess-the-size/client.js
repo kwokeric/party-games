@@ -233,6 +233,25 @@ function applySize(container, style) {
   svg.style.height = style.height;
 }
 
+// A static, non-interactive taste of the guessing screen shown in the lobby
+// (desktop only, hidden via CSS on mobile) — two real objects at their true
+// relative scale, laid out with flexbox instead of the game's absolute
+// positioning so it never needs live measurement of rendered widths.
+async function renderLobbyPreview() {
+  const objA = el("preview-obj-a-img");
+  const objB = el("preview-obj-b-img");
+  if (!objA || !objB) return;
+
+  const pxPerMeter = 28;
+  await Promise.all([
+    setObjectVisual(objA, "objects/african-elephant.svg"),
+    setObjectVisual(objB, "objects/vw-beetle.svg"),
+  ]);
+  applySize(objA, sizeStyle(pxPerMeter, { axis: "height" }, 3.2));
+  applySize(objB, sizeStyle(pxPerMeter, { axis: "width" }, 4.11));
+}
+renderLobbyPreview();
+
 function renderObjectA() {
   if (!round) return;
   applySize(objectAImg, sizeStyle(basePxPerMeter * zoom, round.objectA, round.objectA.length_m));

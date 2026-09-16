@@ -28,48 +28,17 @@ a:hover {
   padding-bottom: 40px;
 }
 
-/* Full-bleed edge-to-edge banner, matching the lobby/game views' shell —
-   the homepage previously capped this at 440px like a floating card, which
-   looked inconsistent with every other page in the app. */
-.home-header {
-  background: var(--blue);
-  border-radius: 0 0 32px 32px;
-  padding: 40px 24px 32px;
-  text-align: center;
-}
-
 /* The join form is a couple of short inputs — it stays a comfortable,
-   narrow reading width even though the page shell itself is wide. The
-   games section gets the full 1000px so its grid has room to breathe. */
-.join-section,
-.divider {
-  max-width: 480px;
-  margin-left: auto;
-  margin-right: auto;
-  box-sizing: border-box;
-}
-
-.games-section {
-  max-width: 1000px;
-  margin-left: auto;
-  margin-right: auto;
-  box-sizing: border-box;
-}
-
-.home-header h1 {
-  margin: 0;
-  font-family: "Fredoka", system-ui, sans-serif;
-  font-weight: 700;
-  font-size: 34px;
-  color: #ffffff;
-  letter-spacing: -0.5px;
-}
-
+   narrow reading width even though the page shell itself is 1000px, same
+   as the games grid below it gets to use in full. */
 .join-section {
-  padding: 26px 24px 0;
+  max-width: 480px;
+  margin: 0 auto;
+  padding: 0;
   display: flex;
   flex-direction: column;
   gap: 10px;
+  box-sizing: border-box;
 }
 
 .join-section h2 {
@@ -141,35 +110,23 @@ a:hover {
   color: #ffffff;
 }
 
-.divider {
-  display: flex;
-  align-items: center;
-  gap: 12px;
-  margin: 20px 24px;
-}
-
-.divider .line {
-  flex: 1;
+.section-divider {
+  margin: 40px 0;
   height: 1px;
-  background: rgba(6, 123, 194, 0.18);
-}
-
-.divider .divider-icon {
-  display: flex;
-  flex-shrink: 0;
+  background: rgba(0, 0, 0, 0.1);
+  border: none;
 }
 
 .games-section {
-  padding: 0 24px;
   display: flex;
   flex-direction: column;
-  gap: 12px;
+  gap: 16px;
 }
 
 .games-section h2 {
   margin: 0;
   font-family: "Fredoka", system-ui, sans-serif;
-  font-size: 18px;
+  font-size: 21px;
   font-weight: 600;
   color: var(--ink);
 }
@@ -248,6 +205,4 @@ a:hover {
   line-height: 1.35;
   min-height: 34px;
   margin: 0;
-  padding: 0 24px;
-  box-sizing: border-box;
 }

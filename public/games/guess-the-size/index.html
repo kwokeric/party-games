@@ -7,6 +7,7 @@
     <link rel="icon" href="/favicon.ico" sizes="any" />
     <link rel="stylesheet" href="/normalize.css" />
     <link rel="stylesheet" href="/styles.css" />
+    <link rel="stylesheet" href="/shared/app-shell.css" />
     <link rel="stylesheet" href="./game.css" />
     <link rel="stylesheet" href="./lobby.css" />
     <link rel="stylesheet" href="./guessing.css" />
@@ -16,46 +17,60 @@
   <body>
     <main class="page game-page">
       <section id="lobby-view" class="view lobby-view">
-        <div class="lobby-banner">
-          <button id="back-btn" class="lobby-icon-btn" type="button" aria-label="Back to home">
-            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#067bc2" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><line x1="19" y1="12" x2="5" y2="12"></line><polyline points="12 19 5 12 12 5"></polyline></svg>
-          </button>
-          <div class="lobby-banner-title">Guess the size</div>
+        <div class="app-topbar">
+          <span class="app-topbar-dot"></span>
+          <span class="app-topbar-word">PARTY GAMES</span>
         </div>
-
-        <div class="lobby-section">
-          <h2>Room code</h2>
-          <div class="lobby-card lobby-code-card">
-            <div id="lobby-room-code" class="lobby-code">-</div>
-            <button id="copy-code-btn" class="lobby-copy-btn" type="button" aria-label="Copy room code">
-              <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#067bc2" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="9" y="9" width="11" height="11" rx="2"></rect><path d="M5 15H4a1 1 0 0 1-1-1V4a1 1 0 0 1 1-1h10a1 1 0 0 1 1 1v1"></path></svg>
+        <div class="app-shell">
+          <div class="app-pagehead">
+            <div class="app-pagehead-left">
+              <button id="back-btn" class="app-back-btn" type="button" aria-label="Back to home">
+                <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="#111" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><line x1="19" y1="12" x2="5" y2="12"></line><polyline points="12 19 5 12 12 5"></polyline></svg>
+              </button>
+              <div class="app-pagehead-titles">
+                <h1>Guess the Size</h1>
+                <p>Waiting for players to join</p>
+              </div>
+            </div>
+            <button id="copy-code-btn" class="app-code-chip lobby-code-chip" type="button" aria-label="Copy room code">
+              <span id="lobby-room-code">-</span>
             </button>
           </div>
-        </div>
 
-        <div class="lobby-section">
-          <h2>How to play</h2>
-          <div class="lobby-card lobby-howto">
-            <ul>
-              <li>One object is shown at its real size — that's your reference.</li>
-              <li>Drag to resize the other object to what you think its real size is.</li>
-              <li>Submit your guess.</li>
-              <li>Closest guess wins the round!</li>
-            </ul>
+          <div class="lobby-panel lobby-preview-panel">
+            <h3>Preview</h3>
+            <div class="lobby-preview-stage">
+              <div class="baseline"></div>
+              <div class="lobby-preview-obj">
+                <span id="preview-obj-a-img" class="obj-visual"></span>
+                <span class="obj-label">African Elephant</span>
+              </div>
+              <div class="lobby-preview-obj lobby-preview-obj-b">
+                <span id="preview-obj-b-img" class="obj-visual"></span>
+                <span class="obj-label">VW Beetle</span>
+              </div>
+            </div>
           </div>
-        </div>
 
-        <div class="lobby-section">
-          <h2>Players</h2>
-          <div class="lobby-card">
-            <ul id="lobby-player-list" class="lobby-player-list"></ul>
+          <div class="lobby-columns">
+            <div class="lobby-panel">
+              <h3>How to play</h3>
+              <ul class="lobby-howto-list">
+                <li>One object is shown at its real size — that's your reference.</li>
+                <li>Drag to resize the other object to what you think its real size is.</li>
+                <li>Submit your guess.</li>
+                <li>Closest guess wins the round!</li>
+              </ul>
+            </div>
+
+            <div class="lobby-panel">
+              <h3>Players</h3>
+              <ul id="lobby-player-list" class="lobby-player-list"></ul>
+              <button id="start-btn" class="lobby-action-btn" type="button" hidden>Start round</button>
+              <button id="ready-btn" class="lobby-action-btn" type="button" hidden>Ready up</button>
+              <p id="lobby-waiting" class="lobby-waiting" hidden></p>
+            </div>
           </div>
-        </div>
-
-        <div class="lobby-actions">
-          <button id="start-btn" class="lobby-action-btn" type="button" hidden>Start round</button>
-          <button id="ready-btn" class="lobby-action-btn" type="button" hidden>Ready up</button>
-          <p id="lobby-waiting" class="lobby-waiting" hidden></p>
         </div>
       </section>
 

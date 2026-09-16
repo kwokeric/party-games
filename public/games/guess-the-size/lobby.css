@@ -16,93 +16,102 @@
   padding-bottom: 32px;
 }
 
-.lobby-banner {
-  background: var(--blue);
-  border-radius: 0 0 32px 32px;
-  padding: 26px 24px 22px;
-  display: flex;
-  align-items: center;
-  gap: 14px;
-}
-
-.lobby-icon-btn {
-  border: none;
+/* The room code doubles as the copy button — a chip that looks clickable
+   and confirms itself, rather than a separate icon button next to it. */
+.lobby-code-chip {
   cursor: pointer;
-  width: 40px;
-  height: 40px;
-  border-radius: 999px;
-  background: var(--light-blue);
+  border: none;
+  font-size: 15px;
+  letter-spacing: 4px;
+}
+
+.lobby-columns {
+  display: grid;
+  grid-template-columns: 1.3fr 1fr;
+  gap: 24px;
+  align-items: start;
+}
+
+.lobby-panel {
+  background: #ffffff;
+  border: 1px solid rgba(0, 0, 0, 0.08);
+  border-radius: 16px;
+  padding: 20px;
+  box-sizing: border-box;
+}
+
+/* A static, non-interactive taste of the actual guessing screen — real
+   objects at their true relative scale. Desktop-only: on a phone screen
+   this would just eat space above the info a mobile web player actually
+   needs (how to play / who's here), without room to be legible anyway. */
+.lobby-preview-panel {
+  margin-bottom: 24px;
+  display: none;
+}
+
+@media (min-width: 721px) {
+  .lobby-preview-panel {
+    display: block;
+  }
+}
+
+.lobby-preview-stage {
+  position: relative;
+  height: 170px;
+  background: #12141a;
+  border-radius: 8px;
   display: flex;
-  align-items: center;
+  align-items: flex-end;
   justify-content: center;
-  flex-shrink: 0;
-  padding: 0;
+  gap: 64px;
+  padding-bottom: 40px;
+  box-sizing: border-box;
+  overflow: visible;
 }
 
-.lobby-banner-title {
-  font-family: "Fredoka", system-ui, sans-serif;
-  font-weight: 700;
-  font-size: 22px;
-  color: #ffffff;
+.lobby-preview-stage .baseline {
+  position: absolute;
+  left: 16px;
+  right: 16px;
+  bottom: 40px;
+  border-top: 2px solid #445;
 }
 
-.lobby-section {
-  padding: 18px 24px 0;
+.lobby-preview-obj {
+  position: relative;
   display: flex;
   flex-direction: column;
-  gap: 8px;
-  max-width: 440px;
-  margin: 0 auto;
-  box-sizing: border-box;
+  align-items: center;
+  color: #ccc;
 }
 
-.lobby-section h2 {
-  margin: 0;
+.lobby-preview-obj.lobby-preview-obj-b {
+  color: var(--light-blue);
+}
+
+.lobby-preview-obj .obj-visual svg {
+  display: block;
+}
+
+.lobby-preview-obj .obj-label {
+  position: static;
+  margin-top: 8px;
+  font-size: 11px;
+  color: #ccc;
+  white-space: nowrap;
+}
+
+.lobby-panel h3 {
+  margin: 0 0 14px;
   font-family: "Fredoka", system-ui, sans-serif;
-  font-size: 16px;
+  font-size: 13px;
   font-weight: 600;
-  color: var(--ink);
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
+  color: var(--ink-faint);
 }
 
-.lobby-card {
-  width: 100%;
-  background: #ffffff;
-  border-radius: 20px;
-  padding: 16px 18px;
-  box-sizing: border-box;
-  box-shadow: 0 10px 26px rgba(6, 123, 194, 0.14);
-}
-
-.lobby-code-card {
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  padding: 14px 18px;
-}
-
-.lobby-code {
-  font-family: "Fredoka", system-ui, sans-serif;
-  font-weight: 700;
-  font-size: 28px;
-  color: var(--blue);
-  letter-spacing: 5px;
-}
-
-.lobby-copy-btn {
-  border: none;
-  cursor: pointer;
-  width: 36px;
-  height: 36px;
-  border-radius: 11px;
-  background: rgba(6, 123, 194, 0.1);
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  flex-shrink: 0;
-  padding: 0;
-}
-
-.lobby-howto ul {
+.lobby-howto-list {
   margin: 0;
   padding-left: 18px;
   display: flex;
@@ -110,7 +119,7 @@
   gap: 6px;
 }
 
-.lobby-howto li {
+.lobby-howto-list li {
   font-size: 13.5px;
   line-height: 1.4;
   color: var(--ink-soft);
@@ -118,7 +127,7 @@
 
 .lobby-player-list {
   list-style: none;
-  margin: 0;
+  margin: 0 0 14px;
   padding: 0;
   display: flex;
   flex-direction: column;
@@ -132,8 +141,8 @@
 }
 
 .lobby-avatar {
-  width: 40px;
-  height: 40px;
+  width: 36px;
+  height: 36px;
   border-radius: 999px;
   background: var(--light-blue);
   display: flex;
@@ -141,15 +150,15 @@
   justify-content: center;
   font-family: "Fredoka", system-ui, sans-serif;
   font-weight: 600;
-  font-size: 14px;
+  font-size: 13px;
   color: rgba(0, 0, 0, 0.8);
   flex-shrink: 0;
 }
 
 .lobby-player-name {
   font-family: "Fredoka", system-ui, sans-serif;
-  font-size: 15px;
-  letter-spacing: 1px;
+  font-size: 14px;
+  letter-spacing: 0.5px;
   color: var(--ink);
   flex: 1;
   text-transform: uppercase;
@@ -174,29 +183,18 @@
   font-weight: 600;
 }
 
-.lobby-actions {
-  padding: 18px 24px 0;
-  max-width: 440px;
-  margin: 0 auto;
-  box-sizing: border-box;
-  display: flex;
-  flex-direction: column;
-  gap: 8px;
-  align-items: center;
-}
-
 .lobby-action-btn {
   width: 100%;
-  height: 54px;
+  height: 50px;
   box-sizing: border-box;
   padding: 0;
   border: none;
   cursor: pointer;
-  border-radius: 15px;
+  border-radius: 13px;
   background: var(--blue);
   color: #ffffff;
   font-family: "Fredoka", system-ui, sans-serif;
-  font-size: 17px;
+  font-size: 16px;
   font-weight: 600;
   display: flex;
   align-items: center;
@@ -211,4 +209,11 @@
   margin: 0;
   font-size: 12.5px;
   color: var(--ink-faint);
+  text-align: center;
+}
+
+@media (max-width: 720px) {
+  .lobby-columns {
+    grid-template-columns: 1fr;
+  }
 }
