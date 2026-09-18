@@ -8,8 +8,17 @@ import colors from "../../public/games/match-the-color/colors.json";
 
 // A game is a fixed-length tournament: whoever has the highest average
 // score across all rounds wins. Mirrors Guess the Size's structure.
-const MAX_ROUNDS = 10;
-const ROUND_DURATION_MS = 10_000;
+const DEFAULT_MAX_ROUNDS = 10;
+const DEFAULT_ROUND_DURATION_MS = 10_000;
+
+const MIN_ROUNDS = 3;
+const MAX_ROUNDS_LIMIT = 20;
+const MIN_ROUND_DURATION_MS = 5_000;
+const MAX_ROUND_DURATION_MS = 60_000;
+
+function clamp(value: number, min: number, max: number): number {
+  return Math.min(max, Math.max(min, Math.round(value)));
+}
 
 // Every round starts here — a neutral green chameleon, independent of
 // wherever a player left their sliders last round.
@@ -60,6 +69,8 @@ export default class MatchTheColor extends Server {
   target: NamedColor | null = null;
   roundNumber = 0;
   roundEndsAt = 0;
+  maxRounds = DEFAULT_MAX_ROUNDS;
+  roundDurationMs = DEFAULT_ROUND_DURATION_MS;
 
   onConnect(connection: Connection, ctx: ConnectionContext) {
     const url = new URL(ctx.request.url);
@@ -90,7 +101,14 @@ export default class MatchTheColor extends Server {
 
   onMessage(connection: Connection, message: WSMessage) {
     if (typeof message !== "string") return;
-    let data: { type?: string; h?: number; s?: number; b?: number };
+    let data: {
+      type?: string;
+      h?: number;
+      s?: number;
+      b?: number;
+      maxRounds?: number;
+      roundDurationMs?: number;
+    };
     try {
       data = JSON.parse(message);
     } catch {
@@ -99,6 +117,8 @@ export default class MatchTheColor extends Server {
 
     if (data.type === "start") {
       this.startGame(connection);
+    } else if (data.type === "settings") {
+      this.updateSettings(connection, data.maxRounds, data.roundDurationMs);
     } else if (
       data.type === "color" &&
       typeof data.h === "number" &&
@@ -117,8 +137,25 @@ export default class MatchTheColor extends Server {
     return [...this.players.values()].some((p) => p.isHost);
   }
 
-  // Starts a brand new tournament (round 1 of MAX_ROUNDS). Only the host can
-  // do this, and only from the lobby.
+  // Only the host can tune the format, and only before anything's started —
+  // once the tournament is running, mid-game changes would desync scores
+  // that are already averaged against the old round count.
+  updateSettings(connection: Connection, maxRounds?: number, roundDurationMs?: number) {
+    const player = this.players.get(connection.id);
+    if (!player?.isHost) return;
+    if (this.phase !== "lobby") return;
+
+    if (typeof maxRounds === "number") {
+      this.maxRounds = clamp(maxRounds, MIN_ROUNDS, MAX_ROUNDS_LIMIT);
+    }
+    if (typeof roundDurationMs === "number") {
+      this.roundDurationMs = clamp(roundDurationMs, MIN_ROUND_DURATION_MS, MAX_ROUND_DURATION_MS);
+    }
+    this.broadcastPlayers();
+  }
+
+  // Starts a brand new tournament (round 1 of this.maxRounds). Only the host
+  // can do this, and only from the lobby.
   startGame(connection: Connection) {
     const player = this.players.get(connection.id);
     if (!player?.isHost) return;
@@ -136,7 +173,7 @@ export default class MatchTheColor extends Server {
     this.roundNumber += 1;
     this.target = pickTarget();
     this.phase = "playing";
-    this.roundEndsAt = Date.now() + ROUND_DURATION_MS;
+    this.roundEndsAt = Date.now() + this.roundDurationMs;
     for (const p of this.players.values()) {
       p.color = { ...START_COLOR };
       p.locked = false;
@@ -158,9 +195,9 @@ export default class MatchTheColor extends Server {
       JSON.stringify({
         type: "round-start",
         roundNumber: this.roundNumber,
-        maxRounds: MAX_ROUNDS,
+        maxRounds: this.maxRounds,
         target: this.target,
-        durationMs: ROUND_DURATION_MS,
+        durationMs: this.roundDurationMs,
         endsAt: this.roundEndsAt,
       })
     );
@@ -216,7 +253,7 @@ export default class MatchTheColor extends Server {
       JSON.stringify({
         type: "reveal",
         roundNumber: this.roundNumber,
-        maxRounds: MAX_ROUNDS,
+        maxRounds: this.maxRounds,
         target,
         results,
       })
@@ -253,7 +290,7 @@ export default class MatchTheColor extends Server {
     if (!allReady) return;
 
     if (this.phase === "reveal") {
-      if (this.roundNumber >= MAX_ROUNDS) this.finishGame();
+      if (this.roundNumber >= this.maxRounds) this.finishGame();
       else this.beginRound();
     } else if (this.phase === "final") {
       for (const p of this.players.values()) {
@@ -268,7 +305,9 @@ export default class MatchTheColor extends Server {
   finishGame() {
     this.phase = "final";
     for (const p of this.players.values()) p.ready = false;
-    this.broadcast(JSON.stringify({ type: "final", standings: this.computeStandings() }));
+    this.broadcast(
+      JSON.stringify({ type: "final", maxRounds: this.maxRounds, standings: this.computeStandings() })
+    );
     this.broadcastPlayers();
   }
 
@@ -277,7 +316,7 @@ export default class MatchTheColor extends Server {
       .map((p) => ({
         id: p.id,
         name: p.name,
-        avgScore: Math.round((p.totalScore / MAX_ROUNDS) * 10) / 10,
+        avgScore: Math.round((p.totalScore / this.maxRounds) * 10) / 10,
       }))
       .sort((a, b) => b.avgScore - a.avgScore);
   }
@@ -291,9 +330,9 @@ export default class MatchTheColor extends Server {
         JSON.stringify({
           type: "round-start",
           roundNumber: this.roundNumber,
-          maxRounds: MAX_ROUNDS,
+          maxRounds: this.maxRounds,
           target,
-          durationMs: ROUND_DURATION_MS,
+          durationMs: this.roundDurationMs,
           endsAt: this.roundEndsAt,
         })
       );
@@ -315,7 +354,7 @@ export default class MatchTheColor extends Server {
         JSON.stringify({
           type: "reveal",
           roundNumber: this.roundNumber,
-          maxRounds: MAX_ROUNDS,
+          maxRounds: this.maxRounds,
           target,
           results,
         })
@@ -323,7 +362,9 @@ export default class MatchTheColor extends Server {
     }
 
     if (this.phase === "final") {
-      connection.send(JSON.stringify({ type: "final", standings: this.computeStandings() }));
+      connection.send(
+        JSON.stringify({ type: "final", maxRounds: this.maxRounds, standings: this.computeStandings() })
+      );
     }
   }
 
@@ -332,6 +373,7 @@ export default class MatchTheColor extends Server {
       JSON.stringify({
         type: "players",
         phase: this.phase,
+        settings: { maxRounds: this.maxRounds, roundDurationMs: this.roundDurationMs },
         players: [...this.players.values()].map((p) => ({
           id: p.id,
           name: p.name,

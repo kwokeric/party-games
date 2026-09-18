@@ -47,6 +47,28 @@
             </ul>
           </div>
 
+          <div id="lobby-settings-panel" class="lobby-panel lobby-settings-panel" hidden>
+            <h3>Round settings</h3>
+            <div class="lobby-settings-row">
+              <span class="lobby-settings-label">Rounds</span>
+              <div class="lobby-stepper">
+                <button id="rounds-minus-btn" class="lobby-stepper-btn" type="button" aria-label="Fewer rounds">−</button>
+                <span id="rounds-val" class="lobby-stepper-val">10</span>
+                <button id="rounds-plus-btn" class="lobby-stepper-btn" type="button" aria-label="More rounds">+</button>
+              </div>
+            </div>
+            <div class="lobby-settings-row">
+              <span class="lobby-settings-label">Time per round</span>
+              <div class="lobby-stepper">
+                <button id="duration-minus-btn" class="lobby-stepper-btn" type="button" aria-label="Less time">−</button>
+                <span id="duration-val" class="lobby-stepper-val">10s</span>
+                <button id="duration-plus-btn" class="lobby-stepper-btn" type="button" aria-label="More time">+</button>
+              </div>
+            </div>
+          </div>
+
+          <p id="lobby-settings-summary" class="lobby-settings-summary" hidden></p>
+
           <div class="lobby-panel lobby-players-panel">
             <h3>Players</h3>
             <ul id="lobby-player-list" class="lobby-player-list"></ul>
@@ -180,7 +202,7 @@
         <div class="guess-status-card">
           <div class="final-status-top">
             <span class="final-status-label">Game complete</span>
-            <span class="final-status-sub">10 rounds played</span>
+            <span class="final-status-sub" id="final-status-sub">10 rounds played</span>
           </div>
           <div class="final-winner-spot">
             <span class="final-winner-avatar" id="final-winner-avatar"></span>

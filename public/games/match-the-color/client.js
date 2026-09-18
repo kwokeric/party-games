@@ -16,6 +16,14 @@ const lobbyPlayerListEl = el("lobby-player-list");
 const startBtn = el("start-btn");
 const readyBtn = el("ready-btn");
 const lobbyWaitingEl = el("lobby-waiting");
+const lobbySettingsPanel = el("lobby-settings-panel");
+const lobbySettingsSummary = el("lobby-settings-summary");
+const roundsVal = el("rounds-val");
+const roundsMinusBtn = el("rounds-minus-btn");
+const roundsPlusBtn = el("rounds-plus-btn");
+const durationVal = el("duration-val");
+const durationMinusBtn = el("duration-minus-btn");
+const durationPlusBtn = el("duration-plus-btn");
 
 const playingBackBtn = el("playing-back-btn");
 const playingRoomCodeEl = el("playing-room-code");
@@ -52,6 +60,7 @@ const finalWinnerAvatarEl = el("final-winner-avatar");
 const finalWinnerNameEl = el("final-winner-name");
 const finalWinnerScoreEl = el("final-winner-score");
 const finalStandingsListEl = el("final-standings-list");
+const finalStatusSubEl = el("final-status-sub");
 const finalPlayAgainBtn = el("final-play-again-btn");
 
 lobbyRoomCodeEl.textContent = room ?? "(none)";
@@ -61,6 +70,13 @@ finalRoomCodeEl.textContent = room ?? "(none)";
 
 const START_COLOR = { h: 125, s: 65, b: 70 };
 
+const MIN_ROUNDS = 3;
+const MAX_ROUNDS_LIMIT = 20;
+const MIN_ROUND_DURATION_MS = 5000;
+const MAX_ROUND_DURATION_MS = 60000;
+const ROUND_STEP = 1;
+const DURATION_STEP_MS = 5000;
+
 let myId = null;
 let players = [];
 let phase = "lobby";
@@ -69,6 +85,7 @@ let roundEndsAt = 0;
 let roundDurationMs = 10000;
 let locked = false;
 let countdownTimer = null;
+let settings = { maxRounds: 10, roundDurationMs: 10000 };
 
 function hsbToRgb(h, s, b) {
   const sat = s / 100;
@@ -162,6 +179,7 @@ function renderPlayers() {
       readyBtn.textContent = me?.ready ? "Not ready" : "Ready up";
       readyBtn.classList.toggle("is-ready", Boolean(me?.ready));
     }
+    renderSettings(amHost);
   }
 
   if (phase === "playing") {
@@ -183,6 +201,49 @@ function renderPlayers() {
 
   updateReadyDots();
 }
+
+function renderSettings(amHost) {
+  lobbySettingsPanel.hidden = !amHost;
+  lobbySettingsSummary.hidden = amHost;
+
+  roundsVal.textContent = String(settings.maxRounds);
+  durationVal.textContent = `${settings.roundDurationMs / 1000}s`;
+  roundsMinusBtn.disabled = settings.maxRounds <= MIN_ROUNDS;
+  roundsPlusBtn.disabled = settings.maxRounds >= MAX_ROUNDS_LIMIT;
+  durationMinusBtn.disabled = settings.roundDurationMs <= MIN_ROUND_DURATION_MS;
+  durationPlusBtn.disabled = settings.roundDurationMs >= MAX_ROUND_DURATION_MS;
+
+  if (!amHost) {
+    lobbySettingsSummary.textContent = `${settings.maxRounds} rounds · ${settings.roundDurationMs / 1000}s per round`;
+  }
+}
+
+function sendSettings(next) {
+  settings = next;
+  renderSettings(true);
+  socket?.send(
+    JSON.stringify({ type: "settings", maxRounds: settings.maxRounds, roundDurationMs: settings.roundDurationMs })
+  );
+}
+
+roundsMinusBtn.addEventListener("click", () => {
+  sendSettings({ ...settings, maxRounds: Math.max(MIN_ROUNDS, settings.maxRounds - ROUND_STEP) });
+});
+roundsPlusBtn.addEventListener("click", () => {
+  sendSettings({ ...settings, maxRounds: Math.min(MAX_ROUNDS_LIMIT, settings.maxRounds + ROUND_STEP) });
+});
+durationMinusBtn.addEventListener("click", () => {
+  sendSettings({
+    ...settings,
+    roundDurationMs: Math.max(MIN_ROUND_DURATION_MS, settings.roundDurationMs - DURATION_STEP_MS),
+  });
+});
+durationPlusBtn.addEventListener("click", () => {
+  sendSettings({
+    ...settings,
+    roundDurationMs: Math.min(MAX_ROUND_DURATION_MS, settings.roundDurationMs + DURATION_STEP_MS),
+  });
+});
 
 function chameleonSvg(color) {
   return `
@@ -330,9 +391,11 @@ function showReveal(roundNumber, maxRounds, revealedTarget, results) {
   renderPlayers();
 }
 
-function showFinal(standings) {
+function showFinal(maxRounds, standings) {
   phase = "final";
   showView("final");
+
+  finalStatusSubEl.textContent = `${maxRounds} round${maxRounds === 1 ? "" : "s"} played`;
 
   const winner = standings[0];
   finalWinnerAvatarEl.textContent = winner?.name.trim().charAt(0) || "?";
@@ -464,6 +527,7 @@ if (!room) {
       case "players":
         players = data.players;
         phase = data.phase;
+        if (data.settings) settings = data.settings;
         renderPlayers();
         if (phase === "lobby") showView("lobby");
         break;
@@ -474,7 +538,7 @@ if (!room) {
         showReveal(data.roundNumber, data.maxRounds, data.target, data.results);
         break;
       case "final":
-        showFinal(data.standings);
+        showFinal(data.maxRounds, data.standings);
         break;
     }
   });
