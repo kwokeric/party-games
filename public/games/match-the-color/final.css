@@ -22,26 +22,7 @@
 }
 
 .final-winner-spot {
-  display: flex;
-  align-items: center;
-  gap: 14px;
   margin-top: 10px;
-}
-
-.final-winner-avatar {
-  width: 52px;
-  height: 52px;
-  border-radius: 999px;
-  background: #84bcda;
-  color: rgba(0, 0, 0, 0.8);
-  font-family: "Fredoka", system-ui, sans-serif;
-  font-weight: 600;
-  font-size: 19px;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  box-shadow: 0 0 0 3px #ffffff, 0 0 0 5px #d56062;
-  flex-shrink: 0;
 }
 
 .final-winner-text {
@@ -69,43 +50,165 @@
   text-overflow: ellipsis;
 }
 
-.final-winner-score {
-  font-size: 12.5px;
-  color: rgba(0, 0, 0, 0.5);
-}
-
-.final-winner-score b {
-  font-family: "Fredoka", system-ui, sans-serif;
-  color: #067bc2;
-  font-size: 13.5px;
-}
-
 .final-body {
   margin-top: 20px;
 }
 
-.roster-rank {
+/* Podium: 2nd/1st/3rd left-to-right, bars aligned to a common baseline so
+   height alone reads as rank — only shown once there are enough players
+   for "top 3" to mean anything. */
+.final-podium {
+  display: flex;
+  align-items: flex-end;
+  justify-content: center;
+  gap: 10px;
+  margin-bottom: 24px;
+}
+
+.podium-slot {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 4px;
+  width: 96px;
+}
+
+.podium-avatar {
+  width: 44px;
+  height: 44px;
+  border-radius: 999px;
+  background: #84bcda;
+  color: rgba(0, 0, 0, 0.8);
   font-family: "Fredoka", system-ui, sans-serif;
   font-weight: 600;
-  font-size: 13px;
-  color: rgba(0, 0, 0, 0.35);
-  width: 16px;
+  font-size: 16px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
   flex-shrink: 0;
+}
+
+.podium-1 .podium-avatar {
+  box-shadow: 0 0 0 3px #ffffff, 0 0 0 5px #f0b23d;
+}
+
+.podium-2 .podium-avatar {
+  box-shadow: 0 0 0 3px #ffffff, 0 0 0 5px #adb8c2;
+}
+
+.podium-3 .podium-avatar {
+  box-shadow: 0 0 0 3px #ffffff, 0 0 0 5px #d3925c;
+}
+
+.podium-name {
+  font-family: "Fredoka", system-ui, sans-serif;
+  font-size: 13px;
+  font-weight: 600;
+  color: rgba(0, 0, 0, 0.85);
+  max-width: 100%;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.podium-score {
+  font-size: 11.5px;
+  color: rgba(0, 0, 0, 0.5);
+}
+
+.podium-bar {
+  width: 100%;
+  margin-top: 6px;
+  border-radius: 10px 10px 0 0;
+  box-sizing: border-box;
+  display: flex;
+  justify-content: center;
+  padding-top: 8px;
+}
+
+.podium-1 .podium-bar {
+  height: 84px;
+  background: linear-gradient(#f7c766, #f0b23d);
+}
+
+.podium-2 .podium-bar {
+  height: 60px;
+  background: linear-gradient(#cdd6dd, #adb8c2);
+}
+
+.podium-3 .podium-bar {
+  height: 44px;
+  background: linear-gradient(#e6b083, #d3925c);
+}
+
+.podium-rank {
+  font-family: "Fredoka", system-ui, sans-serif;
+  font-weight: 700;
+  font-size: 18px;
+  color: #ffffff;
+}
+
+/* Per-round score table — wrapped so it scrolls sideways instead of
+   squeezing itself unreadable when the host picks a lot of rounds. */
+.final-table-wrap {
+  width: 100%;
+  overflow-x: auto;
+  background: #ffffff;
+  border-radius: 16px;
+  box-shadow: 0 8px 20px rgba(6, 123, 194, 0.12);
+  box-sizing: border-box;
+}
+
+.final-table {
+  width: 100%;
+  border-collapse: collapse;
+  font-size: 12.5px;
+}
+
+.final-table th,
+.final-table td {
+  padding: 9px 12px;
   text-align: center;
+  white-space: nowrap;
 }
 
-.roster-rank.r1 {
-  color: #c98a1f;
+.final-table th {
+  font-family: "Fredoka", system-ui, sans-serif;
+  font-size: 10.5px;
+  font-weight: 600;
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
+  color: rgba(0, 0, 0, 0.4);
+  border-bottom: 1px solid rgba(0, 0, 0, 0.08);
 }
 
-.roster-rank.r2 {
-  color: #7c8794;
+.final-table td {
+  border-bottom: 1px solid rgba(0, 0, 0, 0.06);
+  color: rgba(0, 0, 0, 0.6);
+  font-variant-numeric: tabular-nums;
 }
 
-.roster-rank.r3 {
-  color: #a56331;
+.final-table tr:last-child td {
+  border-bottom: none;
 }
 
-.reveal-result-row.champ .reveal-result-score {
+.final-table tr.is-you {
+  background: rgba(6, 123, 194, 0.06);
+}
+
+.final-table td.final-table-name {
+  text-align: left;
+  font-family: "Fredoka", system-ui, sans-serif;
+  font-weight: 600;
+  color: rgba(0, 0, 0, 0.85);
+}
+
+.final-table td.final-table-avg {
+  font-family: "Fredoka", system-ui, sans-serif;
+  font-weight: 700;
   color: #067bc2;
+}
+
+.final-table td.final-table-ready {
+  padding: 6px 10px;
 }

@@ -27,7 +27,9 @@ const durationPlusBtn = el("duration-plus-btn");
 
 const playingBackBtn = el("playing-back-btn");
 const playingRoomCodeEl = el("playing-room-code");
-const playingStatusTextEl = el("playing-status-text");
+const playingRoundLabelEl = el("playing-round-label");
+const playingLockedLabelEl = el("playing-locked-label");
+const playingRoundTrackEl = el("playing-round-track");
 const playingConnectionDotEl = el("playing-connection-dot");
 const playingConnectionTextEl = el("playing-connection-text");
 const countdownRing = el("countdown-ring");
@@ -47,6 +49,7 @@ const revealRoomCodeEl = el("reveal-room-code");
 const revealConnectionDotEl = el("reveal-connection-dot");
 const revealConnectionTextEl = el("reveal-connection-text");
 const revealRoundLabelEl = el("reveal-round-label");
+const revealReadyLabelEl = el("reveal-ready-label");
 const revealRoundTrackEl = el("reveal-round-track");
 const revealStageEl = el("reveal-stage");
 const revealLineupEl = el("reveal-lineup");
@@ -56,11 +59,12 @@ const revealReadyBtn = el("reveal-ready-btn");
 
 const finalBackBtn = el("final-back-btn");
 const finalRoomCodeEl = el("final-room-code");
-const finalWinnerAvatarEl = el("final-winner-avatar");
 const finalWinnerNameEl = el("final-winner-name");
-const finalWinnerScoreEl = el("final-winner-score");
-const finalStandingsListEl = el("final-standings-list");
 const finalStatusSubEl = el("final-status-sub");
+const finalPodiumEl = el("final-podium");
+const podiumSlots = { 1: el("podium-1"), 2: el("podium-2"), 3: el("podium-3") };
+const finalTableHead = el("final-table-head");
+const finalTableBody = el("final-table-body");
 const finalPlayAgainBtn = el("final-play-again-btn");
 
 lobbyRoomCodeEl.textContent = room ?? "(none)";
@@ -83,9 +87,12 @@ let phase = "lobby";
 let target = null; // { name, h, s, b }
 let roundEndsAt = 0;
 let roundDurationMs = 10000;
+let playingRoundNumber = 0;
+let playingMaxRounds = 0;
 let locked = false;
 let countdownTimer = null;
-let settings = { maxRounds: 10, roundDurationMs: 10000 };
+let settings = { maxRounds: 5, roundDurationMs: 15000 };
+let lastPulseSecond = null;
 
 function hsbToRgb(h, s, b) {
   const sat = s / 100;
@@ -109,12 +116,12 @@ function showView(view) {
 const READY_CHECK_SVG =
   '<svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="3.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"></polyline></svg>';
 
-// Ready dots live inside per-row list items (results-list, final-standings-list)
+// Ready dots live inside per-row elements (results-list, final-table-body)
 // tagged with data-player-id, so a "players" update can flip them live without
 // rebuilding the whole list (which would also wipe the match/score columns).
 function updateReadyDots() {
   for (const p of players) {
-    for (const list of [resultsList, finalStandingsListEl]) {
+    for (const list of [resultsList, finalTableBody]) {
       const dot = list.querySelector(`[data-player-id="${p.id}"] .status-dot`);
       if (dot) dot.classList.toggle("on", Boolean(p.ready));
     }
@@ -184,13 +191,17 @@ function renderPlayers() {
 
   if (phase === "playing") {
     const lockedCount = players.filter((p) => p.locked).length;
-    playingStatusTextEl.textContent = `${lockedCount} of ${players.length} locked in`;
+    const roundLabel = playingMaxRounds ? `Round ${playingRoundNumber} of ${playingMaxRounds}` : "";
+    playingRoundLabelEl.textContent = roundLabel;
+    playingLockedLabelEl.textContent = `${roundLabel ? " · " : ""}${lockedCount} of ${players.length} locked in`;
   }
 
   if (phase === "reveal") {
     const me = players.find((p) => p.id === myId);
     revealReadyBtn.disabled = Boolean(me?.ready);
     revealReadyBtn.textContent = me?.ready ? "Waiting for others…" : "Ready";
+    const readyCount = players.filter((p) => p.ready).length;
+    revealReadyLabelEl.textContent = ` · ${readyCount} of ${players.length} ready`;
   }
 
   if (phase === "final") {
@@ -288,18 +299,39 @@ function stopCountdown() {
 function tickCountdown() {
   const remainingMs = Math.max(0, roundEndsAt - Date.now());
   const remainingS = Math.ceil(remainingMs / 1000);
+  const urgent = remainingMs > 0 && remainingS <= 5;
   countdownNum.textContent = String(remainingS);
   countdownRing.style.setProperty("--pct", String(Math.round((remainingMs / roundDurationMs) * 100)));
-  countdownRing.style.setProperty("--ring-color", remainingS <= 3 ? "#d56062" : "#067bc2");
+  countdownRing.style.setProperty("--ring-color", urgent ? "#d56062" : "#067bc2");
+
+  if (urgent) {
+    // Retrigger the pulse only when the displayed second actually changes,
+    // instead of looping it on its own clock — keeps the beat locked to the
+    // real countdown instead of drifting from it.
+    if (remainingS !== lastPulseSecond) {
+      lastPulseSecond = remainingS;
+      countdownRing.classList.remove("urgent");
+      void countdownRing.offsetWidth;
+      countdownRing.classList.add("urgent");
+    }
+  } else {
+    lastPulseSecond = null;
+    countdownRing.classList.remove("urgent");
+  }
+
   if (remainingMs <= 0) stopCountdown();
 }
 
-function startPlaying(newTarget, durationMs, endsAt) {
+function startPlaying(roundNumber, maxRounds, newTarget, durationMs, endsAt) {
   phase = "playing";
   target = newTarget;
   roundDurationMs = durationMs;
   roundEndsAt = endsAt;
+  playingRoundNumber = roundNumber;
+  playingMaxRounds = maxRounds;
   locked = false;
+
+  renderRoundTrack(playingRoundTrackEl, roundNumber, maxRounds);
 
   playingStage.style.setProperty("--target-color", rgbCss(hsbToRgb(target.h, target.s, target.b)));
 
@@ -346,7 +378,7 @@ function showReveal(roundNumber, maxRounds, revealedTarget, results) {
 
   const mine = results.find((r) => r.id === myId);
   if (mine) {
-    revealSummary.innerHTML = `You matched <strong>${mine.match}%</strong> of ${target.name} · score <strong style="color: #067bc2;">${mine.score}/100</strong>`;
+    revealSummary.innerHTML = `You scored <strong style="color: #067bc2;">${mine.score}%</strong> matching ${target.name}`;
   } else {
     revealSummary.textContent = `Target: ${target.name}`;
   }
@@ -371,24 +403,78 @@ function showReveal(roundNumber, maxRounds, revealedTarget, results) {
       nameEl.appendChild(tag);
     }
 
-    const matchEl = document.createElement("span");
-    matchEl.className = "reveal-result-match";
-    matchEl.textContent = `${r.match}%`;
-
     const scoreEl = document.createElement("span");
     scoreEl.className = index === 0 ? "reveal-result-score top" : "reveal-result-score";
-    scoreEl.textContent = String(r.score);
+    scoreEl.textContent = `${r.score}%`;
 
     const readyDot = document.createElement("span");
     readyDot.className = "status-dot";
     readyDot.innerHTML = READY_CHECK_SVG;
 
-    li.append(avatar, nameEl, matchEl, scoreEl, readyDot);
+    li.append(avatar, nameEl, scoreEl, readyDot);
     resultsList.appendChild(li);
   });
 
   showView("reveal");
   renderPlayers();
+}
+
+function renderPodium(standings) {
+  const showPodium = standings.length >= 3;
+  finalPodiumEl.hidden = !showPodium;
+  if (!showPodium) return;
+
+  [1, 2, 3].forEach((rank) => {
+    const s = standings[rank - 1];
+    const slot = podiumSlots[rank];
+    slot.querySelector(".podium-avatar").textContent = s.name.trim().charAt(0) || "?";
+    slot.querySelector(".podium-name").textContent = s.name + (s.id === myId ? " (you)" : "");
+    slot.querySelector(".podium-score").textContent = `${s.avgScore.toFixed(1)} avg`;
+  });
+}
+
+function renderFinalTable(maxRounds, standings) {
+  finalTableHead.innerHTML = "";
+  const headCells = ["Player", ...Array.from({ length: maxRounds }, (_, i) => `R${i + 1}`), "Avg", ""];
+  headCells.forEach((label) => {
+    const th = document.createElement("th");
+    th.textContent = label;
+    finalTableHead.appendChild(th);
+  });
+
+  finalTableBody.innerHTML = "";
+  standings.forEach((s) => {
+    const tr = document.createElement("tr");
+    tr.className = s.id === myId ? "is-you" : "";
+    tr.dataset.playerId = s.id;
+
+    const nameTd = document.createElement("td");
+    nameTd.className = "final-table-name";
+    nameTd.textContent = s.name + (s.id === myId ? " (you)" : "");
+    tr.appendChild(nameTd);
+
+    for (let i = 0; i < maxRounds; i++) {
+      const td = document.createElement("td");
+      const score = s.roundScores[i];
+      td.textContent = score != null ? String(score) : "–";
+      tr.appendChild(td);
+    }
+
+    const avgTd = document.createElement("td");
+    avgTd.className = "final-table-avg";
+    avgTd.textContent = s.avgScore.toFixed(1);
+    tr.appendChild(avgTd);
+
+    const readyTd = document.createElement("td");
+    readyTd.className = "final-table-ready";
+    const readyDot = document.createElement("span");
+    readyDot.className = "status-dot";
+    readyDot.innerHTML = READY_CHECK_SVG;
+    readyTd.appendChild(readyDot);
+    tr.appendChild(readyTd);
+
+    finalTableBody.appendChild(tr);
+  });
 }
 
 function showFinal(maxRounds, standings) {
@@ -398,46 +484,10 @@ function showFinal(maxRounds, standings) {
   finalStatusSubEl.textContent = `${maxRounds} round${maxRounds === 1 ? "" : "s"} played`;
 
   const winner = standings[0];
-  finalWinnerAvatarEl.textContent = winner?.name.trim().charAt(0) || "?";
   finalWinnerNameEl.textContent = winner?.name ?? "-";
-  finalWinnerScoreEl.textContent = winner ? winner.avgScore.toFixed(1) : "-";
 
-  finalStandingsListEl.innerHTML = "";
-  standings.forEach((s, index) => {
-    const li = document.createElement("li");
-    li.className =
-      "reveal-result-row" + (s.id === myId ? " is-you" : "") + (index === 0 ? " champ" : "");
-    li.dataset.playerId = s.id;
-
-    const rank = document.createElement("span");
-    rank.className = `roster-rank r${index + 1}`;
-    rank.textContent = String(index + 1);
-
-    const avatar = document.createElement("span");
-    avatar.className = "reveal-avatar";
-    avatar.textContent = s.name.trim().charAt(0) || "?";
-
-    const nameEl = document.createElement("span");
-    nameEl.className = "reveal-result-name";
-    nameEl.textContent = s.name;
-    if (s.id === myId) {
-      const tag = document.createElement("span");
-      tag.className = "you-tag";
-      tag.textContent = " (you)";
-      nameEl.appendChild(tag);
-    }
-
-    const scoreEl = document.createElement("span");
-    scoreEl.className = index === 0 ? "reveal-result-score top" : "reveal-result-score";
-    scoreEl.textContent = s.avgScore.toFixed(1);
-
-    const readyDot = document.createElement("span");
-    readyDot.className = "status-dot";
-    readyDot.innerHTML = READY_CHECK_SVG;
-
-    li.append(rank, avatar, nameEl, scoreEl, readyDot);
-    finalStandingsListEl.appendChild(li);
-  });
+  renderPodium(standings);
+  renderFinalTable(maxRounds, standings);
 
   renderPlayers();
 }
@@ -532,7 +582,7 @@ if (!room) {
         if (phase === "lobby") showView("lobby");
         break;
       case "round-start":
-        startPlaying(data.target, data.durationMs, data.endsAt);
+        startPlaying(data.roundNumber, data.maxRounds, data.target, data.durationMs, data.endsAt);
         break;
       case "reveal":
         showReveal(data.roundNumber, data.maxRounds, data.target, data.results);

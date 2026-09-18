@@ -40,10 +40,8 @@
           <div class="lobby-panel">
             <h3>How to play</h3>
             <ul class="lobby-howto-list">
-              <li>Rex starts green on a solid-colored background.</li>
-              <li>Use the Hue, Saturation and Brightness sliders to blend him in.</li>
-              <li>When the timer runs out, whatever color you're on becomes your score.</li>
-              <li>Closest match to the background wins the round!</li>
+              <li>Use the Hue, Saturation and Brightness sliders to blend Rex into the background.</li>
+               <li>Closest match to the background wins the round!</li>
             </ul>
           </div>
 
@@ -88,22 +86,20 @@
           <div class="guess-room-pill" id="playing-room-code">-</div>
         </div>
 
-        <div class="guess-status-card">
-          <div class="countdown-ring" id="countdown-ring">
-            <div class="countdown-ring-inner" id="countdown-num">10</div>
+        <div class="guess-status-card reveal-status-card">
+          <div class="reveal-status-top">
+            <span class="reveal-round-label">
+              <span id="playing-round-label"></span><span id="playing-locked-label" class="round-substatus"></span>
+            </span>
+            <span class="guess-connection">
+              <span id="playing-connection-dot" class="guess-dot"></span>
+              <span id="playing-connection-text">Connecting…</span>
+            </span>
           </div>
-          <span id="playing-status-text" class="guess-status-text"></span>
-          <span class="guess-connection">
-            <span id="playing-connection-dot" class="guess-dot"></span>
-            <span id="playing-connection-text">Connecting…</span>
-          </span>
+          <div class="round-track" id="playing-round-track"></div>
         </div>
 
         <div class="playing-body">
-          <p class="guess-instruction">
-            Match <strong>Rex</strong>'s color to the background before time's up. Closest match wins the round.
-          </p>
-
           <div id="playing-stage" class="playing-stage">
             <div class="stage-texture"></div>
             <div class="ground"></div>
@@ -139,7 +135,13 @@
             </div>
           </div>
 
-          <button id="lock-btn" class="lock-btn" type="button">Lock it in</button>
+          <div class="countdown-ring" id="countdown-ring">
+            <div class="countdown-ring-inner" id="countdown-num">10</div>
+          </div>
+
+          <div class="playing-cta-area">
+            <button id="lock-btn" class="lock-btn" type="button">Lock it in</button>
+          </div>
         </div>
       </section>
 
@@ -154,7 +156,9 @@
 
         <div class="guess-status-card reveal-status-card">
           <div class="reveal-status-top">
-            <span class="reveal-round-label" id="reveal-round-label">Round 1 of 10</span>
+            <span class="reveal-round-label">
+              <span id="reveal-round-label"></span><span id="reveal-ready-label" class="round-substatus"></span>
+            </span>
             <span class="guess-connection">
               <span id="reveal-connection-dot" class="guess-dot"></span>
               <span id="reveal-connection-text">Connecting…</span>
@@ -176,7 +180,6 @@
             <div class="reveal-results-card">
               <div class="roster-col-heads">
                 <span class="roster-col-sp"></span>
-                <span class="roster-col match-col">Match</span>
                 <span class="roster-col score-col">Score</span>
                 <span class="roster-col ready-col"></span>
               </div>
@@ -200,25 +203,48 @@
         </div>
 
         <div class="guess-status-card">
-          <div class="final-status-top">
-            <span class="final-status-label">Game complete</span>
-            <span class="final-status-sub" id="final-status-sub">10 rounds played</span>
-          </div>
           <div class="final-winner-spot">
-            <span class="final-winner-avatar" id="final-winner-avatar"></span>
             <span class="final-winner-text">
               <span class="final-winner-tag">Winner</span>
               <span class="final-winner-name" id="final-winner-name"></span>
-              <span class="final-winner-score"><b id="final-winner-score"></b> avg score</span>
             </span>
+          </div>
+          <div class="final-status-top">
+            <span class="final-status-sub" id="final-status-sub">10 rounds played</span>
           </div>
         </div>
 
         <div class="reveal-body final-body">
+          <div id="final-podium" class="final-podium" hidden>
+            <div class="podium-slot podium-2" id="podium-2">
+              <span class="podium-avatar"></span>
+              <span class="podium-name"></span>
+              <span class="podium-score"></span>
+              <div class="podium-bar"><span class="podium-rank">2</span></div>
+            </div>
+            <div class="podium-slot podium-1" id="podium-1">
+              <span class="podium-avatar"></span>
+              <span class="podium-name"></span>
+              <span class="podium-score"></span>
+              <div class="podium-bar"><span class="podium-rank">1</span></div>
+            </div>
+            <div class="podium-slot podium-3" id="podium-3">
+              <span class="podium-avatar"></span>
+              <span class="podium-name"></span>
+              <span class="podium-score"></span>
+              <div class="podium-bar"><span class="podium-rank">3</span></div>
+            </div>
+          </div>
+
           <div class="reveal-results-section">
-            <div class="reveal-results-heading">Final standings</div>
-            <div class="reveal-results-card">
-              <ol id="final-standings-list" class="reveal-results-list"></ol>
+            <div class="reveal-results-heading">All players</div>
+            <div class="final-table-wrap">
+              <table class="final-table">
+                <thead>
+                  <tr id="final-table-head"></tr>
+                </thead>
+                <tbody id="final-table-body"></tbody>
+              </table>
             </div>
           </div>
 

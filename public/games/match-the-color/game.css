@@ -15,7 +15,7 @@
 }
 
 /* Shared ready/rematch indicator, used in both the per-round results list
-   and the final standings list. */
+   and the final results table. */
 .status-dot {
   width: 21px;
   height: 21px;

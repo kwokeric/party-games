@@ -8,8 +8,8 @@ import colors from "../../public/games/match-the-color/colors.json";
 
 // A game is a fixed-length tournament: whoever has the highest average
 // score across all rounds wins. Mirrors Guess the Size's structure.
-const DEFAULT_MAX_ROUNDS = 10;
-const DEFAULT_ROUND_DURATION_MS = 10_000;
+const DEFAULT_MAX_ROUNDS = 5;
+const DEFAULT_ROUND_DURATION_MS = 15_000;
 
 const MIN_ROUNDS = 3;
 const MAX_ROUNDS_LIMIT = 20;
@@ -35,6 +35,7 @@ type Player = {
   locked: boolean;
   ready: boolean;
   totalScore: number;
+  roundScores: number[];
 };
 
 type Phase = "lobby" | "playing" | "reveal" | "final";
@@ -85,6 +86,7 @@ export default class MatchTheColor extends Server {
       locked: false,
       ready: false,
       totalScore: 0,
+      roundScores: [],
     });
 
     connection.send(JSON.stringify({ type: "you", id: connection.id }));
@@ -163,6 +165,7 @@ export default class MatchTheColor extends Server {
 
     for (const p of this.players.values()) {
       p.totalScore = 0;
+      p.roundScores = [];
       p.ready = false;
     }
     this.roundNumber = 0;
@@ -241,7 +244,8 @@ export default class MatchTheColor extends Server {
     const results = [...this.players.values()].map((p) => {
       const score = scoreColor(p.color, target);
       p.totalScore += score;
-      return { id: p.id, name: p.name, h: p.color.h, s: p.color.s, b: p.color.b, match: score, score };
+      p.roundScores.push(score);
+      return { id: p.id, name: p.name, h: p.color.h, s: p.color.s, b: p.color.b, score };
     });
     results.sort((a, b) => b.score - a.score);
 
@@ -295,6 +299,7 @@ export default class MatchTheColor extends Server {
     } else if (this.phase === "final") {
       for (const p of this.players.values()) {
         p.totalScore = 0;
+        p.roundScores = [];
         p.ready = false;
       }
       this.roundNumber = 0;
@@ -317,6 +322,7 @@ export default class MatchTheColor extends Server {
         id: p.id,
         name: p.name,
         avgScore: Math.round((p.totalScore / this.maxRounds) * 10) / 10,
+        roundScores: p.roundScores,
       }))
       .sort((a, b) => b.avgScore - a.avgScore);
   }
@@ -346,7 +352,6 @@ export default class MatchTheColor extends Server {
           h: p.color.h,
           s: p.color.s,
           b: p.color.b,
-          match: scoreColor(p.color, target),
           score: scoreColor(p.color, target),
         }))
         .sort((a, b) => b.score - a.score);

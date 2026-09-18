@@ -1,6 +1,14 @@
 .playing-view {
   margin: -2rem calc(50% - 50vw) 0;
   padding-bottom: 32px;
+  /* 100vh on mobile browsers is measured with the address/toolbar chrome
+     collapsed, so content sized to it can end up hidden behind that chrome
+     when it's showing. 100dvh tracks the chrome instead; vh stays as the
+     fallback for browsers that don't support dvh yet. */
+  min-height: 100vh;
+  min-height: 100dvh;
+  display: flex;
+  flex-direction: column;
 }
 
 .guess-banner {
@@ -60,14 +68,15 @@
   gap: 10px;
 }
 
-/* The countdown is the star of this status card — it stands in for the
-   avatar stack Guess the Size shows here, since urgency matters more than
-   who's in the room once the clock is running. */
+/* The countdown sits below the sliders now, as its own centered element in
+   the playing body's flow (that body is a centered flex column, so no extra
+   wrapper is needed to center this). */
 .countdown-ring {
   --pct: 100;
   --ring-color: #067bc2;
-  width: 38px;
-  height: 38px;
+  width: 85px;
+  height: 85px;
+  margin-top: 16px;
   border-radius: 999px;
   flex-shrink: 0;
   background: conic-gradient(var(--ring-color) calc(var(--pct) * 1%), rgba(0, 0, 0, 0.1) 0);
@@ -77,8 +86,8 @@
 }
 
 .countdown-ring-inner {
-  width: 30px;
-  height: 30px;
+  width: 69px;
+  height: 69px;
   border-radius: 999px;
   background: #ffffff;
   display: flex;
@@ -86,14 +95,26 @@
   justify-content: center;
   font-family: "Fredoka", system-ui, sans-serif;
   font-weight: 700;
-  font-size: 12px;
-  color: rgba(0, 0, 0, 0.85);
+  font-size: 30px;
+  color: var(--ring-color);
 }
 
-.guess-status-text {
-  font-size: 12.5px;
-  color: rgba(0, 0, 0, 0.5);
-  flex: 1;
+/* The last 5 seconds get a heartbeat: one quick pulse per second, retriggered
+   from JS exactly when the displayed number ticks over (see tickCountdown),
+   rather than looping on its own clock — so it sits still between beats
+   instead of drifting out of sync with the actual countdown. */
+.countdown-ring.urgent {
+  animation: ring-pulse 0.4s ease-in-out;
+}
+
+@keyframes ring-pulse {
+  0%,
+  100% {
+    transform: scale(1);
+  }
+  50% {
+    transform: scale(1.12);
+  }
 }
 
 .guess-connection {
@@ -122,12 +143,24 @@
 
 .playing-body {
   max-width: 520px;
-  margin: 0 auto;
   padding: 0 20px;
   box-sizing: border-box;
   display: flex;
   flex-direction: column;
   align-items: center;
+  flex: 1;
+  min-height: 0;
+}
+
+.playing-cta-area {
+  width: 100%;
+  margin-top: auto;
+  padding-top: 20px;
+  /* Extra breathing room below the button itself, beyond the view's own
+     padding-bottom, plus the iOS home-indicator safe area — otherwise the
+     button can end up sitting flush against the edge of the browser chrome
+     on mobile. */
+  padding-bottom: max(12px, env(safe-area-inset-bottom));
 }
 
 .guess-instruction {
@@ -232,7 +265,8 @@
 @media (prefers-reduced-motion: reduce) {
   .walker,
   .bobber,
-  .chameleon-svg .tail {
+  .chameleon-svg .tail,
+  .countdown-ring.urgent {
     animation: none;
   }
 }
@@ -319,15 +353,15 @@
 
 .lock-btn {
   width: 100%;
-  height: 48px;
+  height: 52px;
   margin-top: 16px;
   border: none;
   cursor: pointer;
-  border-radius: 13px;
+  border-radius: 15px;
   background: #067bc2;
   color: #ffffff;
   font-family: "Fredoka", system-ui, sans-serif;
-  font-size: 15px;
+  font-size: 16px;
   font-weight: 600;
 }
 
