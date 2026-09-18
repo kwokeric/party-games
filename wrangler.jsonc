@@ -9,13 +9,18 @@
   "durable_objects": {
     "bindings": [
       { "name": "Lobby", "class_name": "Lobby" },
-      { "name": "GuessTheSize", "class_name": "GuessTheSize" }
+      { "name": "GuessTheSize", "class_name": "GuessTheSize" },
+      { "name": "MatchTheColor", "class_name": "MatchTheColor" }
     ]
   },
   "migrations": [
     {
       "tag": "v1",
       "new_sqlite_classes": ["Lobby", "GuessTheSize"]
+    },
+    {
+      "tag": "v2",
+      "new_sqlite_classes": ["MatchTheColor"]
     }
   ]
 }

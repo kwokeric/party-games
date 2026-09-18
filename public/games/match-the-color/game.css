@@ -1,0 +1,54 @@
+.match-page {
+  max-width: 1000px;
+}
+
+/* Several elements on this page set an unconditional `display` in their
+   class rule, which — being equal specificity to the UA default
+   `[hidden]{display:none}` — would otherwise win and keep them visible
+   while `hidden` is set. */
+[hidden] {
+  display: none !important;
+}
+
+.view {
+  margin-top: 1rem;
+}
+
+/* Shared ready/rematch indicator, used in both the per-round results list
+   and the final standings list. */
+.status-dot {
+  width: 21px;
+  height: 21px;
+  border-radius: 999px;
+  flex-shrink: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border: 1.5px solid rgba(0, 0, 0, 0.15);
+  background: transparent;
+  transition: background 0.15s ease, border-color 0.15s ease;
+}
+
+.status-dot.on {
+  background: #3fb27f;
+  border-color: #3fb27f;
+}
+
+.status-dot svg {
+  opacity: 0;
+  transition: opacity 0.1s ease;
+}
+
+.status-dot.on svg {
+  opacity: 1;
+}
+
+/* The chameleon is shared by the playing stage (one, walking) and the
+   results lineup (one per player, standing still). */
+.chameleon-svg {
+  display: block;
+}
+
+.chameleon-svg .eye {
+  fill: #12141a;
+}

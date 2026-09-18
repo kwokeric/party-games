@@ -1,0 +1,211 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Match the Color</title>
+    <link rel="icon" href="/favicon.ico" sizes="any" />
+    <link rel="stylesheet" href="/normalize.css" />
+    <link rel="stylesheet" href="/styles.css" />
+    <link rel="stylesheet" href="/shared/app-shell.css" />
+    <link rel="stylesheet" href="./game.css" />
+    <link rel="stylesheet" href="./lobby.css" />
+    <link rel="stylesheet" href="./playing.css" />
+    <link rel="stylesheet" href="./reveal.css" />
+    <link rel="stylesheet" href="./final.css" />
+  </head>
+  <body>
+    <main class="page match-page">
+      <section id="lobby-view" class="view lobby-view">
+        <div class="app-topbar">
+          <span class="app-topbar-dot"></span>
+          <span class="app-topbar-word">PARTY GAMES</span>
+        </div>
+        <div class="app-shell">
+          <div class="app-pagehead">
+            <div class="app-pagehead-left">
+              <button id="back-btn" class="app-back-btn" type="button" aria-label="Back to home">
+                <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="#111" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><line x1="19" y1="12" x2="5" y2="12"></line><polyline points="12 19 5 12 12 5"></polyline></svg>
+              </button>
+              <div class="app-pagehead-titles">
+                <h1>Match the Color</h1>
+                <p>Waiting for players to join</p>
+              </div>
+            </div>
+            <button id="copy-code-btn" class="app-code-chip lobby-code-chip" type="button" aria-label="Copy room code">
+              <span id="lobby-room-code">-</span>
+            </button>
+          </div>
+
+          <div class="lobby-panel">
+            <h3>How to play</h3>
+            <ul class="lobby-howto-list">
+              <li>Rex starts green on a solid-colored background.</li>
+              <li>Use the Hue, Saturation and Brightness sliders to blend him in.</li>
+              <li>When the timer runs out, whatever color you're on becomes your score.</li>
+              <li>Closest match to the background wins the round!</li>
+            </ul>
+          </div>
+
+          <div class="lobby-panel lobby-players-panel">
+            <h3>Players</h3>
+            <ul id="lobby-player-list" class="lobby-player-list"></ul>
+            <button id="start-btn" class="lobby-action-btn" type="button" hidden>Start round</button>
+            <button id="ready-btn" class="lobby-action-btn" type="button" hidden>Ready up</button>
+            <p id="lobby-waiting" class="lobby-waiting" hidden></p>
+          </div>
+        </div>
+      </section>
+
+      <section id="playing-view" class="view playing-view" hidden>
+        <div class="guess-banner">
+          <button id="playing-back-btn" class="guess-icon-btn" type="button" aria-label="Back to home">
+            <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="#ffffff" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><line x1="19" y1="12" x2="5" y2="12"></line><polyline points="12 19 5 12 12 5"></polyline></svg>
+          </button>
+          <div class="guess-banner-title">Match the Color</div>
+          <div class="guess-room-pill" id="playing-room-code">-</div>
+        </div>
+
+        <div class="guess-status-card">
+          <div class="countdown-ring" id="countdown-ring">
+            <div class="countdown-ring-inner" id="countdown-num">10</div>
+          </div>
+          <span id="playing-status-text" class="guess-status-text"></span>
+          <span class="guess-connection">
+            <span id="playing-connection-dot" class="guess-dot"></span>
+            <span id="playing-connection-text">Connecting…</span>
+          </span>
+        </div>
+
+        <div class="playing-body">
+          <p class="guess-instruction">
+            Match <strong>Rex</strong>'s color to the background before time's up. Closest match wins the round.
+          </p>
+
+          <div id="playing-stage" class="playing-stage">
+            <div class="stage-texture"></div>
+            <div class="ground"></div>
+            <div class="walker">
+              <div class="bobber">
+                <svg id="walker-chameleon" class="chameleon-svg" viewBox="0 0 140 100" width="108" height="78">
+                  <g class="tail"><path d="M38 62c-16 1-27 10-25 20 1.6 8 11 11 15 5 2.4-3.4 0.6-8-3-9.6-3.4-1.6-4.6-5-2-8 2.6-3 7-4.6 11-4.6z" fill="currentColor"/></g>
+                  <path d="M92 92l4 8M92 92l-3 8M92 92l7 6" stroke="currentColor" stroke-width="5" stroke-linecap="round" fill="none"/>
+                  <path d="M52 88l4 8M52 88l-3 8M52 88l7 6" stroke="currentColor" stroke-width="5" stroke-linecap="round" fill="none"/>
+                  <path d="M34 56c-4-24 21-40 48-38 24 1.6 42 16 44 32 1.4 11-6.4 20-17 23-1.6 6.4-8.4 10.6-16 10.6-8 0-40-2-52-13-5.6-5-7.4-10-7-14.6z" fill="currentColor"/>
+                  <path d="M56 22l3-9M69 18l3-10M82 19l3-10" stroke="currentColor" stroke-width="4.5" stroke-linecap="round"/>
+                  <path d="M118 34c9-5 20-4.6 22 2 1.6 5.4-6 10.6-14 10.6-4.6 0-9-1.4-12-4z" fill="currentColor"/>
+                  <circle cx="112" cy="27" r="10" fill="currentColor"/>
+                  <circle class="eye" cx="113.5" cy="26" r="4.6"/>
+                  <circle cx="115.5" cy="24" r="1.5" fill="#fff"/>
+                </svg>
+              </div>
+            </div>
+          </div>
+
+          <div class="sliders">
+            <div class="slider-row">
+              <div class="slider-head"><span>Hue</span><span class="val" id="hue-val">125°</span></div>
+              <input id="hue-slider" type="range" min="0" max="360" value="125" />
+            </div>
+            <div class="slider-row">
+              <div class="slider-head"><span>Saturation</span><span class="val" id="sat-val">65%</span></div>
+              <input id="sat-slider" type="range" min="0" max="100" value="65" />
+            </div>
+            <div class="slider-row">
+              <div class="slider-head"><span>Brightness</span><span class="val" id="bri-val">70%</span></div>
+              <input id="bri-slider" type="range" min="0" max="100" value="70" />
+            </div>
+          </div>
+
+          <button id="lock-btn" class="lock-btn" type="button">Lock it in</button>
+        </div>
+      </section>
+
+      <section id="reveal-view" class="view reveal-view" hidden>
+        <div class="guess-banner">
+          <button id="reveal-back-btn" class="guess-icon-btn" type="button" aria-label="Back to home">
+            <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="#ffffff" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><line x1="19" y1="12" x2="5" y2="12"></line><polyline points="12 19 5 12 12 5"></polyline></svg>
+          </button>
+          <div class="guess-banner-title">Match the Color</div>
+          <div class="guess-room-pill" id="reveal-room-code">-</div>
+        </div>
+
+        <div class="guess-status-card reveal-status-card">
+          <div class="reveal-status-top">
+            <span class="reveal-round-label" id="reveal-round-label">Round 1 of 10</span>
+            <span class="guess-connection">
+              <span id="reveal-connection-dot" class="guess-dot"></span>
+              <span id="reveal-connection-text">Connecting…</span>
+            </span>
+          </div>
+          <div class="round-track" id="reveal-round-track"></div>
+        </div>
+
+        <div class="reveal-body">
+          <div id="reveal-stage" class="reveal-stage">
+            <div class="ground"></div>
+            <div id="reveal-lineup" class="lineup"></div>
+          </div>
+
+          <p id="reveal-summary" class="reveal-summary"></p>
+
+          <div class="reveal-results-section">
+            <div class="reveal-results-heading">Results</div>
+            <div class="reveal-results-card">
+              <div class="roster-col-heads">
+                <span class="roster-col-sp"></span>
+                <span class="roster-col match-col">Match</span>
+                <span class="roster-col score-col">Score</span>
+                <span class="roster-col ready-col"></span>
+              </div>
+              <ol id="results-list" class="reveal-results-list"></ol>
+            </div>
+          </div>
+
+          <div class="reveal-cta-area">
+            <button id="reveal-ready-btn" class="guess-submit-btn" type="button">Ready</button>
+          </div>
+        </div>
+      </section>
+
+      <section id="final-view" class="view final-view" hidden>
+        <div class="guess-banner">
+          <button id="final-back-btn" class="guess-icon-btn" type="button" aria-label="Back to home">
+            <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="#ffffff" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><line x1="19" y1="12" x2="5" y2="12"></line><polyline points="12 19 5 12 12 5"></polyline></svg>
+          </button>
+          <div class="guess-banner-title">Match the Color</div>
+          <div class="guess-room-pill" id="final-room-code">-</div>
+        </div>
+
+        <div class="guess-status-card">
+          <div class="final-status-top">
+            <span class="final-status-label">Game complete</span>
+            <span class="final-status-sub">10 rounds played</span>
+          </div>
+          <div class="final-winner-spot">
+            <span class="final-winner-avatar" id="final-winner-avatar"></span>
+            <span class="final-winner-text">
+              <span class="final-winner-tag">Winner</span>
+              <span class="final-winner-name" id="final-winner-name"></span>
+              <span class="final-winner-score"><b id="final-winner-score"></b> avg score</span>
+            </span>
+          </div>
+        </div>
+
+        <div class="reveal-body final-body">
+          <div class="reveal-results-section">
+            <div class="reveal-results-heading">Final standings</div>
+            <div class="reveal-results-card">
+              <ol id="final-standings-list" class="reveal-results-list"></ol>
+            </div>
+          </div>
+
+          <div class="reveal-cta-area">
+            <button id="final-play-again-btn" class="guess-submit-btn" type="button">Play again</button>
+          </div>
+        </div>
+      </section>
+    </main>
+    <script type="module" src="./client.js"></script>
+  </body>
+</html>

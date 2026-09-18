@@ -13,10 +13,12 @@ party/
   lobby.ts              main party — global room-code registry (create/lookup)
   games/
     guess-the-size.ts   realtime logic for the "Guess the Size" game
+    match-the-color.ts  realtime logic for the "Match the Color" game
 public/
   index.html, home.js   home page — game picker + join-by-code
   shared/games.js       registry of games, shared by home.js and lobby.ts
   games/guess-the-size/ the "Guess the Size" game's frontend
+  games/match-the-color/ the "Match the Color" game's frontend
 ```
 
 Each game gets its own party file (registered in `partykit.json`'s `parties`

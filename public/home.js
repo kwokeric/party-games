@@ -6,21 +6,12 @@ const codeInput = document.getElementById("join-code");
 const joinBtn = document.getElementById("join-btn");
 const joinError = document.getElementById("join-error");
 
-const rulerIcon = `
-  <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="#067bc2" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-    <rect x="3" y="9" width="18" height="6" rx="1.5"></rect>
-    <line x1="7" y1="9" x2="7" y2="12"></line>
-    <line x1="11" y1="9" x2="11" y2="13"></line>
-    <line x1="15" y1="9" x2="15" y2="12"></line>
-  </svg>
-`;
-
 for (const game of GAMES) {
   const card = document.createElement("div");
   card.className = "game-card";
   card.innerHTML = `
     <div class="game-badge">${game.badge}</div>
-    <div class="game-icon">${rulerIcon}</div>
+    <div class="game-icon">${game.icon}</div>
     <h3>${game.title}</h3>
     <p>${game.description}</p>
     <button class="home-btn host-btn" data-game="${game.id}">Host a room</button>

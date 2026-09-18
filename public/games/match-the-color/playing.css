@@ -1,0 +1,337 @@
+.playing-view {
+  margin: -2rem calc(50% - 50vw) 0;
+  padding-bottom: 32px;
+}
+
+.guess-banner {
+  background: #067bc2;
+  padding: 16px 20px;
+  box-sizing: border-box;
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+
+.guess-icon-btn {
+  border: none;
+  cursor: pointer;
+  width: 32px;
+  height: 32px;
+  border-radius: 999px;
+  background: rgba(255, 255, 255, 0.2);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+  padding: 0;
+}
+
+.guess-banner-title {
+  font-family: "Fredoka", system-ui, sans-serif;
+  font-weight: 600;
+  font-size: 17px;
+  color: #ffffff;
+  flex: 1;
+}
+
+.guess-room-pill {
+  background: rgba(255, 255, 255, 0.16);
+  font-family: "Fredoka", system-ui, sans-serif;
+  font-weight: 600;
+  font-size: 13px;
+  letter-spacing: 1.5px;
+  color: #ffffff;
+  padding: 5px 10px;
+  border-radius: 999px;
+}
+
+.guess-status-card {
+  width: calc(100% - 40px);
+  max-width: calc(520px - 40px);
+  min-height: 50px;
+  margin: 0 auto;
+  background: #ffffff;
+  border-radius: 0 0 16px 16px;
+  padding: 10px 14px;
+  box-sizing: border-box;
+  box-shadow: 0 8px 16px rgba(6, 123, 194, 0.1);
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+
+/* The countdown is the star of this status card — it stands in for the
+   avatar stack Guess the Size shows here, since urgency matters more than
+   who's in the room once the clock is running. */
+.countdown-ring {
+  --pct: 100;
+  --ring-color: #067bc2;
+  width: 38px;
+  height: 38px;
+  border-radius: 999px;
+  flex-shrink: 0;
+  background: conic-gradient(var(--ring-color) calc(var(--pct) * 1%), rgba(0, 0, 0, 0.1) 0);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.countdown-ring-inner {
+  width: 30px;
+  height: 30px;
+  border-radius: 999px;
+  background: #ffffff;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-family: "Fredoka", system-ui, sans-serif;
+  font-weight: 700;
+  font-size: 12px;
+  color: rgba(0, 0, 0, 0.85);
+}
+
+.guess-status-text {
+  font-size: 12.5px;
+  color: rgba(0, 0, 0, 0.5);
+  flex: 1;
+}
+
+.guess-connection {
+  display: flex;
+  align-items: center;
+  gap: 5px;
+  font-size: 12px;
+  color: rgba(0, 0, 0, 0.5);
+}
+
+.guess-dot {
+  width: 7px;
+  height: 7px;
+  border-radius: 999px;
+  background: #9aa0ab;
+  flex-shrink: 0;
+}
+
+.guess-dot.connected {
+  background: #3fb27f;
+}
+
+.guess-dot.disconnected {
+  background: #d56062;
+}
+
+.playing-body {
+  max-width: 520px;
+  margin: 0 auto;
+  padding: 0 20px;
+  box-sizing: border-box;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+}
+
+.guess-instruction {
+  width: 100%;
+  margin: 16px 0 0;
+  font-size: 15px;
+  line-height: 1.4;
+  color: rgba(0, 0, 0, 0.7);
+}
+
+.guess-instruction strong {
+  color: rgba(0, 0, 0, 0.85);
+}
+
+.playing-stage {
+  position: relative;
+  width: 100%;
+  height: 220px;
+  margin-top: 16px;
+  border-radius: 12px;
+  overflow: hidden;
+  background: var(--target-color, #e0648a);
+  box-shadow: inset 0 0 0 1px rgba(0, 0, 0, 0.06);
+}
+
+.stage-texture {
+  position: absolute;
+  inset: 0;
+  opacity: 0.07;
+  background-image: radial-gradient(rgba(0, 0, 0, 0.6) 1.2px, transparent 1.2px);
+  background-size: 16px 16px;
+}
+
+.playing-stage .ground {
+  position: absolute;
+  left: 0;
+  right: 0;
+  bottom: 44px;
+  height: 2px;
+  background: rgba(0, 0, 0, 0.14);
+}
+
+.walker {
+  position: absolute;
+  left: 50%;
+  bottom: 44px;
+  width: 108px;
+  height: 78px;
+  margin-left: -54px;
+  animation: walk 5.2s linear infinite;
+}
+
+.bobber {
+  width: 100%;
+  height: 100%;
+  animation: bob 0.5s ease-in-out infinite;
+}
+
+.chameleon-svg .tail {
+  transform-origin: 28px 80px;
+  animation: tailwag 0.9s ease-in-out infinite;
+}
+
+@keyframes walk {
+  0% {
+    transform: translateX(-70px) scaleX(1);
+  }
+  48% {
+    transform: translateX(70px) scaleX(1);
+  }
+  50% {
+    transform: translateX(70px) scaleX(-1);
+  }
+  98% {
+    transform: translateX(-70px) scaleX(-1);
+  }
+  100% {
+    transform: translateX(-70px) scaleX(1);
+  }
+}
+
+@keyframes bob {
+  0%,
+  100% {
+    transform: translateY(0) rotate(0deg);
+  }
+  50% {
+    transform: translateY(-5px) rotate(-2deg);
+  }
+}
+
+@keyframes tailwag {
+  0%,
+  100% {
+    transform: rotate(0deg);
+  }
+  50% {
+    transform: rotate(14deg);
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .walker,
+  .bobber,
+  .chameleon-svg .tail {
+    animation: none;
+  }
+}
+
+.sliders {
+  width: 100%;
+  background: #ffffff;
+  border-radius: 16px;
+  padding: 16px 16px 18px;
+  box-shadow: 0 8px 16px rgba(6, 123, 194, 0.1);
+  display: flex;
+  flex-direction: column;
+  gap: 14px;
+  margin-top: 14px;
+  box-sizing: border-box;
+}
+
+.slider-row {
+  display: flex;
+  flex-direction: column;
+  gap: 5px;
+}
+
+.slider-head {
+  display: flex;
+  justify-content: space-between;
+  font-family: "Fredoka", system-ui, sans-serif;
+  font-size: 12px;
+  font-weight: 600;
+  color: rgba(0, 0, 0, 0.6);
+}
+
+.slider-head .val {
+  color: rgba(0, 0, 0, 0.85);
+  font-variant-numeric: tabular-nums;
+}
+
+.sliders input[type="range"] {
+  -webkit-appearance: none;
+  appearance: none;
+  width: 100%;
+  height: 12px;
+  border-radius: 999px;
+  outline: none;
+  cursor: pointer;
+}
+
+.sliders input[type="range"]::-webkit-slider-thumb {
+  -webkit-appearance: none;
+  width: 24px;
+  height: 24px;
+  border-radius: 50%;
+  background: #ffffff;
+  border: 3px solid rgba(0, 0, 0, 0.85);
+  box-shadow: 0 2px 6px rgba(0, 0, 0, 0.25);
+  cursor: grab;
+}
+
+.sliders input[type="range"]:disabled::-webkit-slider-thumb {
+  border-color: rgba(0, 0, 0, 0.4);
+}
+
+.sliders input[type="range"]::-moz-range-thumb {
+  width: 24px;
+  height: 24px;
+  border-radius: 50%;
+  background: #ffffff;
+  border: 3px solid rgba(0, 0, 0, 0.85);
+  box-shadow: 0 2px 6px rgba(0, 0, 0, 0.25);
+  cursor: grab;
+}
+
+#hue-slider {
+  background: linear-gradient(to right, #ff0000, #ffff00, #00ff00, #00ffff, #0000ff, #ff00ff, #ff0000);
+}
+
+#sat-slider {
+  background: linear-gradient(to right, #ffffff, var(--hue-pure, #00ff00));
+}
+
+#bri-slider {
+  background: linear-gradient(to right, #000000, var(--hue-sat, #00ff00));
+}
+
+.lock-btn {
+  width: 100%;
+  height: 48px;
+  margin-top: 16px;
+  border: none;
+  cursor: pointer;
+  border-radius: 13px;
+  background: #067bc2;
+  color: #ffffff;
+  font-family: "Fredoka", system-ui, sans-serif;
+  font-size: 15px;
+  font-weight: 600;
+}
+
+.lock-btn:disabled {
+  background: #84bcda;
+  cursor: default;
+}

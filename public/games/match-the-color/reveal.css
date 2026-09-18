@@ -1,0 +1,289 @@
+.reveal-view {
+  margin: -2rem calc(50% - 50vw) 0;
+  padding-bottom: 32px;
+}
+
+.reveal-status-card {
+  flex-direction: column;
+  align-items: stretch;
+  gap: 8px;
+}
+
+.reveal-status-top {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.reveal-round-label {
+  font-family: "Fredoka", system-ui, sans-serif;
+  font-weight: 600;
+  font-size: 14.5px;
+  color: rgba(0, 0, 0, 0.85);
+  flex: 1;
+}
+
+.round-track {
+  display: flex;
+  gap: 4px;
+}
+
+.round-track span {
+  height: 5px;
+  flex: 1;
+  border-radius: 999px;
+  background: rgba(6, 123, 194, 0.14);
+}
+
+.round-track span.done {
+  background: #067bc2;
+}
+
+.reveal-body {
+  max-width: 520px;
+  margin: 0 auto;
+  padding: 0 20px;
+  box-sizing: border-box;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  flex: 1;
+  min-height: 0;
+}
+
+.reveal-stage {
+  position: relative;
+  width: 100%;
+  height: 220px;
+  margin-top: 16px;
+  border-radius: 12px;
+  overflow: hidden;
+  background: var(--target-color, #e0648a);
+  box-shadow: inset 0 0 0 1px rgba(0, 0, 0, 0.06);
+}
+
+.reveal-stage .ground {
+  position: absolute;
+  left: 0;
+  right: 0;
+  bottom: 44px;
+  height: 2px;
+  background: rgba(0, 0, 0, 0.14);
+}
+
+/* Each player's own chameleon, standing at its final locked-in color — a
+   visual side-by-side comparison rather than an abstract number, since
+   color IS the thing being compared here. */
+.lineup {
+  position: absolute;
+  left: 0;
+  right: 0;
+  bottom: 44px;
+  display: flex;
+  justify-content: center;
+  align-items: flex-end;
+  gap: 28px;
+  padding: 0 16px;
+  flex-wrap: wrap;
+  row-gap: 20px;
+}
+
+.lineup-slot {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+}
+
+.lineup-slot .chameleon-svg {
+  width: 74px;
+  height: 53px;
+}
+
+.lineup-tag {
+  margin-top: 6px;
+  font-family: "Fredoka", system-ui, sans-serif;
+  font-size: 10.5px;
+  font-weight: 600;
+  color: rgba(0, 0, 0, 0.55);
+  background: rgba(255, 255, 255, 0.72);
+  padding: 2px 8px;
+  border-radius: 999px;
+  white-space: nowrap;
+}
+
+.lineup-slot.is-you .lineup-tag {
+  color: #067bc2;
+  background: #ffffff;
+}
+
+.lineup-slot.is-winner .lineup-tag::before {
+  content: "\1F451\00A0";
+}
+
+.reveal-summary {
+  width: 100%;
+  margin: 14px 0 0;
+  font-size: 14px;
+  line-height: 1.5;
+  color: rgba(0, 0, 0, 0.65);
+}
+
+.reveal-summary strong {
+  color: rgba(0, 0, 0, 0.85);
+}
+
+.reveal-results-section {
+  width: 100%;
+  margin-top: 18px;
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.reveal-results-heading {
+  font-family: "Fredoka", system-ui, sans-serif;
+  font-size: 16px;
+  font-weight: 600;
+  color: rgba(0, 0, 0, 0.85);
+}
+
+.reveal-results-card {
+  width: 100%;
+  background: #ffffff;
+  border-radius: 16px;
+  padding: 0 16px;
+  box-sizing: border-box;
+  box-shadow: 0 8px 20px rgba(6, 123, 194, 0.12);
+}
+
+.roster-col-heads {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 10px 0 6px;
+  font-size: 10px;
+  font-weight: 600;
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
+  color: rgba(0, 0, 0, 0.32);
+}
+
+.roster-col-sp {
+  flex: 1;
+}
+
+.roster-col.match-col {
+  width: 46px;
+  text-align: right;
+}
+
+.roster-col.score-col {
+  width: 34px;
+  text-align: right;
+}
+
+.roster-col.ready-col {
+  width: 21px;
+}
+
+.reveal-results-list {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+}
+
+.reveal-result-row {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 10px 0;
+  border-bottom: 1px solid rgba(0, 0, 0, 0.06);
+}
+
+.reveal-result-row:last-child {
+  border-bottom: none;
+}
+
+.reveal-avatar {
+  width: 32px;
+  height: 32px;
+  border-radius: 999px;
+  background: #84bcda;
+  color: rgba(0, 0, 0, 0.8);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-family: "Fredoka", system-ui, sans-serif;
+  font-weight: 600;
+  font-size: 12px;
+  flex-shrink: 0;
+}
+
+.reveal-result-name {
+  font-size: 14.5px;
+  color: rgba(0, 0, 0, 0.8);
+  flex: 1;
+  min-width: 0;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.reveal-result-row.is-you .reveal-result-name {
+  font-weight: 600;
+}
+
+.reveal-result-name .you-tag {
+  font-weight: 400;
+  color: rgba(0, 0, 0, 0.4);
+  font-size: 12.5px;
+}
+
+.reveal-result-match {
+  width: 46px;
+  text-align: right;
+  font-size: 12px;
+  color: rgba(0, 0, 0, 0.45);
+  font-variant-numeric: tabular-nums;
+  flex-shrink: 0;
+}
+
+.reveal-result-score {
+  width: 34px;
+  text-align: right;
+  font-family: "Fredoka", system-ui, sans-serif;
+  font-weight: 700;
+  font-size: 14.5px;
+  color: rgba(0, 0, 0, 0.6);
+  font-variant-numeric: tabular-nums;
+  flex-shrink: 0;
+}
+
+.reveal-result-score.top {
+  color: #067bc2;
+}
+
+.reveal-cta-area {
+  width: 100%;
+  margin-top: auto;
+  padding-top: 20px;
+}
+
+.guess-submit-btn {
+  width: 100%;
+  height: 52px;
+  margin-top: 16px;
+  border: none;
+  cursor: pointer;
+  border-radius: 15px;
+  background: #067bc2;
+  color: #ffffff;
+  font-family: "Fredoka", system-ui, sans-serif;
+  font-size: 16px;
+  font-weight: 600;
+}
+
+.guess-submit-btn:disabled {
+  background: #84bcda;
+  cursor: default;
+}
