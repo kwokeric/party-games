@@ -25,11 +25,16 @@
   letter-spacing: 4px;
 }
 
-.lobby-columns {
+/* Preview and How to play both have fixed, non-growing content, so they
+   share one even row. Players is deliberately its own panel below (not a
+   third column here) since the player count changes constantly — it needs
+   to grow without disturbing this row's height. */
+.lobby-top-row {
   display: grid;
-  grid-template-columns: 1.3fr 1fr;
+  grid-template-columns: 1fr 1fr;
   gap: 24px;
   align-items: start;
+  margin-bottom: 24px;
 }
 
 .lobby-panel {
@@ -45,7 +50,6 @@
    this would just eat space above the info a mobile web player actually
    needs (how to play / who's here), without room to be legible anyway. */
 .lobby-preview-panel {
-  margin-bottom: 24px;
   display: none;
 }
 
@@ -77,16 +81,14 @@
   border-top: 2px solid #445;
 }
 
+/* Matches .obj's default color in game.css — the guessing screen doesn't
+   color-code its two objects differently, so neither should this preview. */
 .lobby-preview-obj {
   position: relative;
   display: flex;
   flex-direction: column;
   align-items: center;
-  color: #ccc;
-}
-
-.lobby-preview-obj.lobby-preview-obj-b {
-  color: var(--light-blue);
+  color: #f4a261;
 }
 
 .lobby-preview-obj .obj-visual svg {
@@ -125,19 +127,26 @@
   color: var(--ink-soft);
 }
 
+/* A wrapping grid of chips rather than one tall list — it grows outward
+   and downward together as the party fills up, so the panel widens into
+   columns before it ever needs to grow very tall. */
 .lobby-player-list {
   list-style: none;
-  margin: 0 0 14px;
+  margin: 0 0 16px;
   padding: 0;
-  display: flex;
-  flex-direction: column;
-  gap: 13px;
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(180px, 1fr));
+  gap: 10px;
 }
 
 .lobby-player-row {
   display: flex;
   align-items: center;
-  gap: 12px;
+  gap: 10px;
+  background: var(--cream);
+  border-radius: 12px;
+  padding: 8px 12px;
+  box-sizing: border-box;
 }
 
 .lobby-avatar {
@@ -161,7 +170,11 @@
   letter-spacing: 0.5px;
   color: var(--ink);
   flex: 1;
+  min-width: 0;
   text-transform: uppercase;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
 }
 
 .lobby-host-badge {
@@ -172,6 +185,7 @@
   letter-spacing: 0.5px;
   padding: 4px 10px;
   border-radius: 999px;
+  flex-shrink: 0;
 }
 
 .lobby-ready-tag {
@@ -181,6 +195,7 @@
   color: var(--blue);
   font-size: 12px;
   font-weight: 600;
+  flex-shrink: 0;
 }
 
 .lobby-action-btn {
@@ -213,7 +228,7 @@
 }
 
 @media (max-width: 720px) {
-  .lobby-columns {
+  .lobby-top-row {
     grid-template-columns: 1fr;
   }
 }
