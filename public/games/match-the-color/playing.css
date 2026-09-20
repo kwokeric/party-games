@@ -142,7 +142,9 @@
 }
 
 .playing-body {
+  width: 100%;
   max-width: 520px;
+  margin: 0 auto;
   padding: 0 20px;
   box-sizing: border-box;
   display: flex;
@@ -150,6 +152,31 @@
   align-items: center;
   flex: 1;
   min-height: 0;
+}
+
+/* On mobile the CTA is pinned to the bottom of the viewport with
+   margin-top: auto, since the view fills the screen and there's no other
+   anchor. On desktop the view is much taller than its content, so that same
+   rule strands the button far below everything else — here it just follows
+   the countdown ring in normal flow instead, and the whole column gets more
+   room to breathe. */
+@media (min-width: 720px) {
+  .playing-body {
+    max-width: 640px;
+    padding-top: 12px;
+  }
+
+  .playing-stage {
+    height: 300px;
+  }
+
+  .playing-cta-area {
+    margin-top: 28px;
+  }
+
+  .guess-status-card {
+    max-width: calc(640px - 40px);
+  }
 }
 
 .playing-cta-area {
@@ -206,10 +233,13 @@
 .walker {
   position: absolute;
   left: 50%;
-  bottom: 44px;
-  width: 108px;
-  height: 78px;
-  margin-left: -54px;
+  /* The art's feet sit well above the bottom edge of its viewBox (there's
+     dead canvas below them), so the box is offset lower than the ground
+     line itself to make the feet land on it. */
+  bottom: 16px;
+  width: 216px;
+  height: 108px;
+  margin-left: -108px;
   animation: walk 5.2s linear infinite;
 }
 
@@ -219,9 +249,14 @@
   animation: bob 0.5s ease-in-out infinite;
 }
 
-.chameleon-svg .tail {
-  transform-origin: 28px 80px;
-  animation: tailwag 0.9s ease-in-out infinite;
+/* Once the round ends (or this player locks in), the walker just freezes
+   in place — pausing every animation at its current frame — rather than
+   resetting position or swapping to a different pose. */
+.walker.is-stopped,
+.walker.is-stopped .bobber,
+.walker.is-stopped .chameleon-svg .cham-swing-a,
+.walker.is-stopped .chameleon-svg .cham-swing-b {
+  animation-play-state: paused;
 }
 
 @keyframes walk {
@@ -252,20 +287,11 @@
   }
 }
 
-@keyframes tailwag {
-  0%,
-  100% {
-    transform: rotate(0deg);
-  }
-  50% {
-    transform: rotate(14deg);
-  }
-}
-
 @media (prefers-reduced-motion: reduce) {
   .walker,
   .bobber,
-  .chameleon-svg .tail,
+  .chameleon-svg .cham-swing-a,
+  .chameleon-svg .cham-swing-b,
   .countdown-ring.urgent {
     animation: none;
   }

@@ -35,6 +35,7 @@ const playingConnectionTextEl = el("playing-connection-text");
 const countdownRing = el("countdown-ring");
 const countdownNum = el("countdown-num");
 const playingStage = el("playing-stage");
+const walkerEl = document.querySelector(".walker");
 const walkerChameleon = el("walker-chameleon");
 const hueSlider = el("hue-slider");
 const satSlider = el("sat-slider");
@@ -256,21 +257,64 @@ durationPlusBtn.addEventListener("click", () => {
   });
 });
 
+// The chameleon is drawn in three shades of the one target color: light for
+// the body/tail, medium for the neck and the pair of legs nearer the
+// viewer, dark for the head and the farther pair of legs. The medium shade
+// is the one players are actually dialing in on the sliders — light/dark
+// stay close in brightness to it (rather than the wide swing a photoreal
+// chameleon would have) so the "same color, different shading" read stays
+// obvious instead of looking like three different targets.
+const CHAMELEON_SHADE_SPREAD = 6;
+
+function chameleonShades(h, s, b) {
+  const clamp = (v) => Math.max(0, Math.min(100, v));
+  return {
+    light: rgbCss(hsbToRgb(h, s, clamp(b + CHAMELEON_SHADE_SPREAD))),
+    medium: rgbCss(hsbToRgb(h, s, b)),
+    dark: rgbCss(hsbToRgb(h, s, clamp(b - CHAMELEON_SHADE_SPREAD))),
+  };
+}
+
+// Side profile, used while the chameleon is pacing during the guess.
+// Adapted from chameleon.svg (hand-drawn: right-triangle body/neck/head,
+// thick-stroke bent legs, a curled tail) — fills are swapped from fixed
+// hexes to the three shade variables, and legs are split into a near/far
+// pair per shade. Diagonal leg pairs share a swing class so they read as a
+// natural gait (see .cham-swing-a/b in game.css).
+const WALK_POSE_MARKUP = `
+  <path fill="var(--c-light)" d="M570,470C485,470,395,430,355,445C275,475,250,535,278,592C306,649,374,657,424,620C465,589,462,535,423,511C388,489,347,508,339,542C332,571,352,594,375,595C396,596,408,580,402,565C398,554,386,551,379,558C373,564,377,573,384,573C389,573,392,569,391,565C391,562,388,560,386,562C383,564,384,568,386,568C389,568,390,565,388,563C386,561,383,563,384,565C384,567,386,568,388,567C390,565,389,562,387,562C383,562,381,567,384,571C390,577,400,572,400,564C400,552,387,545,377,551C362,560,365,579,379,584C398,591,416,574,413,553C409,525,379,511,356,525C328,542,333,584,364,599C399,616,437,591,437,554C437,514,402,488,367,496C326,506,304,548,319,586C338,635,397,645,439,617C493,581,500,518,470,485C447,460,413,452,382,456C429,438,494,439,570,458Z"/>
+  <g transform="translate(600 470)"><g class="cham-swing-a"><path fill="none" stroke="var(--c-dark)" stroke-width="34" stroke-linecap="round" stroke-linejoin="round" d="M0,0L-70,92L-42,142"/><circle fill="var(--c-dark)" cx="0" cy="0" r="20"/></g></g>
+  <g transform="translate(760 470)"><g class="cham-swing-b"><path fill="none" stroke="var(--c-dark)" stroke-width="34" stroke-linecap="round" stroke-linejoin="round" d="M0,0L45,98L68,150"/><circle fill="var(--c-dark)" cx="0" cy="0" r="20"/></g></g>
+  <g transform="translate(900 445)"><g class="cham-swing-b"><path fill="none" stroke="var(--c-medium)" stroke-width="34" stroke-linecap="round" stroke-linejoin="round" d="M0,0L-58,78L-83,121"/><circle fill="var(--c-medium)" cx="0" cy="0" r="20"/></g></g>
+  <g transform="translate(965 445)"><g class="cham-swing-a"><path fill="none" stroke="var(--c-medium)" stroke-width="34" stroke-linecap="round" stroke-linejoin="round" d="M0,0L55,96L82,143"/><circle fill="var(--c-medium)" cx="0" cy="0" r="20"/></g></g>
+  <path fill="var(--c-light)" d="M535,470L965,470L965,245Z"/>
+  <path fill="var(--c-medium)" d="M965,245L965,390L825,390Z"/>
+  <circle fill="#fff8dc" cx="1090" cy="275" r="53"/>
+  <circle fill="#151515" cx="1110" cy="258" r="18"/>
+  <path fill="var(--c-dark)" d="M825,390L825,100L1205,390Z"/>
+  <circle fill="#fff8dc" cx="955" cy="255" r="65"/>
+  <circle fill="#151515" cx="975" cy="235" r="22"/>
+`;
+
+walkerChameleon.innerHTML = WALK_POSE_MARKUP;
+
+// The results lineup reuses the same walk-pose art, frozen mid-stride
+// (see .lineup-slot in reveal.css, which turns off the leg-swing animation)
+// rather than a separate standing pose — one consistent look everywhere.
 function chameleonSvg(color) {
+  const shades = chameleonShades(color.h, color.s, color.b);
   return `
-    <svg class="chameleon-svg" viewBox="0 0 140 100" style="color:${rgbCss(hsbToRgb(color.h, color.s, color.b))};">
-      <path d="M34 56c-4-24 21-40 48-38 24 1.6 42 16 44 32 1.4 11-6.4 20-17 23-1.6 6.4-8.4 10.6-16 10.6-8 0-40-2-52-13-5.6-5-7.4-10-7-14.6z" fill="currentColor"/>
-      <path d="M118 34c9-5 20-4.6 22 2 1.6 5.4-6 10.6-14 10.6-4.6 0-9-1.4-12-4z" fill="currentColor"/>
-      <circle cx="112" cy="27" r="10" fill="currentColor"/>
-      <circle class="eye" cx="113.5" cy="26" r="4.6"/>
-      <circle cx="115.5" cy="24" r="1.5" fill="#fff"/>
-      <path d="M38 62c-16 1-27 10-25 20 1.6 8 11 11 15 5 2.4-3.4 0.6-8-3-9.6-3.4-1.6-4.6-5-2-8 2.6-3 7-4.6 11-4.6z" fill="currentColor"/>
+    <svg class="chameleon-svg" viewBox="0 0 1600 800" style="--c-light:${shades.light};--c-medium:${shades.medium};--c-dark:${shades.dark};">
+      ${WALK_POSE_MARKUP}
     </svg>
   `;
 }
 
 function updateWalkerColor(h, s, b) {
-  walkerChameleon.style.color = rgbCss(hsbToRgb(h, s, b));
+  const shades = chameleonShades(h, s, b);
+  walkerChameleon.style.setProperty("--c-light", shades.light);
+  walkerChameleon.style.setProperty("--c-medium", shades.medium);
+  walkerChameleon.style.setProperty("--c-dark", shades.dark);
   satSlider.style.setProperty("--hue-pure", rgbCss(hsbToRgb(h, 100, 100)));
   briSlider.style.setProperty("--hue-sat", rgbCss(hsbToRgb(h, s, 100)));
 }
@@ -319,7 +363,10 @@ function tickCountdown() {
     countdownRing.classList.remove("urgent");
   }
 
-  if (remainingMs <= 0) stopCountdown();
+  if (remainingMs <= 0) {
+    stopCountdown();
+    walkerEl.classList.add("is-stopped");
+  }
 }
 
 function startPlaying(roundNumber, maxRounds, newTarget, durationMs, endsAt) {
@@ -330,6 +377,7 @@ function startPlaying(roundNumber, maxRounds, newTarget, durationMs, endsAt) {
   playingRoundNumber = roundNumber;
   playingMaxRounds = maxRounds;
   locked = false;
+  walkerEl.classList.remove("is-stopped");
 
   renderRoundTrack(playingRoundTrackEl, roundNumber, maxRounds);
 
@@ -498,6 +546,7 @@ lockBtn.addEventListener("click", () => {
   [hueSlider, satSlider, briSlider].forEach((sliderEl) => (sliderEl.disabled = true));
   lockBtn.disabled = true;
   lockBtn.textContent = "Waiting for others…";
+  walkerEl.classList.add("is-stopped");
   socket?.send(JSON.stringify({ type: "lock" }));
 });
 

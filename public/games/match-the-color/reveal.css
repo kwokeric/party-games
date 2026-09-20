@@ -55,7 +55,9 @@
 }
 
 .reveal-body {
+  width: 100%;
   max-width: 520px;
+  margin: 0 auto;
   padding: 0 20px;
   box-sizing: border-box;
   display: flex;
@@ -63,6 +65,28 @@
   align-items: center;
   flex: 1;
   min-height: 0;
+}
+
+/* See the matching rule in playing.css — same bug, same fix: margin-top:
+   auto on the CTA is fine when the view fills a phone screen, but strands
+   the button on a tall desktop viewport instead. */
+@media (min-width: 720px) {
+  .reveal-body {
+    max-width: 640px;
+    padding-top: 12px;
+  }
+
+  .reveal-stage {
+    height: 300px;
+  }
+
+  .reveal-cta-area {
+    margin-top: 28px;
+  }
+
+  .guess-status-card {
+    max-width: calc(640px - 40px);
+  }
 }
 
 .reveal-stage {
@@ -106,6 +130,13 @@
   display: flex;
   flex-direction: column;
   align-items: center;
+}
+
+/* Standing still for the results comparison — the walker's leg-swing
+   animation (game.css) would otherwise keep pacing in place here too. */
+.lineup-slot .chameleon-svg .cham-swing-a,
+.lineup-slot .chameleon-svg .cham-swing-b {
+  animation: none;
 }
 
 .lineup-slot .chameleon-svg {

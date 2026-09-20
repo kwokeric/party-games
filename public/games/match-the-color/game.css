@@ -43,12 +43,49 @@
   opacity: 1;
 }
 
-/* The chameleon is shared by the playing stage (one, walking) and the
-   results lineup (one per player, standing still). */
+/* The chameleon is shared by the playing stage (one, walking, then facing
+   forward once time runs out) and the results lineup (one per player,
+   standing still, facing forward). Its three body-part shades come from a
+   single target color via --c-light/--c-medium/--c-dark (see chameleonShades
+   in client.js) — the medium shade is the one players are actually matching;
+   light/dark are close enough in brightness to stay readable as "the same
+   color" rather than reading as a light/dark gradient. */
 .chameleon-svg {
   display: block;
 }
 
-.chameleon-svg .eye {
-  fill: #12141a;
+/* Diagonal leg pairs swing together (front-left+back-right, front-right+
+   back-left), like an actual quadruped gait, while walking. */
+.chameleon-svg .cham-swing-a,
+.chameleon-svg .cham-swing-b {
+  transform-box: fill-box;
+  transform-origin: 0 0;
+}
+
+.chameleon-svg .cham-swing-a {
+  animation: cham-swing-a 1s ease-in-out infinite;
+}
+
+.chameleon-svg .cham-swing-b {
+  animation: cham-swing-b 1s ease-in-out infinite;
+}
+
+@keyframes cham-swing-a {
+  0%,
+  100% {
+    transform: rotate(-16deg);
+  }
+  50% {
+    transform: rotate(16deg);
+  }
+}
+
+@keyframes cham-swing-b {
+  0%,
+  100% {
+    transform: rotate(16deg);
+  }
+  50% {
+    transform: rotate(-16deg);
+  }
 }
