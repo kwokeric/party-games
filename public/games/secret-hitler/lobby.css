@@ -1,0 +1,185 @@
+@import url("https://fonts.googleapis.com/css2?family=Fredoka:wght@500;600;700&display=swap");
+
+.lobby-view {
+  --blue: #067bc2;
+  --light-blue: #84bcda;
+  --cream: #f0eee6;
+  --coral: #d56062;
+  --ink: rgba(0, 0, 0, 0.85);
+  --ink-soft: rgba(0, 0, 0, 0.6);
+  --ink-faint: rgba(0, 0, 0, 0.4);
+
+  margin: -2rem calc(50% - 50vw) 0;
+  background: var(--cream);
+  color: var(--ink);
+  font-family: system-ui, -apple-system, sans-serif;
+  padding-bottom: 32px;
+}
+
+.lobby-panel {
+  background: #ffffff;
+  border: 1px solid rgba(0, 0, 0, 0.08);
+  border-radius: 16px;
+  padding: 20px;
+  box-sizing: border-box;
+  margin-bottom: 24px;
+}
+
+.lobby-panel h3 {
+  margin: 0 0 14px;
+  font-family: "Fredoka", system-ui, sans-serif;
+  font-size: 13px;
+  font-weight: 600;
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
+  color: var(--ink-faint);
+}
+
+.lobby-howto-list {
+  margin: 0;
+  padding-left: 18px;
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.lobby-howto-list li {
+  font-size: 13.5px;
+  line-height: 1.5;
+  color: var(--ink-soft);
+}
+
+.lobby-player-list {
+  list-style: none;
+  margin: 0 0 16px;
+  padding: 0;
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(180px, 1fr));
+  gap: 10px;
+}
+
+.lobby-player-row {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  background: var(--cream);
+  border-radius: 12px;
+  padding: 8px 12px;
+  box-sizing: border-box;
+}
+
+.lobby-avatar {
+  width: 36px;
+  height: 36px;
+  border-radius: 999px;
+  background: var(--light-blue);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-family: "Fredoka", system-ui, sans-serif;
+  font-weight: 600;
+  font-size: 13px;
+  color: rgba(0, 0, 0, 0.8);
+  flex-shrink: 0;
+}
+
+.lobby-player-name {
+  font-family: "Fredoka", system-ui, sans-serif;
+  font-size: 14px;
+  letter-spacing: 0.5px;
+  color: var(--ink);
+  flex: 1;
+  min-width: 0;
+  text-transform: uppercase;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.lobby-action-btn {
+  width: 100%;
+  height: 50px;
+  box-sizing: border-box;
+  padding: 0;
+  border: none;
+  cursor: pointer;
+  border-radius: 13px;
+  background: var(--blue);
+  color: #ffffff;
+  font-family: "Fredoka", system-ui, sans-serif;
+  font-size: 16px;
+  font-weight: 600;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.lobby-action-btn.is-ready {
+  background: var(--light-blue);
+}
+
+.lobby-action-btn:disabled {
+  background: var(--light-blue);
+  cursor: default;
+  opacity: 0.6;
+}
+
+.lobby-settings-row {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+}
+
+.lobby-settings-label {
+  font-family: "Fredoka", system-ui, sans-serif;
+  font-size: 14px;
+  font-weight: 600;
+  color: var(--ink);
+}
+
+.lobby-stepper {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+  background: var(--cream);
+  border-radius: 999px;
+  padding: 4px;
+}
+
+.lobby-stepper-btn {
+  width: 30px;
+  height: 30px;
+  border: none;
+  border-radius: 999px;
+  background: #ffffff;
+  color: var(--blue);
+  font-size: 18px;
+  line-height: 1;
+  font-weight: 600;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.lobby-stepper-btn:disabled {
+  color: var(--ink-faint);
+  cursor: not-allowed;
+}
+
+.lobby-stepper-val {
+  min-width: 44px;
+  text-align: center;
+  font-family: "Fredoka", system-ui, sans-serif;
+  font-size: 14px;
+  font-weight: 600;
+  color: var(--ink);
+}
+
+.lobby-settings-summary {
+  margin: -8px 0 0;
+  font-size: 12.5px;
+  color: var(--ink-faint);
+  text-align: center;
+}
