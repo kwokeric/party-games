@@ -1058,5 +1058,85 @@
     "axis": "height",
     "category": "object",
     "source": "https://www.hatrealm.com/top-hats-how-tall-should-they-be/"
+  },
+  {
+    "id": "headphones",
+    "name": "Headphones",
+    "length_m": 0.2,
+    "measured": "overall height (typical over-ear headphones, folded)",
+    "svg": "objects/headphones.svg",
+    "axis": "height",
+    "category": "object",
+    "source": "https://en.wikipedia.org/wiki/Headphones"
+  },
+  {
+    "id": "first-aid-kit",
+    "name": "First Aid Kit",
+    "length_m": 0.23,
+    "measured": "box height (typical portable first aid kit)",
+    "svg": "objects/first-aid-kit.svg",
+    "axis": "height",
+    "category": "object",
+    "source": "https://en.wikipedia.org/wiki/First_aid_kit"
+  },
+  {
+    "id": "pint-of-beer",
+    "name": "Pint of Beer",
+    "length_m": 0.15,
+    "measured": "glass height (US conical \"shaker\" pint glass, ~6in)",
+    "svg": "objects/pint-of-beer.svg",
+    "axis": "height",
+    "category": "food",
+    "source": "https://en.wikipedia.org/wiki/Pint_glass"
+  },
+  {
+    "id": "bowl-of-ramen",
+    "name": "Bowl of Ramen",
+    "length_m": 0.22,
+    "measured": "approximate bowl diameter (large ramen/donburi bowl, typical restaurant size)",
+    "svg": "objects/bowl-of-ramen.svg",
+    "axis": "width",
+    "category": "food",
+    "source": "https://en.wikipedia.org/wiki/Ramen"
+  },
+  {
+    "id": "cow",
+    "name": "Cow",
+    "length_m": 1.55,
+    "measured": "height at shoulder (adult Holstein dairy cow, 145-165cm range)",
+    "svg": "objects/cow.svg",
+    "axis": "height",
+    "category": "animal",
+    "source": "https://en.wikipedia.org/wiki/Holstein_Friesian_cattle"
+  },
+  {
+    "id": "crossbow",
+    "name": "Crossbow",
+    "length_m": 0.9,
+    "measured": "approximate overall length (stock to bow tip; varies roughly 70cm-1m across historical and modern designs)",
+    "svg": "objects/crossbow.svg",
+    "axis": "width",
+    "category": "object",
+    "source": "https://en.wikipedia.org/wiki/Crossbow"
+  },
+  {
+    "id": "medieval-catapult",
+    "name": "Medieval Catapult",
+    "length_m": 3,
+    "measured": "approximate overall length (small mobile mangonel-style catapult; historical siege engine sizes varied widely, from ~1.5m cart-mounted engines to 10m+ trebuchets)",
+    "svg": "objects/medieval-catapult.svg",
+    "axis": "width",
+    "category": "vehicle",
+    "source": "https://en.wikipedia.org/wiki/Mangonel"
+  },
+  {
+    "id": "pokeball",
+    "name": "Poké Ball",
+    "length_m": 0.095,
+    "measured": "diameter (approximate, based on official licensed replica merchandise)",
+    "svg": "objects/pokeball.svg",
+    "axis": "width",
+    "category": "object",
+    "source": "https://bulbapedia.bulbagarden.net/wiki/Pok%C3%A9_Ball"
   }
 ]

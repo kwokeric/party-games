@@ -85,6 +85,20 @@
   left: 30px;
 }
 
+/* Object A's label wraps and centers under its icon instead of running out
+   as one long line — positionObjectB() uses this label's right edge to
+   place object B, so a long name (e.g. "Ruby-throated Hummingbird") next to
+   a tiny icon no longer forces B far away from a reference that's actually
+   small on screen. */
+#object-a-stage-label {
+  left: 50%;
+  transform: translateX(-50%);
+  width: max-content;
+  max-width: 110px;
+  text-align: center;
+  white-space: normal;
+}
+
 /* #object-b's left is computed in JS from object A's actual rendered
    width, so it can sit as close as possible for more drag room. */
 

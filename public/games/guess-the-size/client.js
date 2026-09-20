@@ -420,9 +420,9 @@ async function showReveal(roundNumber, maxRounds, objectBTrueLength_m, guesses) 
     const pctOff = Math.round((Math.abs(myGuess - objectBTrueLength_m) / objectBTrueLength_m) * 100);
     // Safe to use innerHTML here: every interpolated value is a number we
     // formatted ourselves, never raw user text (unlike player names below).
-    revealSummary.innerHTML = `You said <strong>${formatMeters(myGuess)}</strong> · true size <strong>${formatMeters(
+    revealSummary.innerHTML = `Your guess <strong>${formatMeters(myGuess)}</strong> · True size <strong>${formatMeters(
       objectBTrueLength_m
-    )}</strong> · off by ${pctOff}% · score <strong style="color: #067bc2;">${mine.score}/100</strong>`;
+    )}</strong> · off by ${pctOff}%`;
   } else {
     revealSummary.textContent = `True size: ${formatMeters(objectBTrueLength_m)}`;
   }
