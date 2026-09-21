@@ -63,6 +63,28 @@
             </div>
           </div>
 
+          <div id="lobby-settings-panel" class="lobby-panel lobby-settings-panel" hidden>
+            <h3>Round settings</h3>
+            <div class="lobby-settings-row">
+              <span class="lobby-settings-label">Rounds</span>
+              <div class="lobby-stepper">
+                <button id="rounds-minus-btn" class="lobby-stepper-btn" type="button" aria-label="Fewer rounds">−</button>
+                <span id="rounds-val" class="lobby-stepper-val">5</span>
+                <button id="rounds-plus-btn" class="lobby-stepper-btn" type="button" aria-label="More rounds">+</button>
+              </div>
+            </div>
+            <div class="lobby-settings-row">
+              <span class="lobby-settings-label">Time per round</span>
+              <div class="lobby-stepper">
+                <button id="duration-minus-btn" class="lobby-stepper-btn" type="button" aria-label="Less time">−</button>
+                <span id="duration-val" class="lobby-stepper-val">None</span>
+                <button id="duration-plus-btn" class="lobby-stepper-btn" type="button" aria-label="More time">+</button>
+              </div>
+            </div>
+          </div>
+
+          <p id="lobby-settings-summary" class="lobby-settings-summary" hidden></p>
+
           <div class="lobby-panel lobby-players-panel">
             <h3>Players</h3>
             <ul id="lobby-player-list" class="lobby-player-list"></ul>
@@ -83,6 +105,9 @@
         </div>
 
         <div class="guess-status-card">
+          <div id="guess-countdown-ring" class="countdown-ring" hidden>
+            <div class="countdown-ring-inner" id="guess-countdown-num">-</div>
+          </div>
           <span id="guess-avatar-stack" class="guess-avatar-stack"></span>
           <span id="guess-status-text" class="guess-status-text"></span>
           <span class="guess-connection">
@@ -119,7 +144,13 @@
             <div id="object-b" class="obj">
               <span id="object-b-img" class="obj-visual"></span>
               <span class="obj-label" id="object-b-stage-label"></span>
-              <div id="resize-handle" class="resize-handle"></div>
+              <div id="resize-handle" class="resize-handle">
+                <svg width="14" height="14" viewBox="0 0 512 512" fill="none" stroke="currentColor" stroke-width="56" stroke-linecap="round" stroke-linejoin="round">
+                  <polyline points="304 96 416 96 416 208"></polyline>
+                  <line x1="405.77" y1="106.2" x2="111.98" y2="400.02"></line>
+                  <polyline points="208 416 96 416 96 304"></polyline>
+                </svg>
+              </div>
             </div>
           </div>
 
@@ -199,7 +230,7 @@
         <div class="guess-status-card">
           <div class="final-status-top">
             <span class="final-status-label">Game complete</span>
-            <span class="final-status-sub">10 rounds played</span>
+            <span class="final-status-sub" id="final-status-sub">10 rounds played</span>
           </div>
           <div class="final-winner-spot">
             <span class="final-winner-avatar" id="final-winner-avatar"></span>

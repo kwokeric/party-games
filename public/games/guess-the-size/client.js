@@ -16,9 +16,19 @@ const lobbyPlayerListEl = el("lobby-player-list");
 const startBtn = el("start-btn");
 const readyBtn = el("ready-btn");
 const lobbyWaitingEl = el("lobby-waiting");
+const lobbySettingsPanel = el("lobby-settings-panel");
+const lobbySettingsSummary = el("lobby-settings-summary");
+const roundsVal = el("rounds-val");
+const roundsMinusBtn = el("rounds-minus-btn");
+const roundsPlusBtn = el("rounds-plus-btn");
+const durationVal = el("duration-val");
+const durationMinusBtn = el("duration-minus-btn");
+const durationPlusBtn = el("duration-plus-btn");
 
 const guessBackBtn = el("guess-back-btn");
 const guessRoomCodeEl = el("guess-room-code");
+const guessCountdownRing = el("guess-countdown-ring");
+const guessCountdownNum = el("guess-countdown-num");
 const guessAvatarStackEl = el("guess-avatar-stack");
 const guessStatusTextEl = el("guess-status-text");
 const guessConnectionDotEl = el("guess-connection-dot");
@@ -61,6 +71,7 @@ const revealReadyBtn = el("reveal-ready-btn");
 
 const finalBackBtn = el("final-back-btn");
 const finalRoomCodeEl = el("final-room-code");
+const finalStatusSubEl = el("final-status-sub");
 const finalWinnerAvatarEl = el("final-winner-avatar");
 const finalWinnerNameEl = el("final-winner-name");
 const finalWinnerScoreEl = el("final-winner-score");
@@ -72,6 +83,13 @@ guessRoomCodeEl.textContent = room ?? "(none)";
 revealRoomCodeEl.textContent = room ?? "(none)";
 finalRoomCodeEl.textContent = room ?? "(none)";
 
+const MIN_ROUNDS = 3;
+const MAX_ROUNDS_LIMIT = 20;
+const MIN_ROUND_DURATION_MS = 10000;
+const MAX_ROUND_DURATION_MS = 120000;
+const ROUND_STEP = 1;
+const DURATION_STEP_MS = 10000;
+
 let myId = null;
 let players = [];
 let round = null; // { objectA, objectB }
@@ -80,6 +98,11 @@ let guessLength = 1;
 let zoom = 1;
 let basePxPerMeter = 100;
 let hasSubmitted = false;
+let settings = { maxRounds: 5, roundDurationMs: null };
+let roundDurationMs = null;
+let roundEndsAt = 0;
+let countdownTimer = null;
+let lastPulseSecond = null;
 
 function article(name) {
   return /^[aeiou]/i.test(name) ? "an" : "a";
@@ -181,6 +204,7 @@ function renderPlayers() {
       readyBtn.textContent = me?.ready ? "Not ready" : "Ready up";
       readyBtn.classList.toggle("is-ready", Boolean(me?.ready));
     }
+    renderSettings(amHost);
   }
 
   if (phase === "reveal") {
@@ -196,6 +220,91 @@ function renderPlayers() {
   }
 
   updateReadyDots();
+}
+
+function formatDuration(ms) {
+  return ms === null ? "None" : `${ms / 1000}s`;
+}
+
+function renderSettings(amHost) {
+  lobbySettingsPanel.hidden = !amHost;
+  lobbySettingsSummary.hidden = amHost;
+
+  roundsVal.textContent = String(settings.maxRounds);
+  durationVal.textContent = formatDuration(settings.roundDurationMs);
+  roundsMinusBtn.disabled = settings.maxRounds <= MIN_ROUNDS;
+  roundsPlusBtn.disabled = settings.maxRounds >= MAX_ROUNDS_LIMIT;
+  durationMinusBtn.disabled = settings.roundDurationMs === null;
+  durationPlusBtn.disabled = settings.roundDurationMs >= MAX_ROUND_DURATION_MS;
+
+  if (!amHost) {
+    lobbySettingsSummary.textContent = `${settings.maxRounds} rounds · ${formatDuration(settings.roundDurationMs)} per round`;
+  }
+}
+
+function sendSettings(next) {
+  settings = next;
+  renderSettings(true);
+  socket?.send(
+    JSON.stringify({ type: "settings", maxRounds: settings.maxRounds, roundDurationMs: settings.roundDurationMs })
+  );
+}
+
+// Stepping the duration down past the minimum lands on "None" (no timer)
+// instead of clamping at the floor — that's how a host turns the timer back
+// off after having turned it on.
+function stepDurationDown(current) {
+  if (current === null) return null;
+  if (current <= MIN_ROUND_DURATION_MS) return null;
+  return current - DURATION_STEP_MS;
+}
+
+function stepDurationUp(current) {
+  if (current === null) return MIN_ROUND_DURATION_MS;
+  return Math.min(MAX_ROUND_DURATION_MS, current + DURATION_STEP_MS);
+}
+
+roundsMinusBtn.addEventListener("click", () => {
+  sendSettings({ ...settings, maxRounds: Math.max(MIN_ROUNDS, settings.maxRounds - ROUND_STEP) });
+});
+roundsPlusBtn.addEventListener("click", () => {
+  sendSettings({ ...settings, maxRounds: Math.min(MAX_ROUNDS_LIMIT, settings.maxRounds + ROUND_STEP) });
+});
+durationMinusBtn.addEventListener("click", () => {
+  sendSettings({ ...settings, roundDurationMs: stepDurationDown(settings.roundDurationMs) });
+});
+durationPlusBtn.addEventListener("click", () => {
+  sendSettings({ ...settings, roundDurationMs: stepDurationUp(settings.roundDurationMs) });
+});
+
+function stopCountdown() {
+  if (countdownTimer !== null) {
+    clearInterval(countdownTimer);
+    countdownTimer = null;
+  }
+}
+
+function tickCountdown() {
+  const remainingMs = Math.max(0, roundEndsAt - Date.now());
+  const remainingS = Math.ceil(remainingMs / 1000);
+  const urgent = remainingMs > 0 && remainingS <= 5;
+  guessCountdownNum.textContent = String(remainingS);
+  guessCountdownRing.style.setProperty("--pct", String(Math.round((remainingMs / roundDurationMs) * 100)));
+  guessCountdownRing.style.setProperty("--ring-color", urgent ? "#d56062" : "#067bc2");
+
+  if (urgent) {
+    if (remainingS !== lastPulseSecond) {
+      lastPulseSecond = remainingS;
+      guessCountdownRing.classList.remove("urgent");
+      void guessCountdownRing.offsetWidth;
+      guessCountdownRing.classList.add("urgent");
+    }
+  } else {
+    lastPulseSecond = null;
+    guessCountdownRing.classList.remove("urgent");
+  }
+
+  if (remainingMs <= 0) stopCountdown();
 }
 
 // <img src="object.svg"> can't have its `currentColor` styled by CSS on
@@ -301,7 +410,7 @@ function autoFitZoom() {
   positionObjectB();
 }
 
-async function startGuessing(objectA, objectB) {
+async function startGuessing(objectA, objectB, durationMs, endsAt) {
   round = { objectA, objectB };
   phase = "guessing";
   hasSubmitted = false;
@@ -319,6 +428,15 @@ async function startGuessing(objectA, objectB) {
   submitBtn.textContent = "Submit guess";
   waitingMessage.hidden = true;
 
+  stopCountdown();
+  roundDurationMs = durationMs || null;
+  roundEndsAt = endsAt || 0;
+  guessCountdownRing.hidden = !roundEndsAt;
+  if (roundEndsAt) {
+    tickCountdown();
+    countdownTimer = setInterval(tickCountdown, 200);
+  }
+
   await Promise.all([
     setObjectVisual(objectAImg, objectA.svg),
     setObjectVisual(objectBImg, objectB.svg),
@@ -333,6 +451,7 @@ async function startGuessing(objectA, objectB) {
 
 async function showReveal(roundNumber, maxRounds, objectBTrueLength_m, guesses) {
   phase = "reveal";
+  stopCountdown();
   if (!round) return;
 
   const mine = guesses.find((g) => g.id === myId);
@@ -466,9 +585,11 @@ async function showReveal(roundNumber, maxRounds, objectBTrueLength_m, guesses) 
   renderPlayers();
 }
 
-function showFinal(standings) {
+function showFinal(maxRounds, standings) {
   phase = "final";
   showView("final");
+
+  finalStatusSubEl.textContent = `${maxRounds} round${maxRounds === 1 ? "" : "s"} played`;
 
   const winner = standings[0];
   finalWinnerAvatarEl.textContent = winner?.name.trim().charAt(0) || "?";
@@ -723,17 +844,18 @@ if (!room) {
       case "players":
         players = data.players;
         phase = data.phase;
+        if (data.settings) settings = data.settings;
         renderPlayers();
         if (phase === "lobby") showView("lobby");
         break;
       case "round-start":
-        startGuessing(data.objectA, data.objectB);
+        startGuessing(data.objectA, data.objectB, data.durationMs, data.endsAt);
         break;
       case "reveal":
         showReveal(data.roundNumber, data.maxRounds, data.objectBTrueLength_m, data.guesses);
         break;
       case "final":
-        showFinal(data.standings);
+        showFinal(data.maxRounds, data.standings);
         break;
     }
   });

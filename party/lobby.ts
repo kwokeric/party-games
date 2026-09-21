@@ -5,7 +5,7 @@ import { GAMES } from "../public/shared/games.js";
 // game they belong to, so a player who only knows a code can be routed to
 // the right game. Per-game realtime state lives in that game's own party.
 
-const CODE_CHARS = "ABCDEFGHJKLMNPQRSTUVWXYZ23456789"; // no 0/O/1/I ambiguity
+const CODE_CHARS = "ABCDEFGHJKLMNPQRSTUVWXYZ";
 const CODE_LENGTH = 4;
 
 function randomCode(): string {

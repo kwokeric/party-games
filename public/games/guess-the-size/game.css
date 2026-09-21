@@ -104,15 +104,24 @@
 
 .resize-handle {
   position: absolute;
-  right: -8px;
-  top: -8px;
-  width: 16px;
-  height: 16px;
+  right: -12px;
+  top: -12px;
+  width: 24px;
+  height: 24px;
   border-radius: 50%;
   background: #d56062;
   border: 2px solid #fff;
+  color: #fff;
+  display: flex;
+  align-items: center;
+  justify-content: center;
   cursor: grab;
   touch-action: none;
+}
+
+.resize-handle svg {
+  display: block;
+  pointer-events: none;
 }
 
 /* The pin always sits at the top-right corner regardless of axis: since

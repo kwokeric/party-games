@@ -227,6 +227,74 @@
   text-align: center;
 }
 
+.lobby-settings-panel {
+  margin-bottom: 24px;
+}
+
+.lobby-settings-row {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+}
+
+.lobby-settings-row + .lobby-settings-row {
+  margin-top: 14px;
+}
+
+.lobby-settings-label {
+  font-family: "Fredoka", system-ui, sans-serif;
+  font-size: 14px;
+  font-weight: 600;
+  color: var(--ink);
+}
+
+.lobby-stepper {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+  background: var(--cream);
+  border-radius: 999px;
+  padding: 4px;
+}
+
+.lobby-stepper-btn {
+  width: 30px;
+  height: 30px;
+  border: none;
+  border-radius: 999px;
+  background: #ffffff;
+  color: var(--blue);
+  font-size: 18px;
+  line-height: 1;
+  font-weight: 600;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.lobby-stepper-btn:disabled {
+  color: var(--ink-faint);
+  cursor: not-allowed;
+}
+
+.lobby-stepper-val {
+  min-width: 44px;
+  text-align: center;
+  font-family: "Fredoka", system-ui, sans-serif;
+  font-size: 14px;
+  font-weight: 600;
+  color: var(--ink);
+}
+
+.lobby-settings-summary {
+  margin: -8px 0 24px;
+  font-size: 12.5px;
+  color: var(--ink-faint);
+  text-align: center;
+}
+
 @media (max-width: 720px) {
   .lobby-top-row {
     grid-template-columns: 1fr;

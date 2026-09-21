@@ -63,6 +63,55 @@
   gap: 10px;
 }
 
+/* Hidden unless the host turns a timer on for the round — when off (the
+   default), the status card looks exactly as it always has. */
+.countdown-ring {
+  --pct: 100;
+  --ring-color: #067bc2;
+  width: 34px;
+  height: 34px;
+  border-radius: 999px;
+  flex-shrink: 0;
+  background: conic-gradient(var(--ring-color) calc(var(--pct) * 1%), rgba(0, 0, 0, 0.1) 0);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.countdown-ring-inner {
+  width: 27px;
+  height: 27px;
+  border-radius: 999px;
+  background: #ffffff;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-family: "Fredoka", system-ui, sans-serif;
+  font-weight: 700;
+  font-size: 11px;
+  color: var(--ring-color);
+}
+
+.countdown-ring.urgent {
+  animation: ring-pulse 0.4s ease-in-out;
+}
+
+@keyframes ring-pulse {
+  0%,
+  100% {
+    transform: scale(1);
+  }
+  50% {
+    transform: scale(1.12);
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .countdown-ring.urgent {
+    animation: none;
+  }
+}
+
 .guess-avatar-stack {
   display: flex;
   align-items: center;
