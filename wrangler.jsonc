@@ -10,7 +10,8 @@
     "bindings": [
       { "name": "Lobby", "class_name": "Lobby" },
       { "name": "GuessTheSize", "class_name": "GuessTheSize" },
-      { "name": "MatchTheColor", "class_name": "MatchTheColor" }
+      { "name": "MatchTheColor", "class_name": "MatchTheColor" },
+      { "name": "SecretHitler", "class_name": "SecretHitler" }
     ]
   },
   "migrations": [
@@ -21,6 +22,10 @@
     {
       "tag": "v2",
       "new_sqlite_classes": ["MatchTheColor"]
+    },
+    {
+      "tag": "v3",
+      "new_sqlite_classes": ["SecretHitler"]
     }
   ]
 }

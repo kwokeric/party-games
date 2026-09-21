@@ -3,7 +3,7 @@
   <head>
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>Secret Hitler — role reveal mockup</title>
+    <title>Secret Hitler</title>
     <link rel="icon" href="/favicon.ico" sizes="any" />
     <link rel="stylesheet" href="/normalize.css" />
     <link rel="stylesheet" href="/styles.css" />
@@ -26,57 +26,45 @@
               </button>
               <div class="app-pagehead-titles">
                 <h1>Secret Hitler</h1>
-                <p>Role-reveal mockup — not wired to real multiplayer yet</p>
+                <p>Waiting for players to join</p>
               </div>
             </div>
-            <div class="app-code-chip">DEMO</div>
+            <button id="copy-code-btn" class="app-code-chip lobby-code-chip" type="button" aria-label="Copy room code">
+              <span id="lobby-room-code">-</span>
+            </button>
           </div>
 
           <div class="lobby-panel">
-            <h3>How this piece works</h3>
+            <h3>How this works</h3>
             <ul class="lobby-howto-list">
-              <li>Everyone is secretly Liberal, Fascist, or Hitler. Liberals win by shutting fascists out of power; fascists win by getting enough of their policies passed or by getting Hitler elected Chancellor once things get dicey.</li>
-              <li>Instead of the old "everyone close your eyes, fascists open your eyes" routine, each player's own device just shows them their role privately.</li>
+              <li>Everyone is secretly Liberal, Fascist, or Hitler. Liberals win by shutting fascists out of power; fascists win by getting enough of their policies passed, or by getting Hitler elected Chancellor once things get dicey.</li>
+              <li>Instead of the old "everyone close your eyes, fascists open your eyes" routine, each player's own phone just shows them their role privately once the host deals.</li>
               <li>Fascists always see their teammates and who Hitler is. In small games (5–6 players) Hitler is told the fascist team too, since there's only one non-Hitler fascist to hide; in bigger games Hitler is kept in the dark like everyone else.</li>
+              <li>Needs 5–10 players. Nominating a Chancellor, voting, and the legislative session still happen out loud at the table — this just handles dealing roles fairly.</li>
             </ul>
-          </div>
-
-          <div class="lobby-panel">
-            <h3>Demo roster size</h3>
-            <div class="lobby-settings-row">
-              <span class="lobby-settings-label">Players</span>
-              <div class="lobby-stepper">
-                <button id="count-minus-btn" class="lobby-stepper-btn" type="button" aria-label="Fewer players">−</button>
-                <span id="count-val" class="lobby-stepper-val">7</span>
-                <button id="count-plus-btn" class="lobby-stepper-btn" type="button" aria-label="More players">+</button>
-              </div>
-            </div>
-            <p id="count-breakdown" class="lobby-settings-summary" style="margin-top:14px;"></p>
           </div>
 
           <div class="lobby-panel lobby-players-panel">
             <h3>Players</h3>
             <ul id="lobby-player-list" class="lobby-player-list"></ul>
-            <button id="deal-btn" class="lobby-action-btn" type="button">Deal roles</button>
+            <button id="deal-btn" class="lobby-action-btn" type="button" hidden>Deal roles</button>
+            <button id="ready-toggle-btn" class="lobby-action-btn" type="button" hidden>Ready up</button>
+            <p id="lobby-waiting" class="lobby-waiting" hidden></p>
+            <p id="lobby-hint" class="lobby-hint" hidden></p>
           </div>
         </div>
       </section>
 
       <section id="role-view" class="view sh-role-view" hidden>
         <div class="sh-role-banner">
-          <button id="role-back-btn" class="guess-icon-btn" type="button" aria-label="Back to lobby">
+          <button id="role-back-btn" class="guess-icon-btn" type="button" aria-label="Back to home">
             <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="#ffffff" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><line x1="19" y1="12" x2="5" y2="12"></line><polyline points="12 19 5 12 12 5"></polyline></svg>
           </button>
           <div class="guess-banner-title">Secret Hitler</div>
+          <div class="guess-room-pill" id="role-room-code">-</div>
         </div>
 
         <div class="sh-role-body">
-          <div class="sh-demo-switcher">
-            <label for="viewer-select">Demo: viewing as</label>
-            <select id="viewer-select"></select>
-            <p class="sh-demo-note">On real phones each player only ever sees this screen for themselves — this dropdown exists only in the mockup.</p>
-          </div>
-
           <div id="role-card" class="sh-card">
             <div class="sh-card-face sh-card-front">
               <div class="sh-card-lock">🔒</div>
@@ -92,6 +80,26 @@
 
           <div class="sh-card-actions">
             <button id="ready-btn" class="lobby-action-btn" type="button" disabled>Ready</button>
+          </div>
+        </div>
+      </section>
+
+      <section id="table-view" class="view sh-role-view" hidden>
+        <div class="sh-role-banner">
+          <button id="table-back-btn" class="guess-icon-btn" type="button" aria-label="Back to home">
+            <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="#ffffff" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><line x1="19" y1="12" x2="5" y2="12"></line><polyline points="12 19 5 12 12 5"></polyline></svg>
+          </button>
+          <div class="guess-banner-title">Secret Hitler</div>
+          <div class="guess-room-pill" id="table-room-code">-</div>
+        </div>
+
+        <div class="sh-role-body">
+          <div class="sh-table-message">
+            <p>Everyone's seen their role. Nominate a Chancellor and carry on at the table — that part isn't in the app yet.</p>
+          </div>
+          <div class="sh-card-actions">
+            <button id="deal-again-btn" class="lobby-action-btn" type="button" hidden>Deal again</button>
+            <p id="table-waiting" class="lobby-waiting" hidden>Waiting for the host to deal a new round…</p>
           </div>
         </div>
       </section>

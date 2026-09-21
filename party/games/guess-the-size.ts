@@ -13,8 +13,22 @@ const MAX_RATIO = 5;
 const MIN_RATIO = 1.3;
 
 // A game is a fixed-length tournament: whoever has the highest average
-// score across all rounds wins.
-const MAX_ROUNDS = 10;
+// score across all rounds wins. Both the round count and the optional
+// per-round timer are host-configurable from the lobby (see updateSettings).
+const DEFAULT_MAX_ROUNDS = 5;
+const MIN_ROUNDS = 3;
+const MAX_ROUNDS_LIMIT = 20;
+
+// No timer by default — guessing has always been untimed, and dragging to
+// resize takes real thought, so a clock only kicks in if the host turns it
+// on. `null` means "no timer, wait for everyone to submit."
+const DEFAULT_ROUND_DURATION_MS: number | null = null;
+const MIN_ROUND_DURATION_MS = 10_000;
+const MAX_ROUND_DURATION_MS = 120_000;
+
+function clamp(value: number, min: number, max: number): number {
+  return Math.min(max, Math.max(min, Math.round(value)));
+}
 
 type GameObject = (typeof objects)[number];
 
@@ -76,6 +90,9 @@ export default class GuessTheSize extends Server {
   phase: Phase = "lobby";
   round: Round | null = null;
   roundNumber = 0;
+  roundEndsAt = 0;
+  maxRounds = DEFAULT_MAX_ROUNDS;
+  roundDurationMs: number | null = DEFAULT_ROUND_DURATION_MS;
 
   onConnect(connection: Connection, ctx: ConnectionContext) {
     const url = new URL(ctx.request.url);
@@ -105,7 +122,12 @@ export default class GuessTheSize extends Server {
 
   onMessage(connection: Connection, message: WSMessage) {
     if (typeof message !== "string") return;
-    let data: { type?: string; length_m?: number };
+    let data: {
+      type?: string;
+      length_m?: number;
+      maxRounds?: number;
+      roundDurationMs?: number | null;
+    };
     try {
       data = JSON.parse(message);
     } catch {
@@ -114,6 +136,8 @@ export default class GuessTheSize extends Server {
 
     if (data.type === "start") {
       this.startGame(connection);
+    } else if (data.type === "settings") {
+      this.updateSettings(connection, data.maxRounds, data.roundDurationMs);
     } else if (data.type === "guess" && typeof data.length_m === "number") {
       this.submitGuess(connection, data.length_m);
     } else if (data.type === "force-reveal") {
@@ -128,8 +152,27 @@ export default class GuessTheSize extends Server {
     return [...this.players.values()].some((p) => p.isHost);
   }
 
-  // Starts a brand new tournament (round 1 of MAX_ROUNDS). Only the host can
-  // do this, and only from the lobby — mid-game round advancement and the
+  // Only the host can tune the format, and only before anything's started —
+  // once the tournament is running, mid-game changes would desync scores
+  // that are already averaged against the old round count.
+  updateSettings(connection: Connection, maxRounds?: number, roundDurationMs?: number | null) {
+    const player = this.players.get(connection.id);
+    if (!player?.isHost) return;
+    if (this.phase !== "lobby") return;
+
+    if (typeof maxRounds === "number") {
+      this.maxRounds = clamp(maxRounds, MIN_ROUNDS, MAX_ROUNDS_LIMIT);
+    }
+    if (roundDurationMs === null) {
+      this.roundDurationMs = null;
+    } else if (typeof roundDurationMs === "number") {
+      this.roundDurationMs = clamp(roundDurationMs, MIN_ROUND_DURATION_MS, MAX_ROUND_DURATION_MS);
+    }
+    this.broadcastPlayers();
+  }
+
+  // Starts a brand new tournament (round 1 of this.maxRounds). Only the host
+  // can do this, and only from the lobby — mid-game round advancement and the
   // eventual rematch are driven by everyone readying up, not a host action.
   startGame(connection: Connection) {
     const player = this.players.get(connection.id);
@@ -144,13 +187,23 @@ export default class GuessTheSize extends Server {
     this.beginRound();
   }
 
-  beginRound() {
+  async beginRound() {
     this.roundNumber += 1;
     this.round = pickRound();
     this.phase = "guessing";
+    this.roundEndsAt = this.roundDurationMs ? Date.now() + this.roundDurationMs : 0;
     for (const p of this.players.values()) {
       p.guess = null;
       p.ready = false;
+    }
+
+    // With no timer this just clears any stale alarm from a previous round's
+    // settings; with one set, the alarm — not the client — is what actually
+    // ends the round once time's up.
+    if (this.roundEndsAt) {
+      await this.ctx.storage.setAlarm(this.roundEndsAt);
+    } else {
+      await this.ctx.storage.deleteAlarm();
     }
 
     this.broadcastRoundStart();
@@ -163,7 +216,7 @@ export default class GuessTheSize extends Server {
       JSON.stringify({
         type: "round-start",
         roundNumber: this.roundNumber,
-        maxRounds: MAX_ROUNDS,
+        maxRounds: this.maxRounds,
         objectA: this.round.objectA,
         objectB: {
           id: this.round.objectB.id,
@@ -171,6 +224,8 @@ export default class GuessTheSize extends Server {
           svg: this.round.objectB.svg,
           axis: this.round.objectB.axis,
         },
+        durationMs: this.roundDurationMs,
+        endsAt: this.roundEndsAt || null,
       })
     );
   }
@@ -187,9 +242,14 @@ export default class GuessTheSize extends Server {
     if (allGuessed) this.reveal();
   }
 
-  reveal() {
+  async onAlarm() {
+    if (this.phase === "guessing") this.reveal();
+  }
+
+  async reveal() {
     if (!this.round) return;
     this.phase = "reveal";
+    await this.ctx.storage.deleteAlarm();
     const trueLength = this.round.objectB.length_m;
 
     const guesses = [...this.players.values()].map((p) => {
@@ -207,7 +267,7 @@ export default class GuessTheSize extends Server {
       JSON.stringify({
         type: "reveal",
         roundNumber: this.roundNumber,
-        maxRounds: MAX_ROUNDS,
+        maxRounds: this.maxRounds,
         objectBTrueLength_m: trueLength,
         guesses,
       })
@@ -246,7 +306,7 @@ export default class GuessTheSize extends Server {
     if (!allReady) return;
 
     if (this.phase === "reveal") {
-      if (this.roundNumber >= MAX_ROUNDS) this.finishGame();
+      if (this.roundNumber >= this.maxRounds) this.finishGame();
       else this.beginRound();
     } else if (this.phase === "final") {
       for (const p of this.players.values()) {
@@ -261,7 +321,9 @@ export default class GuessTheSize extends Server {
   finishGame() {
     this.phase = "final";
     for (const p of this.players.values()) p.ready = false;
-    this.broadcast(JSON.stringify({ type: "final", standings: this.computeStandings() }));
+    this.broadcast(
+      JSON.stringify({ type: "final", maxRounds: this.maxRounds, standings: this.computeStandings() })
+    );
     this.broadcastPlayers();
   }
 
@@ -270,7 +332,7 @@ export default class GuessTheSize extends Server {
       .map((p) => ({
         id: p.id,
         name: p.name,
-        avgScore: Math.round((p.totalScore / MAX_ROUNDS) * 10) / 10,
+        avgScore: Math.round((p.totalScore / this.maxRounds) * 10) / 10,
       }))
       .sort((a, b) => b.avgScore - a.avgScore);
   }
@@ -283,7 +345,7 @@ export default class GuessTheSize extends Server {
         JSON.stringify({
           type: "round-start",
           roundNumber: this.roundNumber,
-          maxRounds: MAX_ROUNDS,
+          maxRounds: this.maxRounds,
           objectA: this.round.objectA,
           objectB: {
             id: this.round.objectB.id,
@@ -291,6 +353,8 @@ export default class GuessTheSize extends Server {
             svg: this.round.objectB.svg,
             axis: this.round.objectB.axis,
           },
+          durationMs: this.roundDurationMs,
+          endsAt: this.roundEndsAt || null,
         })
       );
     }
@@ -308,7 +372,7 @@ export default class GuessTheSize extends Server {
         JSON.stringify({
           type: "reveal",
           roundNumber: this.roundNumber,
-          maxRounds: MAX_ROUNDS,
+          maxRounds: this.maxRounds,
           objectBTrueLength_m: trueLength,
           guesses,
         })
@@ -316,7 +380,9 @@ export default class GuessTheSize extends Server {
     }
 
     if (this.phase === "final") {
-      connection.send(JSON.stringify({ type: "final", standings: this.computeStandings() }));
+      connection.send(
+        JSON.stringify({ type: "final", maxRounds: this.maxRounds, standings: this.computeStandings() })
+      );
     }
   }
 
@@ -325,6 +391,7 @@ export default class GuessTheSize extends Server {
       JSON.stringify({
         type: "players",
         phase: this.phase,
+        settings: { maxRounds: this.maxRounds, roundDurationMs: this.roundDurationMs },
         players: [...this.players.values()].map((p) => ({
           id: p.id,
           name: p.name,

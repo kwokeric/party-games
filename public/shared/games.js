@@ -16,6 +16,13 @@ const DROPLET_ICON = `
   </svg>
 `;
 
+const MASK_ICON = `
+  <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="#067bc2" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+    <path d="M4 10c0-3.5 3.5-6 8-6s8 2.5 8 6c0 5-3 10-8 10s-8-5-8-10z"></path>
+    <path d="M4 10c0 2 2 3 4 2M20 10c0 2-2 3-4 2"></path>
+  </svg>
+`;
+
 /** @type {{id: string, title: string, description: string, path: string, badge: string, icon: string}[]} */
 export const GAMES = [
   {
@@ -35,5 +42,14 @@ export const GAMES = [
     path: "/games/match-the-color/",
     badge: "1+ Players",
     icon: DROPLET_ICON,
+  },
+  {
+    id: "secret-hitler",
+    title: "Secret Hitler",
+    description:
+      "A hidden-role game of secret identities and political betrayal. Everyone's phone privately shows their role — the rest happens out loud at the table.",
+    path: "/games/secret-hitler/",
+    badge: "5-10 Players",
+    icon: MASK_ICON,
   },
 ];

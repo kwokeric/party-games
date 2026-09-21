@@ -35,43 +35,21 @@
   flex: 1;
 }
 
-.sh-demo-switcher {
+.sh-table-message {
   width: 100%;
   background: rgba(255, 255, 255, 0.06);
-  border: 1px dashed rgba(255, 255, 255, 0.25);
   border-radius: 12px;
-  padding: 12px 14px;
+  padding: 20px;
   box-sizing: border-box;
   margin-bottom: 22px;
+  text-align: center;
 }
 
-.sh-demo-switcher label {
-  display: block;
-  font-family: "Fredoka", system-ui, sans-serif;
-  font-size: 12px;
-  font-weight: 600;
-  letter-spacing: 0.04em;
-  text-transform: uppercase;
-  color: rgba(255, 255, 255, 0.55);
-  margin-bottom: 6px;
-}
-
-.sh-demo-switcher select {
-  width: 100%;
-  height: 38px;
-  border-radius: 8px;
-  border: none;
-  padding: 0 10px;
-  font-family: "Fredoka", system-ui, sans-serif;
-  font-size: 14px;
-  font-weight: 600;
-}
-
-.sh-demo-note {
-  margin: 8px 0 0;
-  font-size: 11.5px;
-  line-height: 1.4;
-  color: rgba(255, 255, 255, 0.45);
+.sh-table-message p {
+  margin: 0;
+  font-size: 15px;
+  line-height: 1.5;
+  color: rgba(255, 255, 255, 0.85);
 }
 
 /* Flip card: a fixed-size box whose two faces are absolutely stacked and
