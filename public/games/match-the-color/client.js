@@ -21,9 +21,10 @@ const lobbySettingsSummary = el("lobby-settings-summary");
 const roundsVal = el("rounds-val");
 const roundsMinusBtn = el("rounds-minus-btn");
 const roundsPlusBtn = el("rounds-plus-btn");
-const durationVal = el("duration-val");
-const durationMinusBtn = el("duration-minus-btn");
-const durationPlusBtn = el("duration-plus-btn");
+const durationDropdown = el("duration-dropdown");
+const durationChip = el("duration-chip");
+const durationChipText = el("duration-chip-text");
+const durationPopover = el("duration-popover");
 
 const playingBackBtn = el("playing-back-btn");
 const playingRoomCodeEl = el("playing-room-code");
@@ -78,7 +79,7 @@ const START_COLOR = { h: 125, s: 65, b: 70 };
 const MIN_ROUNDS = 3;
 const MAX_ROUNDS_LIMIT = 20;
 const MIN_ROUND_DURATION_MS = 5000;
-const MAX_ROUND_DURATION_MS = 60000;
+const MAX_ROUND_DURATION_MS = 30000;
 const ROUND_STEP = 1;
 const DURATION_STEP_MS = 5000;
 
@@ -214,19 +215,69 @@ function renderPlayers() {
   updateReadyDots();
 }
 
+function formatDuration(ms) {
+  return ms === null ? "No limit" : `${ms / 1000}s`;
+}
+
+// Populated once — the option list itself never changes, only which one is
+// marked selected.
+for (let ms = MIN_ROUND_DURATION_MS; ms <= MAX_ROUND_DURATION_MS; ms += DURATION_STEP_MS) {
+  const opt = document.createElement("button");
+  opt.type = "button";
+  opt.className = "lobby-dropdown-option";
+  opt.dataset.ms = String(ms);
+  opt.textContent = formatDuration(ms);
+  durationPopover.appendChild(opt);
+}
+durationPopover.appendChild(Object.assign(document.createElement("div"), { className: "lobby-dropdown-divider" }));
+const noLimitOpt = document.createElement("button");
+noLimitOpt.type = "button";
+noLimitOpt.className = "lobby-dropdown-option is-untimed";
+noLimitOpt.dataset.ms = "";
+noLimitOpt.textContent = "No limit";
+durationPopover.appendChild(noLimitOpt);
+
+function closeDurationDropdown() {
+  durationChip.classList.remove("is-open");
+  durationChip.setAttribute("aria-expanded", "false");
+  durationPopover.hidden = true;
+}
+
+durationChip.addEventListener("click", () => {
+  const willOpen = durationPopover.hidden;
+  durationChip.classList.toggle("is-open", willOpen);
+  durationChip.setAttribute("aria-expanded", String(willOpen));
+  durationPopover.hidden = !willOpen;
+});
+
+durationPopover.addEventListener("click", (event) => {
+  const option = event.target.closest(".lobby-dropdown-option");
+  if (!option) return;
+  const roundDurationMs = option.dataset.ms === "" ? null : Number(option.dataset.ms);
+  closeDurationDropdown();
+  sendSettings({ ...settings, roundDurationMs });
+});
+
+document.addEventListener("click", (event) => {
+  if (!durationDropdown.contains(event.target)) closeDurationDropdown();
+});
+
 function renderSettings(amHost) {
   lobbySettingsPanel.hidden = !amHost;
   lobbySettingsSummary.hidden = amHost;
 
   roundsVal.textContent = String(settings.maxRounds);
-  durationVal.textContent = `${settings.roundDurationMs / 1000}s`;
+  durationChipText.textContent = formatDuration(settings.roundDurationMs);
   roundsMinusBtn.disabled = settings.maxRounds <= MIN_ROUNDS;
   roundsPlusBtn.disabled = settings.maxRounds >= MAX_ROUNDS_LIMIT;
-  durationMinusBtn.disabled = settings.roundDurationMs <= MIN_ROUND_DURATION_MS;
-  durationPlusBtn.disabled = settings.roundDurationMs >= MAX_ROUND_DURATION_MS;
+
+  for (const opt of durationPopover.querySelectorAll(".lobby-dropdown-option")) {
+    const ms = opt.dataset.ms === "" ? null : Number(opt.dataset.ms);
+    opt.classList.toggle("is-selected", ms === settings.roundDurationMs);
+  }
 
   if (!amHost) {
-    lobbySettingsSummary.textContent = `${settings.maxRounds} rounds · ${settings.roundDurationMs / 1000}s per round`;
+    lobbySettingsSummary.textContent = `${settings.maxRounds} rounds · ${formatDuration(settings.roundDurationMs)} per round`;
   }
 }
 
@@ -243,18 +294,6 @@ roundsMinusBtn.addEventListener("click", () => {
 });
 roundsPlusBtn.addEventListener("click", () => {
   sendSettings({ ...settings, maxRounds: Math.min(MAX_ROUNDS_LIMIT, settings.maxRounds + ROUND_STEP) });
-});
-durationMinusBtn.addEventListener("click", () => {
-  sendSettings({
-    ...settings,
-    roundDurationMs: Math.max(MIN_ROUND_DURATION_MS, settings.roundDurationMs - DURATION_STEP_MS),
-  });
-});
-durationPlusBtn.addEventListener("click", () => {
-  sendSettings({
-    ...settings,
-    roundDurationMs: Math.min(MAX_ROUND_DURATION_MS, settings.roundDurationMs + DURATION_STEP_MS),
-  });
 });
 
 // The chameleon is drawn in three shades of the one target color: light for
@@ -373,7 +412,7 @@ function startPlaying(roundNumber, maxRounds, newTarget, durationMs, endsAt) {
   phase = "playing";
   target = newTarget;
   roundDurationMs = durationMs;
-  roundEndsAt = endsAt;
+  roundEndsAt = endsAt || 0;
   playingRoundNumber = roundNumber;
   playingMaxRounds = maxRounds;
   locked = false;
@@ -394,8 +433,13 @@ function startPlaying(roundNumber, maxRounds, newTarget, durationMs, endsAt) {
 
   showView("playing");
   stopCountdown();
-  tickCountdown();
-  countdownTimer = setInterval(tickCountdown, 200);
+  // No timer: the ring just hides and the round waits for everyone to lock
+  // in instead (checked server-side), same as a timed round ending early.
+  countdownRing.hidden = !roundEndsAt;
+  if (roundEndsAt) {
+    tickCountdown();
+    countdownTimer = setInterval(tickCountdown, 200);
+  }
 }
 
 function showReveal(roundNumber, maxRounds, revealedTarget, results) {

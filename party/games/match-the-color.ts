@@ -9,12 +9,15 @@ import colors from "../../public/games/match-the-color/colors.json";
 // A game is a fixed-length tournament: whoever has the highest average
 // score across all rounds wins. Mirrors Guess the Size's structure.
 const DEFAULT_MAX_ROUNDS = 5;
-const DEFAULT_ROUND_DURATION_MS = 15_000;
+// Timed by default (unlike Guess the Size) since blending into a color
+// against a clock is the whole game here — but the host can still turn the
+// timer off. `null` means "no timer, wait for everyone to lock in."
+const DEFAULT_ROUND_DURATION_MS: number | null = 15_000;
 
 const MIN_ROUNDS = 3;
 const MAX_ROUNDS_LIMIT = 20;
 const MIN_ROUND_DURATION_MS = 5_000;
-const MAX_ROUND_DURATION_MS = 60_000;
+const MAX_ROUND_DURATION_MS = 30_000;
 
 function clamp(value: number, min: number, max: number): number {
   return Math.min(max, Math.max(min, Math.round(value)));
@@ -109,7 +112,7 @@ export default class MatchTheColor extends Server {
       s?: number;
       b?: number;
       maxRounds?: number;
-      roundDurationMs?: number;
+      roundDurationMs?: number | null;
     };
     try {
       data = JSON.parse(message);
@@ -142,7 +145,7 @@ export default class MatchTheColor extends Server {
   // Only the host can tune the format, and only before anything's started —
   // once the tournament is running, mid-game changes would desync scores
   // that are already averaged against the old round count.
-  updateSettings(connection: Connection, maxRounds?: number, roundDurationMs?: number) {
+  updateSettings(connection: Connection, maxRounds?: number, roundDurationMs?: number | null) {
     const player = this.players.get(connection.id);
     if (!player?.isHost) return;
     if (this.phase !== "lobby") return;
@@ -150,7 +153,9 @@ export default class MatchTheColor extends Server {
     if (typeof maxRounds === "number") {
       this.maxRounds = clamp(maxRounds, MIN_ROUNDS, MAX_ROUNDS_LIMIT);
     }
-    if (typeof roundDurationMs === "number") {
+    if (roundDurationMs === null) {
+      this.roundDurationMs = null;
+    } else if (typeof roundDurationMs === "number") {
       this.roundDurationMs = clamp(roundDurationMs, MIN_ROUND_DURATION_MS, MAX_ROUND_DURATION_MS);
     }
     this.broadcastPlayers();
@@ -176,17 +181,23 @@ export default class MatchTheColor extends Server {
     this.roundNumber += 1;
     this.target = pickTarget();
     this.phase = "playing";
-    this.roundEndsAt = Date.now() + this.roundDurationMs;
+    this.roundEndsAt = this.roundDurationMs ? Date.now() + this.roundDurationMs : 0;
     for (const p of this.players.values()) {
       p.color = { ...START_COLOR };
       p.locked = false;
       p.ready = false;
     }
 
-    // The alarm — not the client — is what actually ends the round: whatever
-    // color a player has when it fires becomes their score, even if their
-    // tab is slow, backgrounded, or never sends another message.
-    await this.ctx.storage.setAlarm(this.roundEndsAt);
+    // With no timer this just clears any stale alarm from a previous round's
+    // settings, and the round only ends once everyone locks in; with one
+    // set, the alarm — not the client — is what actually ends the round:
+    // whatever color a player has when it fires becomes their score, even
+    // if their tab is slow, backgrounded, or never sends another message.
+    if (this.roundEndsAt) {
+      await this.ctx.storage.setAlarm(this.roundEndsAt);
+    } else {
+      await this.ctx.storage.deleteAlarm();
+    }
 
     this.broadcastRoundStart();
     this.broadcastPlayers();
@@ -201,7 +212,7 @@ export default class MatchTheColor extends Server {
         maxRounds: this.maxRounds,
         target: this.target,
         durationMs: this.roundDurationMs,
-        endsAt: this.roundEndsAt,
+        endsAt: this.roundEndsAt || null,
       })
     );
   }
@@ -339,7 +350,7 @@ export default class MatchTheColor extends Server {
           maxRounds: this.maxRounds,
           target,
           durationMs: this.roundDurationMs,
-          endsAt: this.roundEndsAt,
+          endsAt: this.roundEndsAt || null,
         })
       );
     }

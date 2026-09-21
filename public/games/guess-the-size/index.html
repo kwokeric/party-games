@@ -75,10 +75,12 @@
             </div>
             <div class="lobby-settings-row">
               <span class="lobby-settings-label">Time per round</span>
-              <div class="lobby-stepper">
-                <button id="duration-minus-btn" class="lobby-stepper-btn" type="button" aria-label="Less time">−</button>
-                <span id="duration-val" class="lobby-stepper-val">None</span>
-                <button id="duration-plus-btn" class="lobby-stepper-btn" type="button" aria-label="More time">+</button>
+              <div class="lobby-dropdown" id="duration-dropdown">
+                <button id="duration-chip" class="lobby-dropdown-chip" type="button" aria-haspopup="listbox" aria-expanded="false">
+                  <span id="duration-chip-text">No limit</span>
+                  <svg width="10" height="6" viewBox="0 0 10 6"><path d="M1 1l4 4 4-4" stroke="#067bc2" stroke-width="1.6" fill="none" stroke-linecap="round" stroke-linejoin="round"/></svg>
+                </button>
+                <div id="duration-popover" class="lobby-dropdown-popover" role="listbox" hidden></div>
               </div>
             </div>
           </div>

@@ -295,6 +295,93 @@
   text-align: center;
 }
 
+/* Sized to match .lobby-stepper's rendered width exactly (2 x 30px buttons +
+   a 44px value + gaps + padding) so the two settings rows line up. */
+.lobby-dropdown {
+  position: relative;
+}
+
+.lobby-dropdown-chip {
+  width: 120px;
+  box-sizing: border-box;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 6px;
+  background: var(--cream);
+  border: none;
+  border-radius: 999px;
+  padding: 9px 14px;
+  font-family: "Fredoka", system-ui, sans-serif;
+  font-size: 14px;
+  font-weight: 600;
+  color: var(--ink);
+  cursor: pointer;
+}
+
+.lobby-dropdown-chip svg {
+  flex-shrink: 0;
+  transition: transform 0.15s ease;
+}
+
+.lobby-dropdown-chip.is-open svg {
+  transform: rotate(180deg);
+}
+
+.lobby-dropdown-popover {
+  position: absolute;
+  right: 0;
+  margin-top: 6px;
+  background: #ffffff;
+  border: 1px solid rgba(0, 0, 0, 0.08);
+  border-radius: 14px;
+  box-shadow: 0 12px 28px rgba(0, 0, 0, 0.18);
+  padding: 6px;
+  min-width: 150px;
+  max-height: 260px;
+  overflow-y: auto;
+  z-index: 5;
+}
+
+.lobby-dropdown-option {
+  display: block;
+  width: 100%;
+  text-align: left;
+  border: none;
+  background: none;
+  padding: 9px 12px;
+  border-radius: 9px;
+  font-family: "Fredoka", system-ui, sans-serif;
+  font-size: 13.5px;
+  font-weight: 600;
+  color: var(--ink-soft);
+  cursor: pointer;
+}
+
+.lobby-dropdown-option:hover {
+  background: var(--cream);
+}
+
+.lobby-dropdown-option.is-selected {
+  color: var(--blue);
+  background: rgba(6, 123, 194, 0.08);
+}
+
+.lobby-dropdown-divider {
+  height: 1px;
+  background: rgba(0, 0, 0, 0.08);
+  margin: 4px 6px;
+}
+
+.lobby-dropdown-option.is-untimed {
+  color: var(--coral);
+}
+
+.lobby-dropdown-option.is-untimed.is-selected {
+  color: var(--coral);
+  background: rgba(213, 96, 98, 0.1);
+}
+
 @media (max-width: 720px) {
   .lobby-top-row {
     grid-template-columns: 1fr;

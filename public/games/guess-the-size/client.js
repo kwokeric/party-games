@@ -21,9 +21,10 @@ const lobbySettingsSummary = el("lobby-settings-summary");
 const roundsVal = el("rounds-val");
 const roundsMinusBtn = el("rounds-minus-btn");
 const roundsPlusBtn = el("rounds-plus-btn");
-const durationVal = el("duration-val");
-const durationMinusBtn = el("duration-minus-btn");
-const durationPlusBtn = el("duration-plus-btn");
+const durationDropdown = el("duration-dropdown");
+const durationChip = el("duration-chip");
+const durationChipText = el("duration-chip-text");
+const durationPopover = el("duration-popover");
 
 const guessBackBtn = el("guess-back-btn");
 const guessRoomCodeEl = el("guess-room-code");
@@ -223,19 +224,66 @@ function renderPlayers() {
 }
 
 function formatDuration(ms) {
-  return ms === null ? "None" : `${ms / 1000}s`;
+  return ms === null ? "No limit" : `${ms / 1000}s`;
 }
+
+// Populated once — the option list itself never changes, only which one is
+// marked selected. "No limit" comes first here since it's this game's
+// default (dragging to resize takes real thought; a clock is opt-in).
+const noLimitOpt = document.createElement("button");
+noLimitOpt.type = "button";
+noLimitOpt.className = "lobby-dropdown-option is-untimed";
+noLimitOpt.dataset.ms = "";
+noLimitOpt.textContent = "No limit";
+durationPopover.appendChild(noLimitOpt);
+durationPopover.appendChild(Object.assign(document.createElement("div"), { className: "lobby-dropdown-divider" }));
+for (let ms = MIN_ROUND_DURATION_MS; ms <= MAX_ROUND_DURATION_MS; ms += DURATION_STEP_MS) {
+  const opt = document.createElement("button");
+  opt.type = "button";
+  opt.className = "lobby-dropdown-option";
+  opt.dataset.ms = String(ms);
+  opt.textContent = formatDuration(ms);
+  durationPopover.appendChild(opt);
+}
+
+function closeDurationDropdown() {
+  durationChip.classList.remove("is-open");
+  durationChip.setAttribute("aria-expanded", "false");
+  durationPopover.hidden = true;
+}
+
+durationChip.addEventListener("click", () => {
+  const willOpen = durationPopover.hidden;
+  durationChip.classList.toggle("is-open", willOpen);
+  durationChip.setAttribute("aria-expanded", String(willOpen));
+  durationPopover.hidden = !willOpen;
+});
+
+durationPopover.addEventListener("click", (event) => {
+  const option = event.target.closest(".lobby-dropdown-option");
+  if (!option) return;
+  const roundDurationMs = option.dataset.ms === "" ? null : Number(option.dataset.ms);
+  closeDurationDropdown();
+  sendSettings({ ...settings, roundDurationMs });
+});
+
+document.addEventListener("click", (event) => {
+  if (!durationDropdown.contains(event.target)) closeDurationDropdown();
+});
 
 function renderSettings(amHost) {
   lobbySettingsPanel.hidden = !amHost;
   lobbySettingsSummary.hidden = amHost;
 
   roundsVal.textContent = String(settings.maxRounds);
-  durationVal.textContent = formatDuration(settings.roundDurationMs);
+  durationChipText.textContent = formatDuration(settings.roundDurationMs);
   roundsMinusBtn.disabled = settings.maxRounds <= MIN_ROUNDS;
   roundsPlusBtn.disabled = settings.maxRounds >= MAX_ROUNDS_LIMIT;
-  durationMinusBtn.disabled = settings.roundDurationMs === null;
-  durationPlusBtn.disabled = settings.roundDurationMs >= MAX_ROUND_DURATION_MS;
+
+  for (const opt of durationPopover.querySelectorAll(".lobby-dropdown-option")) {
+    const ms = opt.dataset.ms === "" ? null : Number(opt.dataset.ms);
+    opt.classList.toggle("is-selected", ms === settings.roundDurationMs);
+  }
 
   if (!amHost) {
     lobbySettingsSummary.textContent = `${settings.maxRounds} rounds · ${formatDuration(settings.roundDurationMs)} per round`;
@@ -250,31 +298,11 @@ function sendSettings(next) {
   );
 }
 
-// Stepping the duration down past the minimum lands on "None" (no timer)
-// instead of clamping at the floor — that's how a host turns the timer back
-// off after having turned it on.
-function stepDurationDown(current) {
-  if (current === null) return null;
-  if (current <= MIN_ROUND_DURATION_MS) return null;
-  return current - DURATION_STEP_MS;
-}
-
-function stepDurationUp(current) {
-  if (current === null) return MIN_ROUND_DURATION_MS;
-  return Math.min(MAX_ROUND_DURATION_MS, current + DURATION_STEP_MS);
-}
-
 roundsMinusBtn.addEventListener("click", () => {
   sendSettings({ ...settings, maxRounds: Math.max(MIN_ROUNDS, settings.maxRounds - ROUND_STEP) });
 });
 roundsPlusBtn.addEventListener("click", () => {
   sendSettings({ ...settings, maxRounds: Math.min(MAX_ROUNDS_LIMIT, settings.maxRounds + ROUND_STEP) });
-});
-durationMinusBtn.addEventListener("click", () => {
-  sendSettings({ ...settings, roundDurationMs: stepDurationDown(settings.roundDurationMs) });
-});
-durationPlusBtn.addEventListener("click", () => {
-  sendSettings({ ...settings, roundDurationMs: stepDurationUp(settings.roundDurationMs) });
 });
 
 function stopCountdown() {
