@@ -14,7 +14,6 @@ const copyCodeBtn = el("copy-code-btn");
 const lobbyPlayerListEl = el("lobby-player-list");
 const dealBtn = el("deal-btn");
 const readyToggleBtn = el("ready-toggle-btn");
-const lobbyWaitingEl = el("lobby-waiting");
 const lobbyHintEl = el("lobby-hint");
 
 const roleBackBtn = el("role-back-btn");
@@ -26,7 +25,6 @@ const roleDesc = el("role-desc");
 const roleTeam = el("role-team");
 const readyBtn = el("ready-btn");
 const readyStripEl = el("ready-strip");
-const readyCountEl = el("ready-count");
 
 const tableBackBtn = el("table-back-btn");
 const tableRoomCodeEl = el("table-room-code");
@@ -40,10 +38,6 @@ const boardRoomCodeEl = el("board-room-code");
 const boardLiberalTrackEl = el("board-liberal-track");
 const boardFascistTrackEl = el("board-fascist-track");
 const boardTrackerEl = el("board-tracker");
-const boardLibMinusBtn = el("board-lib-minus");
-const boardLibPlusBtn = el("board-lib-plus");
-const boardFasMinusBtn = el("board-fas-minus");
-const boardFasPlusBtn = el("board-fas-plus");
 const boardPresidentNameEl = el("board-president-name");
 const boardChancellorNameEl = el("board-chancellor-name");
 const boardViewerSelect = el("board-viewer-select");
@@ -65,8 +59,12 @@ const voteChancellorNameEl = el("vote-chancellor-name");
 const voteViewerSelect = el("vote-viewer-select");
 const voteJaBtn = el("vote-ja-btn");
 const voteNeinBtn = el("vote-nein-btn");
-const voteStatusTextEl = el("vote-status-text");
-const voteRevealBtn = el("vote-reveal-btn");
+
+const voteStatusView = el("vote-status-view");
+const voteStatusBackBtn = el("vote-status-back-btn");
+const voteStatusRoomCodeEl = el("vote-status-room-code");
+const voteStatusListEl = el("vote-status-list");
+const voteStatusContinueBtn = el("vote-status-continue-btn");
 
 const voteRevealView = el("vote-reveal-view");
 const voteRevealBackBtn = el("vote-reveal-back-btn");
@@ -75,13 +73,62 @@ const voteOutcomeBannerEl = el("vote-outcome-banner");
 const voteTallyListEl = el("vote-tally-list");
 const voteContinueBtn = el("vote-continue-btn");
 
+const presidentCardsView = el("president-cards-view");
+const presidentCardsBackBtn = el("president-cards-back-btn");
+const presidentCardsRoomCodeEl = el("president-cards-room-code");
+const presidentCardsNameEl = el("president-cards-name");
+const presidentCardsViewerSelect = el("president-cards-viewer-select");
+const presidentCardsRowEl = el("president-cards-row");
+const presidentCardsWaitingEl = el("president-cards-waiting");
+const presidentCardsConfirmBtn = el("president-cards-confirm-btn");
+
+const chancellorCardsView = el("chancellor-cards-view");
+const chancellorCardsBackBtn = el("chancellor-cards-back-btn");
+const chancellorCardsRoomCodeEl = el("chancellor-cards-room-code");
+const chancellorCardsNameEl = el("chancellor-cards-name");
+const chancellorCardsViewerSelect = el("chancellor-cards-viewer-select");
+const chancellorCardsRowEl = el("chancellor-cards-row");
+const chancellorCardsWaitingEl = el("chancellor-cards-waiting");
+const chancellorCardsConfirmBtn = el("chancellor-cards-confirm-btn");
+
+const policyRevealView = el("policy-reveal-view");
+const policyRevealBackBtn = el("policy-reveal-back-btn");
+const policyRevealRoomCodeEl = el("policy-reveal-room-code");
+const policyRevealChaosNoteEl = el("policy-reveal-chaos-note");
+const policyRevealCardEl = el("policy-reveal-card");
+const policyRevealIconEl = el("policy-reveal-icon");
+const policyRevealCountdownEl = el("policy-reveal-countdown");
+const policyRevealContinueBtn = el("policy-reveal-continue-btn");
+
+const winOverlayEl = el("win-overlay");
+const winOverlayPanelEl = el("win-overlay-panel");
+const winOverlayMinimizeBtn = el("win-overlay-minimize-btn");
+const winOverlayTitleEl = el("win-overlay-title");
+const winOverlayReasonEl = el("win-overlay-reason");
+const winOverlayDealAgainBtn = el("win-overlay-deal-again-btn");
+const winOverlayWaitingEl = el("win-overlay-waiting");
+const winOverlayPillBtn = el("win-overlay-pill-btn");
+
+const showMyCardBtn = el("show-my-card-btn");
+const myCardOverlayEl = el("my-card-overlay");
+const myCardCloseBtn = el("my-card-close-btn");
+const myCardEl = el("my-card");
+const myCardIconEl = el("my-card-icon");
+const myCardNameEl = el("my-card-name");
+const myCardDescEl = el("my-card-desc");
+const myCardTeamEl = el("my-card-team");
+
 lobbyRoomCodeEl.textContent = room ?? "(none)";
 roleRoomCodeEl.textContent = room ?? "(none)";
 tableRoomCodeEl.textContent = room ?? "(none)";
 boardRoomCodeEl.textContent = room ?? "(none)";
 nominateRoomCodeEl.textContent = room ?? "(none)";
 voteRoomCodeEl.textContent = room ?? "(none)";
+voteStatusRoomCodeEl.textContent = room ?? "(none)";
 voteRevealRoomCodeEl.textContent = room ?? "(none)";
+presidentCardsRoomCodeEl.textContent = room ?? "(none)";
+chancellorCardsRoomCodeEl.textContent = room ?? "(none)";
+policyRevealRoomCodeEl.textContent = room ?? "(none)";
 
 const MIN_PLAYERS = 5;
 const MAX_PLAYERS = 10;
@@ -110,7 +157,11 @@ function showView(view) {
   boardView.hidden = view !== "board";
   nominateView.hidden = view !== "nominate";
   voteView.hidden = view !== "vote";
+  voteStatusView.hidden = view !== "vote-status";
   voteRevealView.hidden = view !== "vote-reveal";
+  presidentCardsView.hidden = view !== "president-cards";
+  chancellorCardsView.hidden = view !== "chancellor-cards";
+  policyRevealView.hidden = view !== "policy-reveal";
 }
 
 function renderPlayerList() {
@@ -153,24 +204,24 @@ function renderLobby() {
   const amHost = isHost();
   const count = players.length;
   const inRange = count >= MIN_PLAYERS && count <= MAX_PLAYERS;
+  const allReady = players.filter((p) => !p.isHost).every((p) => p.ready);
 
   dealBtn.hidden = !amHost;
-  dealBtn.disabled = !inRange;
+  dealBtn.disabled = !inRange || !allReady;
   readyToggleBtn.hidden = amHost;
-  lobbyWaitingEl.hidden = amHost;
 
   if (amHost) {
-    lobbyHintEl.hidden = inRange;
+    lobbyHintEl.hidden = inRange && allReady;
     if (!inRange) {
       lobbyHintEl.textContent =
         count < MIN_PLAYERS
           ? `Need at least ${MIN_PLAYERS} players (${count} so far).`
           : `Too many players for one game — ${MAX_PLAYERS} max (${count} joined).`;
+    } else if (!allReady) {
+      lobbyHintEl.textContent = "Waiting for everyone to ready up before you can deal.";
     }
   } else {
     lobbyHintEl.hidden = true;
-    const host = players.find((p) => p.isHost);
-    lobbyWaitingEl.textContent = `Waiting for ${host?.name ?? "the host"} to deal`;
     const me = players.find((p) => p.id === myId);
     readyToggleBtn.textContent = me?.ready ? "Not ready" : "Ready up";
     readyToggleBtn.classList.toggle("is-ready", Boolean(me?.ready));
@@ -204,9 +255,6 @@ function renderReadyStrip() {
     item.append(avatar, name);
     readyStripEl.appendChild(item);
   }
-
-  const readyCount = players.filter((p) => p.ready).length;
-  readyCountEl.textContent = `${readyCount} of ${players.length} ready`;
 }
 
 function updateReadyButton() {
@@ -218,47 +266,58 @@ function updateReadyButton() {
 function renderRoleCard() {
   if (!myRole) return;
   roleCard.classList.toggle("is-revealed", flipped);
+  applyRoleContent(roleCard, roleIcon, roleName, roleDesc, roleTeam);
   updateReadyButton();
+  renderReadyStrip();
+}
 
-  const backEl = roleCard.querySelector(".sh-card-back");
+// Shared between the main role-reveal card and the "My card" peek modal
+// (reachable from the board) — same role, same content, two places to view it.
+function applyRoleContent(cardEl, iconEl, nameEl, descEl, teamEl) {
+  const backEl = cardEl.querySelector(".sh-card-back");
   backEl.className = "sh-card-face sh-card-back role-" + myRole.role;
-  roleIcon.innerHTML = ICONS[myRole.role];
-  roleTeam.innerHTML = "";
+  iconEl.innerHTML = ICONS[myRole.role];
+  teamEl.innerHTML = "";
 
   if (myRole.role === "liberal") {
-    roleName.textContent = "Liberal";
-    roleDesc.textContent = "You don't know anyone else's role. Watch how people vote and argue for policies you trust.";
+    nameEl.textContent = "Liberal";
+    descEl.textContent = "You don't know anyone else's role. Watch how people vote and argue for policies you trust.";
   } else if (myRole.role === "fascist") {
-    roleName.textContent = "Fascist";
-    roleDesc.textContent = "Help your team seize power without getting caught. Here's who you're working with:";
+    nameEl.textContent = "Fascist";
+    descEl.textContent = "Help your team seize power without getting caught. Here's who you're working with:";
     myRole.teammates.forEach(({ name, role }) => {
       const chip = document.createElement("span");
       chip.className = "sh-team-chip" + (role === "hitler" ? " is-hitler" : "");
       chip.textContent = role === "hitler" ? `${name} — Hitler` : name;
-      roleTeam.appendChild(chip);
+      teamEl.appendChild(chip);
     });
   } else {
-    roleName.textContent = "Hitler";
-    roleDesc.textContent =
+    nameEl.textContent = "Hitler";
+    descEl.textContent =
       "You lead the fascists. If three fascist policies pass and you're then elected Chancellor, your side wins on the spot — so staying likable matters more than staying loyal-looking.";
     if (myRole.hidden) {
       const note = document.createElement("p");
       note.className = "sh-team-note";
       note.textContent = "This game has enough players that you're kept in the dark on who your fascists are, same as the liberals.";
-      roleTeam.appendChild(note);
+      teamEl.appendChild(note);
     } else {
       myRole.teammates.forEach(({ name }) => {
         const chip = document.createElement("span");
         chip.className = "sh-team-chip";
         chip.textContent = name;
-        roleTeam.appendChild(chip);
+        teamEl.appendChild(chip);
       });
     }
   }
-
-  renderReadyStrip();
 }
 
+// Viewing your role IS readying up — no separate button. The first reveal
+// sends "ready" (the server ignores repeats), and the card still toggles
+// face-down afterward so you can hide it from view without un-readying.
+// Tapping just flips the card — it does NOT ready up on its own. If it did,
+// the last player to reveal would get yanked straight to the table the
+// instant they tapped (their own ready completes the group), before
+// they'd actually had a chance to read the card. Ready is its own step.
 roleCard.addEventListener("click", () => {
   flipped = !flipped;
   if (flipped) seen = true;
@@ -310,7 +369,31 @@ function initBoard() {
     votes: {},
     viewerId: players[0]?.id ?? null,
     pendingOutcome: false,
+    presidentCards: null,
+    presidentSelectedIndices: [],
+    chancellorCards: null,
+    chancellorDiscardIdx: null,
+    enactedPolicy: null,
+    isChaos: false,
+    winResult: null,
   };
+}
+
+function checkWinCondition() {
+  if (board.liberalPolicies >= 5) return { winner: "liberal", reason: "5 Liberal policies were enacted." };
+  if (board.fascistPolicies >= 6) return { winner: "fascist", reason: "6 Fascist policies were enacted." };
+  return null;
+}
+
+// A simplified policy deck: each draw is independently weighted to match
+// the real deck's 6-liberal/11-fascist ratio, rather than tracking an
+// actual shrinking/reshuffling deck — good enough for reviewing the UI.
+function drawPolicies(count) {
+  const drawn = [];
+  for (let i = 0; i < count; i++) {
+    drawn.push(Math.random() < 11 / 17 ? "fascist" : "liberal");
+  }
+  return drawn;
 }
 
 function currentPresident() {
@@ -318,16 +401,14 @@ function currentPresident() {
   return players[board.presidentIdx % players.length];
 }
 
-// The previous Chancellor is always term-limited out of the next
-// nomination; the previous President is too, but only once the table's
-// big enough that skipping them doesn't stall the rotation (mirrors the
-// real game's 5-6 vs 7+ player distinction).
+// The previously elected President and Chancellor are both term-limited
+// out of the next nomination.
 function eligibleNominees() {
   const president = currentPresident();
   return players.filter((p) => {
     if (p.id === president?.id) return false;
     if (p.id === board.lastChancellorId) return false;
-    if (players.length > 6 && p.id === board.lastPresidentId) return false;
+    if (p.id === board.lastPresidentId) return false;
     return true;
   });
 }
@@ -367,6 +448,15 @@ function renderBoard() {
   populateViewerSelect(boardViewerSelect);
   boardViewerSelect.value = board.viewerId;
 
+  if (board.winResult) {
+    // The game's over — the win overlay up top has the details, so this
+    // just stops the board from offering another round underneath it.
+    nominateCtaBtn.hidden = true;
+    boardWaitingTextEl.hidden = false;
+    boardWaitingTextEl.textContent = "Game over — see the announcement above.";
+    return;
+  }
+
   const viewingPresident = board.viewerId === president?.id;
   nominateCtaBtn.hidden = !viewingPresident;
   boardWaitingTextEl.hidden = viewingPresident;
@@ -375,22 +465,6 @@ function renderBoard() {
   }
 }
 
-boardLibMinusBtn.addEventListener("click", () => {
-  board.liberalPolicies = Math.max(0, board.liberalPolicies - 1);
-  renderBoard();
-});
-boardLibPlusBtn.addEventListener("click", () => {
-  board.liberalPolicies = Math.min(5, board.liberalPolicies + 1);
-  renderBoard();
-});
-boardFasMinusBtn.addEventListener("click", () => {
-  board.fascistPolicies = Math.max(0, board.fascistPolicies - 1);
-  renderBoard();
-});
-boardFasPlusBtn.addEventListener("click", () => {
-  board.fascistPolicies = Math.min(6, board.fascistPolicies + 1);
-  renderBoard();
-});
 boardViewerSelect.addEventListener("change", () => {
   board.viewerId = boardViewerSelect.value;
   renderBoard();
@@ -470,11 +544,8 @@ function renderVote() {
   const myVote = board.votes[board.viewerId];
   voteJaBtn.classList.toggle("is-picked", myVote === "ja");
   voteNeinBtn.classList.toggle("is-picked", myVote === "nein");
-
-  const votedCount = Object.keys(board.votes).length;
-  const allVoted = votedCount === players.length;
-  voteStatusTextEl.textContent = allVoted ? "Everyone's voted." : `${votedCount} of ${players.length} voted.`;
-  voteRevealBtn.hidden = !allVoted;
+  voteJaBtn.disabled = Boolean(myVote);
+  voteNeinBtn.disabled = Boolean(myVote);
 }
 
 voteViewerSelect.addEventListener("change", () => {
@@ -482,30 +553,56 @@ voteViewerSelect.addEventListener("change", () => {
   renderVote();
 });
 
-// After voting, jump to the next player who hasn't voted yet — keeps a
-// "pass the device around the table" flow moving without extra taps.
-function advanceVoteViewer() {
+// Casting a vote immediately hands off — to the status page (which shows
+// who's voted, not how) if others are still out, or straight to the reveal
+// once this was the last ballot in.
+function castVote(choice) {
+  board.votes[board.viewerId] = choice;
+
+  const allVoted = Object.keys(board.votes).length === players.length;
+  if (allVoted) {
+    showView("vote-reveal");
+    renderVoteReveal();
+    return;
+  }
+
+  // Jump to the next player who hasn't voted yet — keeps a "pass the
+  // device around the table" flow moving without extra taps.
   const next = players.find((p) => !board.votes[p.id]);
   if (next) board.viewerId = next.id;
+  showView("vote-status");
+  renderVoteStatus();
 }
 
-voteJaBtn.addEventListener("click", () => {
-  board.votes[board.viewerId] = "ja";
-  advanceVoteViewer();
-  renderVote();
-});
-voteNeinBtn.addEventListener("click", () => {
-  board.votes[board.viewerId] = "nein";
-  advanceVoteViewer();
-  renderVote();
-});
+voteJaBtn.addEventListener("click", () => castVote("ja"));
+voteNeinBtn.addEventListener("click", () => castVote("nein"));
 
-voteRevealBtn.addEventListener("click", () => {
-  showView("vote-reveal");
-  renderVoteReveal();
+function renderVoteStatus() {
+  voteStatusListEl.innerHTML = "";
+  for (const p of players) {
+    const li = document.createElement("li");
+    li.className = "sh-vote-tally-row";
+    const name = document.createElement("span");
+    name.className = "sh-vote-tally-name";
+    name.textContent = p.name;
+    const voted = Boolean(board.votes[p.id]);
+    const badge = document.createElement("span");
+    badge.className = "sh-vote-tally-badge " + (voted ? "is-voted" : "is-pending");
+    badge.textContent = voted ? "Voted" : "Waiting";
+    li.append(name, badge);
+    voteStatusListEl.appendChild(li);
+  }
+}
+
+voteStatusContinueBtn.addEventListener("click", () => {
+  showView("vote");
+  renderVote();
 });
 
 function renderVoteReveal() {
+  voteContinueBtn.disabled = false;
+  voteContinueBtn.textContent = "Back to the board";
+
   const jaCount = Object.values(board.votes).filter((v) => v === "ja").length;
   const neinCount = Object.values(board.votes).filter((v) => v === "nein").length;
   const passed = jaCount > neinCount;
@@ -534,25 +631,300 @@ function renderVoteReveal() {
   }
 }
 
+function startLegislativeSession() {
+  board.presidentCards = drawPolicies(3);
+  board.presidentSelectedIndices = [];
+  board.chancellorCards = null;
+  board.chancellorDiscardIdx = null;
+  board.enactedPolicy = null;
+  board.isChaos = false;
+  showView("president-cards");
+  renderPresidentCards();
+}
+
+// Nothing on this device actually knows who's secretly Hitler — that's
+// only ever sent to that one player's own socket — so once 3+ Fascist
+// policies are in, the server (which dealt the roles) gets asked directly
+// instead of guessing or making the table confirm it by hand. Guarded by
+// chancellorId so a stale response from a since-superseded check can't
+// land on the wrong round.
+let pendingHitlerCheckChancellorId = null;
+
 voteContinueBtn.addEventListener("click", () => {
   const president = currentPresident();
+
   if (board.pendingOutcome) {
+    // Approved. President rotation happens once the enacted policy
+    // actually lands on the board, not here.
     board.lastPresidentId = president?.id ?? null;
     board.lastChancellorId = board.chancellorId;
     board.tracker = 0;
-  } else {
-    board.tracker += 1;
-    // Chaos: three failed elections in a row auto-enacts the top policy at
-    // the table (not modeled here since there's no real policy deck yet)
-    // and resets the tracker.
-    if (board.tracker >= 3) board.tracker = 0;
+
+    if (board.fascistPolicies >= 3) {
+      pendingHitlerCheckChancellorId = board.chancellorId;
+      voteContinueBtn.disabled = true;
+      voteContinueBtn.textContent = "Checking…";
+      socket?.send(JSON.stringify({ type: "check-hitler", chancellorId: board.chancellorId }));
+      return;
+    }
+
+    startLegislativeSession();
+    return;
   }
+
+  // Rejected: the tracker moves up. At 3, the top policy auto-enacts
+  // (chaos) and the game moves straight to the next round.
+  board.tracker += 1;
   board.chancellorId = null;
   board.votes = {};
+  if (board.tracker >= 3) {
+    board.tracker = 0;
+    board.isChaos = true;
+    board.enactedPolicy = drawPolicies(1)[0];
+    board.presidentIdx = (board.presidentIdx + 1) % Math.max(1, players.length);
+    board.round += 1;
+    showView("policy-reveal");
+    renderPolicyReveal();
+  } else {
+    board.presidentIdx = (board.presidentIdx + 1) % Math.max(1, players.length);
+    board.round += 1;
+    showView("board");
+    renderBoard();
+  }
+});
+
+function policyCardMarkup(type) {
+  return type === "liberal" ? ICONS.liberal : ICONS.fascist;
+}
+
+function renderPresidentCards() {
+  const president = currentPresident();
+  presidentCardsNameEl.textContent = president ? president.name : "—";
+  presidentCardsConfirmBtn.disabled = board.presidentSelectedIndices.length !== 2;
+
+  populateViewerSelect(presidentCardsViewerSelect);
+  presidentCardsViewerSelect.value = board.viewerId;
+
+  const viewingPresident = board.viewerId === president?.id;
+  presidentCardsRowEl.hidden = !viewingPresident;
+  presidentCardsConfirmBtn.hidden = !viewingPresident;
+  presidentCardsWaitingEl.hidden = viewingPresident;
+  if (!viewingPresident) {
+    presidentCardsWaitingEl.textContent = `Waiting for ${president?.name ?? "the President"} to choose 2 policies to pass on…`;
+    return;
+  }
+
+  presidentCardsRowEl.innerHTML = "";
+  board.presidentCards.forEach((type, idx) => {
+    const isSelected = board.presidentSelectedIndices.includes(idx);
+    const card = document.createElement("button");
+    card.type = "button";
+    card.className = "sh-policy-card is-" + type + (isSelected ? " is-selected" : "");
+    card.innerHTML = `${policyCardMarkup(type)}<span>${type === "liberal" ? "Liberal" : "Fascist"}</span>`;
+    card.addEventListener("click", () => {
+      if (isSelected) {
+        board.presidentSelectedIndices = board.presidentSelectedIndices.filter((i) => i !== idx);
+      } else if (board.presidentSelectedIndices.length < 2) {
+        board.presidentSelectedIndices.push(idx);
+      }
+      renderPresidentCards();
+    });
+    presidentCardsRowEl.appendChild(card);
+  });
+}
+
+presidentCardsViewerSelect.addEventListener("change", () => {
+  board.viewerId = presidentCardsViewerSelect.value;
+  renderPresidentCards();
+});
+
+presidentCardsConfirmBtn.addEventListener("click", () => {
+  if (board.presidentSelectedIndices.length !== 2) return;
+  board.chancellorCards = board.presidentSelectedIndices.map((idx) => board.presidentCards[idx]);
+  showView("chancellor-cards");
+  renderChancellorCards();
+});
+
+function renderChancellorCards() {
+  const chancellor = players.find((p) => p.id === board.chancellorId);
+  chancellorCardsNameEl.textContent = chancellor ? chancellor.name : "—";
+  chancellorCardsConfirmBtn.disabled = board.chancellorDiscardIdx === null;
+
+  populateViewerSelect(chancellorCardsViewerSelect);
+  chancellorCardsViewerSelect.value = board.viewerId;
+
+  const viewingChancellor = board.viewerId === chancellor?.id;
+  chancellorCardsRowEl.hidden = !viewingChancellor;
+  chancellorCardsConfirmBtn.hidden = !viewingChancellor;
+  chancellorCardsWaitingEl.hidden = viewingChancellor;
+  if (!viewingChancellor) {
+    chancellorCardsWaitingEl.textContent = `Waiting for ${chancellor?.name ?? "the Chancellor"} to choose a policy to enact…`;
+    return;
+  }
+
+  chancellorCardsRowEl.innerHTML = "";
+  board.chancellorCards.forEach((type, idx) => {
+    const card = document.createElement("button");
+    card.type = "button";
+    card.className = "sh-policy-card is-" + type + (idx === board.chancellorDiscardIdx ? " is-selected" : "");
+    card.innerHTML = `${policyCardMarkup(type)}<span>${type === "liberal" ? "Liberal" : "Fascist"}</span>`;
+    card.addEventListener("click", () => {
+      board.chancellorDiscardIdx = idx;
+      renderChancellorCards();
+    });
+    chancellorCardsRowEl.appendChild(card);
+  });
+}
+
+chancellorCardsViewerSelect.addEventListener("change", () => {
+  board.viewerId = chancellorCardsViewerSelect.value;
+  renderChancellorCards();
+});
+
+chancellorCardsConfirmBtn.addEventListener("click", () => {
+  if (board.chancellorDiscardIdx === null) return;
+  board.enactedPolicy = board.chancellorCards[board.chancellorDiscardIdx];
+  board.isChaos = false;
   board.presidentIdx = (board.presidentIdx + 1) % Math.max(1, players.length);
   board.round += 1;
+  showView("policy-reveal");
+  renderPolicyReveal();
+});
+
+let policyRevealTimer = null;
+let policyRevealFrame = null;
+const POLICY_REVEAL_DELAY_MS = 1000;
+
+function revealPolicyCard() {
+  if (policyRevealFrame !== null) {
+    cancelAnimationFrame(policyRevealFrame);
+    policyRevealFrame = null;
+  }
+  policyRevealCountdownEl.style.setProperty("--pct", "0");
+  policyRevealCardEl.classList.add("is-revealed");
+  policyRevealContinueBtn.disabled = false;
+}
+
+function renderPolicyReveal() {
+  const type = board.enactedPolicy;
+  policyRevealChaosNoteEl.hidden = !board.isChaos;
+  policyRevealCardEl.classList.remove("is-revealed");
+  const backEl = policyRevealCardEl.querySelector(".sh-card-back");
+  backEl.className = "sh-card-face sh-card-back is-" + type;
+  policyRevealIconEl.innerHTML = policyCardMarkup(type);
+  policyRevealContinueBtn.disabled = true;
+
+  // Automatic — no tap required — but re-renders (a fresh policy reveal)
+  // shouldn't leave a stale timer/animation from the previous one pending.
+  if (policyRevealTimer !== null) clearTimeout(policyRevealTimer);
+  if (policyRevealFrame !== null) cancelAnimationFrame(policyRevealFrame);
+
+  const start = Date.now();
+  function tick() {
+    const elapsed = Date.now() - start;
+    const pct = Math.max(0, 100 - (elapsed / POLICY_REVEAL_DELAY_MS) * 100);
+    policyRevealCountdownEl.style.setProperty("--pct", String(pct));
+    policyRevealFrame = elapsed < POLICY_REVEAL_DELAY_MS ? requestAnimationFrame(tick) : null;
+  }
+  tick();
+
+  policyRevealTimer = setTimeout(revealPolicyCard, POLICY_REVEAL_DELAY_MS);
+}
+
+// Auto-reveals on its own, but an impatient tap still skips straight to it.
+policyRevealCardEl.addEventListener("click", () => {
+  if (policyRevealTimer !== null) {
+    clearTimeout(policyRevealTimer);
+    policyRevealTimer = null;
+  }
+  revealPolicyCard();
+});
+
+policyRevealContinueBtn.addEventListener("click", () => {
+  if (board.enactedPolicy === "liberal") {
+    board.liberalPolicies = Math.min(5, board.liberalPolicies + 1);
+  } else {
+    board.fascistPolicies = Math.min(6, board.fascistPolicies + 1);
+  }
+  // A round just finished and the president already rotated (see
+  // voteContinueBtn) — clear the old Chancellor so the board doesn't keep
+  // showing last round's Chancellor as if they'd already been renominated.
+  board.chancellorId = null;
   showView("board");
   renderBoard();
+
+  const result = checkWinCondition();
+  if (result) showWinOverlay(result);
+});
+
+// The win banner sits on top of the board rather than replacing it (see
+// the HTML comment above #win-overlay) — minimizing collapses it to a
+// small pill instead of dismissing it, since the game really is over and
+// there's nothing else to do but deal again.
+function showWinOverlay(result) {
+  board.winResult = result;
+  const liberalWin = result.winner === "liberal";
+  winOverlayTitleEl.textContent = liberalWin ? "Liberals win!" : "Fascists win!";
+  winOverlayTitleEl.className = "sh-win-overlay-title " + (liberalWin ? "is-liberal" : "is-fascist");
+  winOverlayReasonEl.textContent = result.reason;
+  winOverlayPillBtn.textContent = liberalWin ? "🏆 Liberals win — tap to view" : "🏆 Fascists win — tap to view";
+
+  const amHost = isHost();
+  winOverlayDealAgainBtn.hidden = !amHost;
+  winOverlayWaitingEl.hidden = amHost;
+
+  winOverlayEl.hidden = false;
+  winOverlayPanelEl.hidden = false;
+  winOverlayPillBtn.hidden = true;
+
+  // Callers set board.winResult via this function, then may already have
+  // rendered the board a moment earlier (before the result was known) —
+  // re-render now so the "Nominate a Chancellor" CTA actually disappears
+  // for whoever's currently viewing as the president, instead of lingering
+  // until some unrelated later render happens to pick up the new state.
+  if (board) renderBoard();
+}
+
+function hideWinOverlay() {
+  winOverlayEl.hidden = true;
+}
+
+winOverlayMinimizeBtn.addEventListener("click", () => {
+  winOverlayPanelEl.hidden = true;
+  winOverlayPillBtn.hidden = false;
+});
+
+winOverlayPillBtn.addEventListener("click", () => {
+  winOverlayPanelEl.hidden = false;
+  winOverlayPillBtn.hidden = true;
+});
+
+winOverlayDealAgainBtn.addEventListener("click", () => {
+  socket?.send(JSON.stringify({ type: "reset" }));
+});
+
+function renderMyCard() {
+  if (!myRole) return;
+  myCardEl.classList.remove("is-revealed");
+  applyRoleContent(myCardEl, myCardIconEl, myCardNameEl, myCardDescEl, myCardTeamEl);
+}
+
+showMyCardBtn.addEventListener("click", () => {
+  renderMyCard();
+  myCardOverlayEl.hidden = false;
+});
+
+myCardEl.addEventListener("click", () => {
+  myCardEl.classList.toggle("is-revealed");
+});
+
+myCardCloseBtn.addEventListener("click", () => {
+  myCardOverlayEl.hidden = true;
+});
+
+// Tapping the dark backdrop (not the card or the close button) also closes it.
+myCardOverlayEl.addEventListener("click", (event) => {
+  if (event.target === myCardOverlayEl) myCardOverlayEl.hidden = true;
 });
 
 // Mobile: Preview / How to play tabs live in one card (desktop shows
@@ -574,7 +946,11 @@ tableBackBtn.addEventListener("click", () => (location.href = "/"));
 boardBackBtn.addEventListener("click", () => (location.href = "/"));
 nominateBackBtn.addEventListener("click", () => (location.href = "/"));
 voteBackBtn.addEventListener("click", () => (location.href = "/"));
+voteStatusBackBtn.addEventListener("click", () => (location.href = "/"));
 voteRevealBackBtn.addEventListener("click", () => (location.href = "/"));
+presidentCardsBackBtn.addEventListener("click", () => (location.href = "/"));
+chancellorCardsBackBtn.addEventListener("click", () => (location.href = "/"));
+policyRevealBackBtn.addEventListener("click", () => (location.href = "/"));
 
 copyCodeBtn.addEventListener("click", async () => {
   if (!room) return;
@@ -639,11 +1015,26 @@ if (!room) {
         showView("table");
         renderTable();
         break;
+      case "hitler-check-result":
+        if (data.chancellorId !== pendingHitlerCheckChancellorId) break;
+        pendingHitlerCheckChancellorId = null;
+        voteContinueBtn.disabled = false;
+        voteContinueBtn.textContent = "Back to the board";
+        if (data.isHitler) {
+          showView("board");
+          renderBoard();
+          showWinOverlay({ winner: "fascist", reason: "Hitler was elected Chancellor." });
+        } else {
+          startLegislativeSession();
+        }
+        break;
       case "lobby":
         flipped = false;
         seen = false;
         myRole = null;
         board = null;
+        hideWinOverlay();
+        myCardOverlayEl.hidden = true;
         showView("lobby");
         renderLobby();
         break;

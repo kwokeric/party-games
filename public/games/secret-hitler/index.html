@@ -75,7 +75,6 @@
             <ul id="lobby-player-list" class="lobby-player-list"></ul>
             <button id="deal-btn" class="lobby-action-btn" type="button" hidden>Deal roles</button>
             <button id="ready-toggle-btn" class="lobby-action-btn" type="button" hidden>Ready up</button>
-            <p id="lobby-waiting" class="lobby-waiting" hidden></p>
             <p id="lobby-hint" class="lobby-hint" hidden></p>
           </div>
         </div>
@@ -109,7 +108,6 @@
           </div>
 
           <div id="ready-strip" class="sh-ready-strip"></div>
-          <p id="ready-count" class="sh-ready-count"></p>
         </div>
       </section>
 
@@ -144,10 +142,6 @@
         </div>
 
         <div class="sh-role-body">
-          <div class="sh-mockup-banner">
-            <p><strong>Mockup:</strong> the board and voting screens run locally on this one device for review — nominating, voting, and the board state aren't synced across players yet.</p>
-          </div>
-
           <div class="sh-board">
             <div class="sh-track-block">
               <div class="sh-track-head"><span>Liberal policies</span><span class="sh-track-goal">5 to win</span></div>
@@ -160,13 +154,6 @@
             <div class="sh-track-block">
               <div class="sh-track-head"><span>Election tracker</span><span class="sh-track-goal">3 fails = chaos</span></div>
               <div id="board-tracker" class="sh-tracker"></div>
-            </div>
-            <div class="sh-board-demo-controls">
-              <span>Preview board state:</span>
-              <button id="board-lib-minus" class="lobby-stepper-btn" type="button" aria-label="Fewer liberal policies">−</button>
-              <button id="board-lib-plus" class="lobby-stepper-btn" type="button" aria-label="More liberal policies">+</button>
-              <button id="board-fas-minus" class="lobby-stepper-btn" type="button" aria-label="Fewer fascist policies">−</button>
-              <button id="board-fas-plus" class="lobby-stepper-btn" type="button" aria-label="More fascist policies">+</button>
             </div>
           </div>
 
@@ -190,6 +177,8 @@
           <div class="sh-card-actions">
             <button id="nominate-cta-btn" class="lobby-action-btn" type="button" hidden>Nominate a Chancellor</button>
             <p id="board-waiting-text" class="lobby-waiting"></p>
+            <button id="show-my-card-btn" class="lobby-action-btn" type="button">My card</button>
+            <p class="sh-my-card-hint">Always shows your own real role — not whichever player the "Demo: viewing as" picker above is set to.</p>
           </div>
         </div>
       </section>
@@ -245,10 +234,22 @@
             <button id="vote-ja-btn" class="sh-vote-btn is-ja" type="button">Ja!</button>
             <button id="vote-nein-btn" class="sh-vote-btn is-nein" type="button">Nein!</button>
           </div>
-          <p id="vote-status-text" class="lobby-waiting"></p>
+        </div>
+      </section>
 
+      <section id="vote-status-view" class="view sh-role-view" hidden>
+        <div class="sh-role-banner">
+          <button id="vote-status-back-btn" class="guess-icon-btn" type="button" aria-label="Back to home">
+            <svg width="12" height="18" viewBox="0 0 24 24" fill="none" stroke="#ffffff" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="15 5 8 12 15 19"></polyline></svg>
+          </button>
+          <div class="guess-banner-title">Secret Hitler</div>
+          <div class="guess-room-pill" id="vote-status-room-code">-</div>
+        </div>
+
+        <div class="sh-role-body">
+          <ul id="vote-status-list" class="sh-vote-tally-list"></ul>
           <div class="sh-card-actions">
-            <button id="vote-reveal-btn" class="lobby-action-btn" type="button" hidden>Reveal votes</button>
+            <button id="vote-status-continue-btn" class="lobby-action-btn" type="button">Continue</button>
           </div>
         </div>
       </section>
@@ -270,6 +271,127 @@
           </div>
         </div>
       </section>
+
+      <section id="president-cards-view" class="view sh-role-view" hidden>
+        <div class="sh-role-banner">
+          <button id="president-cards-back-btn" class="guess-icon-btn" type="button" aria-label="Back to home">
+            <svg width="12" height="18" viewBox="0 0 24 24" fill="none" stroke="#ffffff" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="15 5 8 12 15 19"></polyline></svg>
+          </button>
+          <div class="guess-banner-title">Secret Hitler</div>
+          <div class="guess-room-pill" id="president-cards-room-code">-</div>
+        </div>
+
+        <div class="sh-role-body">
+          <div class="sh-table-message">
+            <p><span id="president-cards-name"></span> drew 3 policies — pick 2 to pass to the Chancellor.</p>
+          </div>
+
+          <div class="sh-demo-switcher">
+            <label for="president-cards-viewer-select">Demo: viewing as</label>
+            <select id="president-cards-viewer-select"></select>
+          </div>
+
+          <div id="president-cards-row" class="sh-policy-row"></div>
+          <p id="president-cards-waiting" class="lobby-waiting" hidden></p>
+
+          <div class="sh-card-actions">
+            <button id="president-cards-confirm-btn" class="lobby-action-btn" type="button" disabled>Pass two to Chancellor</button>
+          </div>
+        </div>
+      </section>
+
+      <section id="chancellor-cards-view" class="view sh-role-view" hidden>
+        <div class="sh-role-banner">
+          <button id="chancellor-cards-back-btn" class="guess-icon-btn" type="button" aria-label="Back to home">
+            <svg width="12" height="18" viewBox="0 0 24 24" fill="none" stroke="#ffffff" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="15 5 8 12 15 19"></polyline></svg>
+          </button>
+          <div class="guess-banner-title">Secret Hitler</div>
+          <div class="guess-room-pill" id="chancellor-cards-room-code">-</div>
+        </div>
+
+        <div class="sh-role-body">
+          <div class="sh-table-message">
+            <p><span id="chancellor-cards-name"></span> got 2 policies from the President — pick one to enact.</p>
+          </div>
+
+          <div class="sh-demo-switcher">
+            <label for="chancellor-cards-viewer-select">Demo: viewing as</label>
+            <select id="chancellor-cards-viewer-select"></select>
+          </div>
+
+          <div id="chancellor-cards-row" class="sh-policy-row"></div>
+          <p id="chancellor-cards-waiting" class="lobby-waiting" hidden></p>
+
+          <div class="sh-card-actions">
+            <button id="chancellor-cards-confirm-btn" class="lobby-action-btn" type="button" disabled>Enact this policy</button>
+          </div>
+        </div>
+      </section>
+
+      <section id="policy-reveal-view" class="view sh-role-view" hidden>
+        <div class="sh-role-banner">
+          <button id="policy-reveal-back-btn" class="guess-icon-btn" type="button" aria-label="Back to home">
+            <svg width="12" height="18" viewBox="0 0 24 24" fill="none" stroke="#ffffff" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="15 5 8 12 15 19"></polyline></svg>
+          </button>
+          <div class="guess-banner-title">Secret Hitler</div>
+          <div class="guess-room-pill" id="policy-reveal-room-code">-</div>
+        </div>
+
+        <div class="sh-role-body">
+          <p id="policy-reveal-chaos-note" class="sh-table-message" hidden><span>Government failed 3 times in a row — the top policy enacts automatically and the tracker resets.</span></p>
+          <div id="policy-reveal-card" class="sh-card sh-policy-flip-card">
+            <div class="sh-card-face sh-card-front">
+              <div id="policy-reveal-countdown" class="sh-policy-countdown">
+                <div class="sh-policy-countdown-inner"></div>
+              </div>
+            </div>
+            <div class="sh-card-face sh-card-back">
+              <div id="policy-reveal-icon"></div>
+            </div>
+          </div>
+          <div class="sh-card-actions">
+            <button id="policy-reveal-continue-btn" class="lobby-action-btn" type="button" disabled>Back to the board</button>
+          </div>
+        </div>
+      </section>
+
+      <!-- Not a .view — this sits on top of whichever view is showing
+           (in practice always the board, since a win forces that view)
+           rather than replacing it, so the board stays visible underneath. -->
+      <div id="win-overlay" class="sh-win-overlay" hidden>
+        <div id="win-overlay-panel" class="sh-win-overlay-panel">
+          <button id="win-overlay-minimize-btn" class="sh-win-overlay-minimize" type="button" aria-label="Minimize">
+            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="#ffffff" stroke-width="2.5" stroke-linecap="round"><line x1="5" y1="5" x2="19" y2="19"></line><line x1="19" y1="5" x2="5" y2="19"></line></svg>
+          </button>
+          <div id="win-overlay-title" class="sh-win-overlay-title"></div>
+          <p id="win-overlay-reason" class="sh-win-overlay-reason"></p>
+          <div class="sh-card-actions">
+            <button id="win-overlay-deal-again-btn" class="lobby-action-btn" type="button" hidden>Deal again</button>
+            <p id="win-overlay-waiting" class="lobby-waiting" hidden>Waiting for the host to deal a new round…</p>
+          </div>
+        </div>
+        <button id="win-overlay-pill-btn" class="sh-win-overlay-pill" type="button" hidden></button>
+      </div>
+
+      <div id="my-card-overlay" class="sh-modal-overlay" hidden>
+        <div class="sh-modal-panel">
+          <button id="my-card-close-btn" class="sh-modal-close" type="button" aria-label="Close">
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#ffffff" stroke-width="2.5" stroke-linecap="round"><line x1="5" y1="5" x2="19" y2="19"></line><line x1="19" y1="5" x2="5" y2="19"></line></svg>
+          </button>
+          <div id="my-card" class="sh-card">
+            <div class="sh-card-face sh-card-front">
+              <div class="sh-card-lock">🔒</div>
+              <p>Tap to view your role</p>
+            </div>
+            <div class="sh-card-face sh-card-back">
+              <div id="my-card-icon" class="sh-role-icon"></div>
+              <div id="my-card-name" class="sh-role-name"></div>
+              <p id="my-card-desc" class="sh-role-desc"></p>
+              <div id="my-card-team" class="sh-role-team"></div>
+            </div>
+          </div>
+        </div>
+      </div>
     </main>
 
     <script type="module" src="./client.js"></script>

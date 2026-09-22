@@ -74,7 +74,7 @@ export default class SecretHitler extends Server {
 
   onMessage(connection: Connection, message: WSMessage) {
     if (typeof message !== "string") return;
-    let data: { type?: string };
+    let data: { type?: string; chancellorId?: string };
     try {
       data = JSON.parse(message);
     } catch {
@@ -87,7 +87,27 @@ export default class SecretHitler extends Server {
       this.handleReady(connection);
     } else if (data.type === "reset") {
       this.resetToLobby(connection);
+    } else if (data.type === "check-hitler" && typeof data.chancellorId === "string") {
+      this.checkHitler(connection, data.chancellorId);
     }
+  }
+
+  // The board/nomination/voting mockup runs entirely on the asking
+  // player's own device — it never learns anyone's role except its own.
+  // This is the one place it needs a real answer instead of a guess: once
+  // 3+ Fascist policies are in, electing Hitler as Chancellor ends the
+  // game outright, and only the server (which actually dealt the roles)
+  // can say for sure. Answering true/false rather than the full role
+  // keeps this from doubling as a general "what's their role" query.
+  checkHitler(connection: Connection, chancellorId: string) {
+    const chancellor = this.players.get(chancellorId);
+    connection.send(
+      JSON.stringify({
+        type: "hitler-check-result",
+        chancellorId,
+        isHitler: chancellor?.role === "hitler",
+      })
+    );
   }
 
   hasHost(): boolean {
@@ -104,6 +124,9 @@ export default class SecretHitler extends Server {
 
     const table = ROLE_TABLE[this.players.size];
     if (!table) return;
+
+    const everyoneElseReady = [...this.players.values()].filter((p) => !p.isHost).every((p) => p.ready);
+    if (!everyoneElseReady) return;
 
     const order = shuffle([...this.players.keys()]);
     const roleById = new Map<string, Role>();
