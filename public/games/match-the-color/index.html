@@ -38,12 +38,32 @@
             </button>
           </div>
 
-          <div class="lobby-panel">
-            <h3>How to play</h3>
-            <ul class="lobby-howto-list">
-              <li>Use the Hue, Saturation and Brightness sliders to blend Rex into the background.</li>
-               <li>Closest match to the background wins the round!</li>
-            </ul>
+          <div class="lobby-panel lobby-intro-card">
+            <div class="lobby-intro-tabs" id="lobby-intro-tabs">
+              <button type="button" class="is-active" data-pane="preview">Preview</button>
+              <button type="button" data-pane="howto">How to play</button>
+            </div>
+            <div class="lobby-intro-panes">
+              <div class="lobby-intro-pane is-active" data-pane="preview">
+                <h3>Preview</h3>
+                <div class="lobby-preview-stage">
+                  <div class="stage-texture"></div>
+                  <div class="ground"></div>
+                  <div class="walker">
+                    <div class="bobber">
+                      <svg id="lobby-preview-chameleon" class="chameleon-svg" viewBox="0 0 1600 800" width="216" height="108"></svg>
+                    </div>
+                  </div>
+                </div>
+              </div>
+              <div class="lobby-intro-pane" data-pane="howto">
+                <h3>How to play</h3>
+                <ul class="lobby-howto-list">
+                  <li>Use the Hue, Saturation and Brightness sliders to blend Rex into the background.</li>
+                  <li>Closest match to the background wins the round!</li>
+                </ul>
+              </div>
+            </div>
           </div>
 
           <div id="lobby-settings-panel" class="lobby-panel lobby-settings-panel" hidden>

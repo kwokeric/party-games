@@ -25,16 +25,60 @@
   letter-spacing: 4px;
 }
 
-/* Preview and How to play both have fixed, non-growing content, so they
-   share one even row. Players is deliberately its own panel below (not a
-   third column here) since the player count changes constantly — it needs
-   to grow without disturbing this row's height. */
-.lobby-top-row {
-  display: grid;
-  grid-template-columns: 1fr 1fr;
-  gap: 24px;
-  align-items: start;
-  margin-bottom: 24px;
+/* Preview and How to play live in one card. On mobile, a pill tab switches
+   between the two (only one pane visible at a time); on desktop there's
+   room for both side by side, so the tabs disappear and both panes just
+   show at once. */
+.lobby-intro-tabs {
+  display: flex;
+  background: var(--cream);
+  border-radius: 999px;
+  padding: 4px;
+  gap: 2px;
+  margin-bottom: 16px;
+}
+
+.lobby-intro-tabs button {
+  flex: 1;
+  border: none;
+  background: transparent;
+  padding: 8px 0;
+  border-radius: 999px;
+  font-family: "Fredoka", system-ui, sans-serif;
+  font-size: 13px;
+  font-weight: 600;
+  color: var(--ink-soft);
+  cursor: pointer;
+}
+
+.lobby-intro-tabs button.is-active {
+  background: #ffffff;
+  color: var(--blue);
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.12);
+}
+
+.lobby-intro-pane {
+  display: none;
+}
+
+.lobby-intro-pane.is-active {
+  display: block;
+}
+
+@media (min-width: 721px) {
+  .lobby-intro-tabs {
+    display: none;
+  }
+
+  .lobby-intro-panes {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 24px;
+  }
+
+  .lobby-intro-pane {
+    display: block;
+  }
 }
 
 .lobby-panel {
@@ -46,19 +90,7 @@
 }
 
 /* A static, non-interactive taste of the actual guessing screen — real
-   objects at their true relative scale. Desktop-only: on a phone screen
-   this would just eat space above the info a mobile web player actually
-   needs (how to play / who's here), without room to be legible anyway. */
-.lobby-preview-panel {
-  display: none;
-}
-
-@media (min-width: 721px) {
-  .lobby-preview-panel {
-    display: block;
-  }
-}
-
+   objects at their true relative scale. */
 .lobby-preview-stage {
   position: relative;
   height: 170px;
@@ -386,8 +418,3 @@
   background: rgba(213, 96, 98, 0.1);
 }
 
-@media (max-width: 720px) {
-  .lobby-top-row {
-    grid-template-columns: 1fr;
-  }
-}

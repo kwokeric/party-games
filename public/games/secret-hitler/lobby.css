@@ -41,6 +41,114 @@
   margin-bottom: 24px;
 }
 
+/* Preview and "How to play" live in one card. On mobile, a pill tab
+   switches between the two (only one pane visible at a time); on desktop
+   there's room for both side by side, so the tabs disappear and both
+   panes just show at once. */
+.lobby-intro-tabs {
+  display: flex;
+  background: var(--cream);
+  border-radius: 999px;
+  padding: 4px;
+  gap: 2px;
+  margin-bottom: 16px;
+}
+
+.lobby-intro-tabs button {
+  flex: 1;
+  border: none;
+  background: transparent;
+  padding: 8px 0;
+  border-radius: 999px;
+  font-family: "Fredoka", system-ui, sans-serif;
+  font-size: 13px;
+  font-weight: 600;
+  color: var(--ink-soft);
+  cursor: pointer;
+}
+
+.lobby-intro-tabs button.is-active {
+  background: #ffffff;
+  color: var(--blue);
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.12);
+}
+
+.lobby-intro-pane {
+  display: none;
+}
+
+.lobby-intro-pane.is-active {
+  display: block;
+}
+
+@media (min-width: 721px) {
+  .lobby-intro-tabs {
+    display: none;
+  }
+
+  .lobby-intro-panes {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 24px;
+  }
+
+  .lobby-intro-pane {
+    display: block;
+  }
+}
+
+/* A static, non-interactive taste of the private role reveal — three
+   sample role cards, fanned out. */
+.lobby-preview-stage {
+  position: relative;
+  height: 170px;
+  border-radius: 8px;
+  background: #14161c;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.sh-preview-card {
+  width: 62px;
+  height: 84px;
+  border-radius: 10px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 6px;
+  box-shadow: 0 6px 14px rgba(0, 0, 0, 0.35);
+  font-family: "Fredoka", system-ui, sans-serif;
+  font-size: 10px;
+  font-weight: 600;
+  color: #ffffff;
+}
+
+.sh-preview-card + .sh-preview-card {
+  margin-left: -16px;
+}
+
+.sh-preview-card.role-liberal {
+  background: linear-gradient(160deg, #0d8fd6, #065a86);
+  transform: rotate(-9deg);
+  z-index: 1;
+}
+
+.sh-preview-card.role-fascist {
+  background: linear-gradient(160deg, #d5484a, #7c1f21);
+  transform: rotate(0deg) translateY(-6px);
+  z-index: 2;
+}
+
+.sh-preview-card.role-hitler {
+  background: linear-gradient(160deg, #3a2230, #12080d);
+  border: 1px solid rgba(255, 255, 255, 0.15);
+  transform: rotate(9deg);
+  z-index: 1;
+}
+
+
 .lobby-panel h3 {
   margin: 0 0 14px;
   font-family: "Fredoka", system-ui, sans-serif;

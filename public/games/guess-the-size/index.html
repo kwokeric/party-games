@@ -38,29 +38,34 @@
             </button>
           </div>
 
-          <div class="lobby-top-row">
-            <div class="lobby-panel lobby-preview-panel">
-              <h3>Preview</h3>
-              <div class="lobby-preview-stage">
-                <div class="baseline"></div>
-                <div class="lobby-preview-obj">
-                  <span id="preview-obj-a-img" class="obj-visual"></span>
-                  <span class="obj-label">African Elephant</span>
-                </div>
-                <div class="lobby-preview-obj">
-                  <span id="preview-obj-b-img" class="obj-visual"></span>
-                  <span class="obj-label">VW Beetle</span>
+          <div class="lobby-panel lobby-intro-card">
+            <div class="lobby-intro-tabs" id="lobby-intro-tabs">
+              <button type="button" class="is-active" data-pane="preview">Preview</button>
+              <button type="button" data-pane="howto">How to play</button>
+            </div>
+            <div class="lobby-intro-panes">
+              <div class="lobby-intro-pane is-active" data-pane="preview">
+                <h3>Preview</h3>
+                <div class="lobby-preview-stage">
+                  <div class="baseline"></div>
+                  <div class="lobby-preview-obj">
+                    <span id="preview-obj-a-img" class="obj-visual"></span>
+                    <span class="obj-label">African Elephant</span>
+                  </div>
+                  <div class="lobby-preview-obj">
+                    <span id="preview-obj-b-img" class="obj-visual"></span>
+                    <span class="obj-label">VW Beetle</span>
+                  </div>
                 </div>
               </div>
-            </div>
-
-            <div class="lobby-panel">
-              <h3>How to play</h3>
-              <ul class="lobby-howto-list">
-                <li>One object is shown at its real size — that's your reference.</li>
-                <li>Drag to resize the other object to what you think its real size is.</li>
-                <li>Closest guess wins the round!</li>
-              </ul>
+              <div class="lobby-intro-pane" data-pane="howto">
+                <h3>How to play</h3>
+                <ul class="lobby-howto-list">
+                  <li>One object is shown at its real size — that's your reference.</li>
+                  <li>Drag to resize the other object to what you think its real size is.</li>
+                  <li>Closest guess wins the round!</li>
+                </ul>
+              </div>
             </div>
           </div>
 

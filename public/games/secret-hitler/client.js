@@ -555,6 +555,19 @@ voteContinueBtn.addEventListener("click", () => {
   renderBoard();
 });
 
+// Mobile: Preview / How to play tabs live in one card (desktop shows
+// both panes at once and hides the tabs — see the min-width:721px rule in
+// lobby.css — so this listener is a no-op there, which is fine).
+const lobbyIntroTabs = el("lobby-intro-tabs");
+lobbyIntroTabs?.addEventListener("click", (event) => {
+  const btn = event.target.closest("button[data-pane]");
+  if (!btn) return;
+  for (const b of lobbyIntroTabs.querySelectorAll("button")) b.classList.toggle("is-active", b === btn);
+  for (const pane of document.querySelectorAll(".lobby-intro-pane")) {
+    pane.classList.toggle("is-active", pane.dataset.pane === btn.dataset.pane);
+  }
+});
+
 backBtn.addEventListener("click", () => (location.href = "/"));
 roleBackBtn.addEventListener("click", () => (location.href = "/"));
 tableBackBtn.addEventListener("click", () => (location.href = "/"));

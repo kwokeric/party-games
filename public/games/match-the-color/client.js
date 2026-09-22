@@ -337,6 +337,31 @@ const WALK_POSE_MARKUP = `
 
 walkerChameleon.innerHTML = WALK_POSE_MARKUP;
 
+// Lobby preview: a static sample color, with the chameleon set to nearly
+// the same shade as the stage — showing what a good match looks like
+// before anyone's even picked up a slider.
+const lobbyPreviewChameleon = el("lobby-preview-chameleon");
+if (lobbyPreviewChameleon) {
+  lobbyPreviewChameleon.innerHTML = WALK_POSE_MARKUP;
+  const previewShades = chameleonShades(340, 55, 78);
+  lobbyPreviewChameleon.style.setProperty("--c-light", previewShades.light);
+  lobbyPreviewChameleon.style.setProperty("--c-medium", previewShades.medium);
+  lobbyPreviewChameleon.style.setProperty("--c-dark", previewShades.dark);
+}
+
+// Mobile: Preview / How to play tabs live in one card (desktop shows both
+// panes at once and hides the tabs — see the min-width:721px rule in
+// lobby.css — so this listener is a no-op there, which is fine).
+const lobbyIntroTabs = el("lobby-intro-tabs");
+lobbyIntroTabs?.addEventListener("click", (event) => {
+  const btn = event.target.closest("button[data-pane]");
+  if (!btn) return;
+  for (const b of lobbyIntroTabs.querySelectorAll("button")) b.classList.toggle("is-active", b === btn);
+  for (const pane of document.querySelectorAll(".lobby-intro-pane")) {
+    pane.classList.toggle("is-active", pane.dataset.pane === btn.dataset.pane);
+  }
+});
+
 // The results lineup reuses the same walk-pose art, frozen mid-stride
 // (see .lineup-slot in reveal.css, which turns off the leg-swing animation)
 // rather than a separate standing pose — one consistent look everywhere.

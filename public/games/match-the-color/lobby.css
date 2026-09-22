@@ -34,6 +34,89 @@
   margin-bottom: 24px;
 }
 
+/* Preview and How to play live in one card. On mobile, a pill tab switches
+   between the two (only one pane visible at a time); on desktop there's
+   room for both side by side, so the tabs disappear and both panes just
+   show at once. */
+.lobby-intro-tabs {
+  display: flex;
+  background: var(--cream);
+  border-radius: 999px;
+  padding: 4px;
+  gap: 2px;
+  margin-bottom: 16px;
+}
+
+.lobby-intro-tabs button {
+  flex: 1;
+  border: none;
+  background: transparent;
+  padding: 8px 0;
+  border-radius: 999px;
+  font-family: "Fredoka", system-ui, sans-serif;
+  font-size: 13px;
+  font-weight: 600;
+  color: var(--ink-soft);
+  cursor: pointer;
+}
+
+.lobby-intro-tabs button.is-active {
+  background: #ffffff;
+  color: var(--blue);
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.12);
+}
+
+.lobby-intro-pane {
+  display: none;
+}
+
+.lobby-intro-pane.is-active {
+  display: block;
+}
+
+.lobby-intro-pane h3 {
+  margin: 0 0 14px;
+}
+
+@media (min-width: 721px) {
+  .lobby-intro-tabs {
+    display: none;
+  }
+
+  .lobby-intro-panes {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 24px;
+  }
+
+  .lobby-intro-pane {
+    display: block;
+  }
+}
+
+/* A static, non-interactive taste of the actual playing screen. */
+.lobby-preview-stage {
+  position: relative;
+  height: 170px;
+  border-radius: 8px;
+  overflow: hidden;
+  /* Matches chameleonShades(340, 55, 78)'s medium shade exactly (see
+     client.js) — the chameleon is set to the same color, so it actually
+     blends in the way the real game rewards. */
+  background: rgb(199, 90, 126);
+  box-sizing: border-box;
+}
+
+.lobby-preview-stage .ground {
+  position: absolute;
+  left: 0;
+  right: 0;
+  bottom: 44px;
+  height: 2px;
+  background: rgba(0, 0, 0, 0.14);
+}
+
+
 .lobby-panel h3 {
   margin: 0 0 14px;
   font-family: "Fredoka", system-ui, sans-serif;
