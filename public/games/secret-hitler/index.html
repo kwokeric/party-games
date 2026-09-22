@@ -10,6 +10,7 @@
     <link rel="stylesheet" href="/shared/app-shell.css" />
     <link rel="stylesheet" href="./lobby.css" />
     <link rel="stylesheet" href="./role.css" />
+    <link rel="stylesheet" href="./board.css" />
   </head>
   <body>
     <main class="page sh-page">
@@ -58,7 +59,7 @@
       <section id="role-view" class="view sh-role-view" hidden>
         <div class="sh-role-banner">
           <button id="role-back-btn" class="guess-icon-btn" type="button" aria-label="Back to home">
-            <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="#ffffff" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><line x1="19" y1="12" x2="5" y2="12"></line><polyline points="12 19 5 12 12 5"></polyline></svg>
+            <svg width="12" height="18" viewBox="0 0 24 24" fill="none" stroke="#ffffff" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="15 5 8 12 15 19"></polyline></svg>
           </button>
           <div class="guess-banner-title">Secret Hitler</div>
           <div class="guess-room-pill" id="role-room-code">-</div>
@@ -81,13 +82,16 @@
           <div class="sh-card-actions">
             <button id="ready-btn" class="lobby-action-btn" type="button" disabled>Ready</button>
           </div>
+
+          <div id="ready-strip" class="sh-ready-strip"></div>
+          <p id="ready-count" class="sh-ready-count"></p>
         </div>
       </section>
 
       <section id="table-view" class="view sh-role-view" hidden>
         <div class="sh-role-banner">
           <button id="table-back-btn" class="guess-icon-btn" type="button" aria-label="Back to home">
-            <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="#ffffff" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><line x1="19" y1="12" x2="5" y2="12"></line><polyline points="12 19 5 12 12 5"></polyline></svg>
+            <svg width="12" height="18" viewBox="0 0 24 24" fill="none" stroke="#ffffff" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="15 5 8 12 15 19"></polyline></svg>
           </button>
           <div class="guess-banner-title">Secret Hitler</div>
           <div class="guess-room-pill" id="table-room-code">-</div>
@@ -95,11 +99,149 @@
 
         <div class="sh-role-body">
           <div class="sh-table-message">
-            <p>Everyone's seen their role. Nominate a Chancellor and carry on at the table — that part isn't in the app yet.</p>
+            <p>Everyone's seen their role. Nominate a Chancellor and vote it in below.</p>
           </div>
           <div class="sh-card-actions">
+            <button id="continue-board-btn" class="lobby-action-btn" type="button">See the board</button>
             <button id="deal-again-btn" class="lobby-action-btn" type="button" hidden>Deal again</button>
             <p id="table-waiting" class="lobby-waiting" hidden>Waiting for the host to deal a new round…</p>
+          </div>
+        </div>
+      </section>
+
+      <section id="board-view" class="view sh-role-view" hidden>
+        <div class="sh-role-banner">
+          <button id="board-back-btn" class="guess-icon-btn" type="button" aria-label="Back to home">
+            <svg width="12" height="18" viewBox="0 0 24 24" fill="none" stroke="#ffffff" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="15 5 8 12 15 19"></polyline></svg>
+          </button>
+          <div class="guess-banner-title">Secret Hitler</div>
+          <div class="guess-room-pill" id="board-room-code">-</div>
+        </div>
+
+        <div class="sh-role-body">
+          <div class="sh-mockup-banner">
+            <p><strong>Mockup:</strong> the board and voting screens run locally on this one device for review — nominating, voting, and the board state aren't synced across players yet.</p>
+          </div>
+
+          <div class="sh-board">
+            <div class="sh-track-block">
+              <div class="sh-track-head"><span>Liberal policies</span><span class="sh-track-goal">5 to win</span></div>
+              <div id="board-liberal-track" class="sh-track sh-track-liberal"></div>
+            </div>
+            <div class="sh-track-block">
+              <div class="sh-track-head"><span>Fascist policies</span><span class="sh-track-goal">6 to win</span></div>
+              <div id="board-fascist-track" class="sh-track sh-track-fascist"></div>
+            </div>
+            <div class="sh-track-block">
+              <div class="sh-track-head"><span>Election tracker</span><span class="sh-track-goal">3 fails = chaos</span></div>
+              <div id="board-tracker" class="sh-tracker"></div>
+            </div>
+            <div class="sh-board-demo-controls">
+              <span>Preview board state:</span>
+              <button id="board-lib-minus" class="lobby-stepper-btn" type="button" aria-label="Fewer liberal policies">−</button>
+              <button id="board-lib-plus" class="lobby-stepper-btn" type="button" aria-label="More liberal policies">+</button>
+              <button id="board-fas-minus" class="lobby-stepper-btn" type="button" aria-label="Fewer fascist policies">−</button>
+              <button id="board-fas-plus" class="lobby-stepper-btn" type="button" aria-label="More fascist policies">+</button>
+            </div>
+          </div>
+
+          <div class="sh-gov-row">
+            <div class="sh-gov-slot">
+              <span class="sh-gov-role">President</span>
+              <span id="board-president-name" class="sh-gov-name">—</span>
+            </div>
+            <div class="sh-gov-arrow">→</div>
+            <div class="sh-gov-slot">
+              <span class="sh-gov-role">Chancellor</span>
+              <span id="board-chancellor-name" class="sh-gov-name">—</span>
+            </div>
+          </div>
+
+          <div class="sh-demo-switcher">
+            <label for="board-viewer-select">Demo: viewing as</label>
+            <select id="board-viewer-select"></select>
+          </div>
+
+          <div class="sh-card-actions">
+            <button id="nominate-cta-btn" class="lobby-action-btn" type="button" hidden>Nominate a Chancellor</button>
+            <p id="board-waiting-text" class="lobby-waiting"></p>
+          </div>
+        </div>
+      </section>
+
+      <section id="nominate-view" class="view sh-role-view" hidden>
+        <div class="sh-role-banner">
+          <button id="nominate-back-btn" class="guess-icon-btn" type="button" aria-label="Back to board">
+            <svg width="12" height="18" viewBox="0 0 24 24" fill="none" stroke="#ffffff" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="15 5 8 12 15 19"></polyline></svg>
+          </button>
+          <div class="guess-banner-title">Secret Hitler</div>
+          <div class="guess-room-pill" id="nominate-room-code">-</div>
+        </div>
+
+        <div class="sh-role-body">
+          <div class="sh-table-message">
+            <p><span id="nominate-president-name"></span> is President this round — pick a Chancellor nominee.</p>
+          </div>
+          <ul id="nominee-list" class="sh-nominee-list"></ul>
+          <div class="sh-card-actions">
+            <button id="nominate-confirm-btn" class="lobby-action-btn" type="button" disabled>Nominate</button>
+          </div>
+        </div>
+      </section>
+
+      <section id="vote-view" class="view sh-role-view" hidden>
+        <div class="sh-role-banner">
+          <button id="vote-back-btn" class="guess-icon-btn" type="button" aria-label="Back to home">
+            <svg width="12" height="18" viewBox="0 0 24 24" fill="none" stroke="#ffffff" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="15 5 8 12 15 19"></polyline></svg>
+          </button>
+          <div class="guess-banner-title">Secret Hitler</div>
+          <div class="guess-room-pill" id="vote-room-code">-</div>
+        </div>
+
+        <div class="sh-role-body">
+          <div class="sh-gov-row">
+            <div class="sh-gov-slot">
+              <span class="sh-gov-role">President</span>
+              <span id="vote-president-name" class="sh-gov-name">—</span>
+            </div>
+            <div class="sh-gov-arrow">→</div>
+            <div class="sh-gov-slot">
+              <span class="sh-gov-role">Chancellor nominee</span>
+              <span id="vote-chancellor-name" class="sh-gov-name">—</span>
+            </div>
+          </div>
+
+          <div class="sh-demo-switcher">
+            <label for="vote-viewer-select">Demo: voting as</label>
+            <select id="vote-viewer-select"></select>
+          </div>
+
+          <div class="sh-vote-buttons">
+            <button id="vote-ja-btn" class="sh-vote-btn is-ja" type="button">Ja!</button>
+            <button id="vote-nein-btn" class="sh-vote-btn is-nein" type="button">Nein!</button>
+          </div>
+          <p id="vote-status-text" class="lobby-waiting"></p>
+
+          <div class="sh-card-actions">
+            <button id="vote-reveal-btn" class="lobby-action-btn" type="button" hidden>Reveal votes</button>
+          </div>
+        </div>
+      </section>
+
+      <section id="vote-reveal-view" class="view sh-role-view" hidden>
+        <div class="sh-role-banner">
+          <button id="vote-reveal-back-btn" class="guess-icon-btn" type="button" aria-label="Back to home">
+            <svg width="12" height="18" viewBox="0 0 24 24" fill="none" stroke="#ffffff" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="15 5 8 12 15 19"></polyline></svg>
+          </button>
+          <div class="guess-banner-title">Secret Hitler</div>
+          <div class="guess-room-pill" id="vote-reveal-room-code">-</div>
+        </div>
+
+        <div class="sh-role-body">
+          <div id="vote-outcome-banner" class="sh-outcome-banner"></div>
+          <ul id="vote-tally-list" class="sh-vote-tally-list"></ul>
+          <div class="sh-card-actions">
+            <button id="vote-continue-btn" class="lobby-action-btn" type="button">Back to the board</button>
           </div>
         </div>
       </section>

@@ -21,6 +21,32 @@
   font-weight: 600;
   font-size: 17px;
   color: #ffffff;
+  flex: 1;
+}
+
+/* Bare icon, no button chrome — without this the back button falls through
+   to the global `button{background:#e63946}` default in styles.css. */
+.guess-icon-btn {
+  border: none;
+  background: none;
+  padding: 0;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+}
+
+.guess-room-pill {
+  background: rgba(255, 255, 255, 0.16);
+  font-family: "Fredoka", system-ui, sans-serif;
+  font-weight: 600;
+  font-size: 13px;
+  letter-spacing: 1.5px;
+  color: #ffffff;
+  padding: 5px 10px;
+  border-radius: 999px;
+  flex-shrink: 0;
 }
 
 .sh-role-body {
@@ -188,7 +214,95 @@
 
 .sh-card-actions {
   width: 100%;
+  max-width: 320px;
   display: flex;
   flex-direction: column;
   gap: 10px;
+}
+
+/* Who's readied up, shown below the Ready button while waiting on the rest
+   of the table. Dimmed avatars fill in (and gain a checkmark badge) as each
+   player confirms they've seen their role. */
+.sh-ready-strip {
+  width: 100%;
+  max-width: 320px;
+  display: flex;
+  flex-wrap: wrap;
+  gap: 14px;
+  justify-content: center;
+  margin-top: 18px;
+}
+
+.sh-ready-item {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 5px;
+  opacity: 0.4;
+}
+
+.sh-ready-item.is-ready {
+  opacity: 1;
+}
+
+.sh-ready-avatar {
+  position: relative;
+  width: 38px;
+  height: 38px;
+  border-radius: 999px;
+  background: rgba(255, 255, 255, 0.15);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-family: "Fredoka", system-ui, sans-serif;
+  font-size: 13px;
+  font-weight: 600;
+  color: #ffffff;
+}
+
+.sh-ready-item.is-ready .sh-ready-avatar {
+  background: var(--blue);
+}
+
+/* A ring rather than a text label — reads as "that one's mine" without
+   needing to parse a name, and doesn't fight with the checkmark badge or
+   truncate on a longer display name. */
+.sh-ready-item.is-me .sh-ready-avatar {
+  box-shadow: 0 0 0 2px #14161c, 0 0 0 4px #ffffff;
+}
+
+.sh-ready-badge {
+  position: absolute;
+  bottom: -2px;
+  right: -2px;
+  width: 15px;
+  height: 15px;
+  border-radius: 999px;
+  background: #3fb27f;
+  border: 2px solid #14161c;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.sh-ready-badge svg {
+  display: block;
+}
+
+.sh-ready-name {
+  font-size: 10.5px;
+  color: rgba(255, 255, 255, 0.7);
+  max-width: 52px;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.sh-ready-count {
+  width: 100%;
+  max-width: 320px;
+  text-align: center;
+  font-size: 12.5px;
+  color: rgba(255, 255, 255, 0.5);
+  margin: 12px 0 0;
 }

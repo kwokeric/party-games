@@ -25,15 +25,63 @@ const roleName = el("role-name");
 const roleDesc = el("role-desc");
 const roleTeam = el("role-team");
 const readyBtn = el("ready-btn");
+const readyStripEl = el("ready-strip");
+const readyCountEl = el("ready-count");
 
 const tableBackBtn = el("table-back-btn");
 const tableRoomCodeEl = el("table-room-code");
 const dealAgainBtn = el("deal-again-btn");
 const tableWaitingEl = el("table-waiting");
+const continueBoardBtn = el("continue-board-btn");
+
+const boardView = el("board-view");
+const boardBackBtn = el("board-back-btn");
+const boardRoomCodeEl = el("board-room-code");
+const boardLiberalTrackEl = el("board-liberal-track");
+const boardFascistTrackEl = el("board-fascist-track");
+const boardTrackerEl = el("board-tracker");
+const boardLibMinusBtn = el("board-lib-minus");
+const boardLibPlusBtn = el("board-lib-plus");
+const boardFasMinusBtn = el("board-fas-minus");
+const boardFasPlusBtn = el("board-fas-plus");
+const boardPresidentNameEl = el("board-president-name");
+const boardChancellorNameEl = el("board-chancellor-name");
+const boardViewerSelect = el("board-viewer-select");
+const nominateCtaBtn = el("nominate-cta-btn");
+const boardWaitingTextEl = el("board-waiting-text");
+
+const nominateView = el("nominate-view");
+const nominateBackBtn = el("nominate-back-btn");
+const nominateRoomCodeEl = el("nominate-room-code");
+const nominatePresidentNameEl = el("nominate-president-name");
+const nomineeListEl = el("nominee-list");
+const nominateConfirmBtn = el("nominate-confirm-btn");
+
+const voteView = el("vote-view");
+const voteBackBtn = el("vote-back-btn");
+const voteRoomCodeEl = el("vote-room-code");
+const votePresidentNameEl = el("vote-president-name");
+const voteChancellorNameEl = el("vote-chancellor-name");
+const voteViewerSelect = el("vote-viewer-select");
+const voteJaBtn = el("vote-ja-btn");
+const voteNeinBtn = el("vote-nein-btn");
+const voteStatusTextEl = el("vote-status-text");
+const voteRevealBtn = el("vote-reveal-btn");
+
+const voteRevealView = el("vote-reveal-view");
+const voteRevealBackBtn = el("vote-reveal-back-btn");
+const voteRevealRoomCodeEl = el("vote-reveal-room-code");
+const voteOutcomeBannerEl = el("vote-outcome-banner");
+const voteTallyListEl = el("vote-tally-list");
+const voteContinueBtn = el("vote-continue-btn");
 
 lobbyRoomCodeEl.textContent = room ?? "(none)";
 roleRoomCodeEl.textContent = room ?? "(none)";
 tableRoomCodeEl.textContent = room ?? "(none)";
+boardRoomCodeEl.textContent = room ?? "(none)";
+nominateRoomCodeEl.textContent = room ?? "(none)";
+voteRoomCodeEl.textContent = room ?? "(none)";
+voteRevealRoomCodeEl.textContent = room ?? "(none)";
 
 const MIN_PLAYERS = 5;
 const MAX_PLAYERS = 10;
@@ -59,6 +107,10 @@ function showView(view) {
   lobbyView.hidden = view !== "lobby";
   roleView.hidden = view !== "role";
   tableView.hidden = view !== "table";
+  boardView.hidden = view !== "board";
+  nominateView.hidden = view !== "nominate";
+  voteView.hidden = view !== "vote";
+  voteRevealView.hidden = view !== "vote-reveal";
 }
 
 function renderPlayerList() {
@@ -125,11 +177,48 @@ function renderLobby() {
   }
 }
 
+const READY_CHECK_SVG =
+  '<svg width="9" height="9" viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="4" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"></polyline></svg>';
+
+function renderReadyStrip() {
+  readyStripEl.innerHTML = "";
+  for (const p of players) {
+    const item = document.createElement("div");
+    item.className =
+      "sh-ready-item" + (p.ready ? " is-ready" : "") + (p.id === myId ? " is-me" : "");
+
+    const avatar = document.createElement("div");
+    avatar.className = "sh-ready-avatar";
+    avatar.textContent = p.name.trim().charAt(0) || "?";
+    if (p.ready) {
+      const badge = document.createElement("span");
+      badge.className = "sh-ready-badge";
+      badge.innerHTML = READY_CHECK_SVG;
+      avatar.appendChild(badge);
+    }
+
+    const name = document.createElement("span");
+    name.className = "sh-ready-name";
+    name.textContent = p.name;
+
+    item.append(avatar, name);
+    readyStripEl.appendChild(item);
+  }
+
+  const readyCount = players.filter((p) => p.ready).length;
+  readyCountEl.textContent = `${readyCount} of ${players.length} ready`;
+}
+
+function updateReadyButton() {
+  const iAmReady = players.find((p) => p.id === myId)?.ready ?? false;
+  readyBtn.disabled = !seen || iAmReady;
+  readyBtn.textContent = iAmReady ? "Waiting…" : "Ready";
+}
+
 function renderRoleCard() {
   if (!myRole) return;
   roleCard.classList.toggle("is-revealed", flipped);
-  readyBtn.disabled = !seen;
-  readyBtn.textContent = "Ready";
+  updateReadyButton();
 
   const backEl = roleCard.querySelector(".sh-card-back");
   backEl.className = "sh-card-face sh-card-back role-" + myRole.role;
@@ -166,6 +255,8 @@ function renderRoleCard() {
       });
     }
   }
+
+  renderReadyStrip();
 }
 
 roleCard.addEventListener("click", () => {
@@ -197,9 +288,280 @@ function renderTable() {
   tableWaitingEl.hidden = amHost;
 }
 
+// --- Board / nomination / voting mockup ---------------------------------
+// Everything below runs locally on this one device only (see the banner on
+// the board view) — nominating, voting, and the board state itself aren't
+// sent over the socket yet. A "viewing as" picker stands in for "each
+// player looks at their own phone" while this is still a UI mockup, same
+// pattern the role reveal started from before it got wired up for real.
+
+let board = null;
+
+function initBoard() {
+  board = {
+    liberalPolicies: 0,
+    fascistPolicies: 0,
+    tracker: 0,
+    round: 1,
+    presidentIdx: 0,
+    chancellorId: null,
+    lastPresidentId: null,
+    lastChancellorId: null,
+    votes: {},
+    viewerId: players[0]?.id ?? null,
+    pendingOutcome: false,
+  };
+}
+
+function currentPresident() {
+  if (!board || players.length === 0) return null;
+  return players[board.presidentIdx % players.length];
+}
+
+// The previous Chancellor is always term-limited out of the next
+// nomination; the previous President is too, but only once the table's
+// big enough that skipping them doesn't stall the rotation (mirrors the
+// real game's 5-6 vs 7+ player distinction).
+function eligibleNominees() {
+  const president = currentPresident();
+  return players.filter((p) => {
+    if (p.id === president?.id) return false;
+    if (p.id === board.lastChancellorId) return false;
+    if (players.length > 6 && p.id === board.lastPresidentId) return false;
+    return true;
+  });
+}
+
+function renderTrackSlots(container, total, filled) {
+  container.innerHTML = "";
+  for (let i = 0; i < total; i++) {
+    const slot = document.createElement("span");
+    slot.className = "sh-track-slot" + (i < filled ? " is-filled" : "");
+    container.appendChild(slot);
+  }
+}
+
+function populateViewerSelect(selectEl) {
+  if (selectEl.options.length !== players.length) {
+    selectEl.innerHTML = "";
+    for (const p of players) {
+      const opt = document.createElement("option");
+      opt.value = p.id;
+      opt.textContent = p.name;
+      selectEl.appendChild(opt);
+    }
+  }
+}
+
+function renderBoard() {
+  if (!board) return;
+  renderTrackSlots(boardLiberalTrackEl, 5, board.liberalPolicies);
+  renderTrackSlots(boardFascistTrackEl, 6, board.fascistPolicies);
+  renderTrackSlots(boardTrackerEl, 3, board.tracker);
+
+  const president = currentPresident();
+  boardPresidentNameEl.textContent = president ? president.name : "—";
+  const chancellor = players.find((p) => p.id === board.chancellorId);
+  boardChancellorNameEl.textContent = chancellor ? chancellor.name : "—";
+
+  populateViewerSelect(boardViewerSelect);
+  boardViewerSelect.value = board.viewerId;
+
+  const viewingPresident = board.viewerId === president?.id;
+  nominateCtaBtn.hidden = !viewingPresident;
+  boardWaitingTextEl.hidden = viewingPresident;
+  if (!viewingPresident) {
+    boardWaitingTextEl.textContent = `Waiting for ${president?.name ?? "the President"} to nominate a Chancellor…`;
+  }
+}
+
+boardLibMinusBtn.addEventListener("click", () => {
+  board.liberalPolicies = Math.max(0, board.liberalPolicies - 1);
+  renderBoard();
+});
+boardLibPlusBtn.addEventListener("click", () => {
+  board.liberalPolicies = Math.min(5, board.liberalPolicies + 1);
+  renderBoard();
+});
+boardFasMinusBtn.addEventListener("click", () => {
+  board.fascistPolicies = Math.max(0, board.fascistPolicies - 1);
+  renderBoard();
+});
+boardFasPlusBtn.addEventListener("click", () => {
+  board.fascistPolicies = Math.min(6, board.fascistPolicies + 1);
+  renderBoard();
+});
+boardViewerSelect.addEventListener("change", () => {
+  board.viewerId = boardViewerSelect.value;
+  renderBoard();
+});
+
+continueBoardBtn.addEventListener("click", () => {
+  if (!board) initBoard();
+  showView("board");
+  renderBoard();
+});
+
+nominateCtaBtn.addEventListener("click", () => {
+  showView("nominate");
+  renderNominate();
+});
+
+function renderNominate() {
+  const president = currentPresident();
+  nominatePresidentNameEl.textContent = president ? president.name : "—";
+  nominateConfirmBtn.disabled = true;
+  delete nominateConfirmBtn.dataset.nomineeId;
+
+  nomineeListEl.innerHTML = "";
+  const eligible = eligibleNominees();
+  for (const p of players) {
+    if (p.id === president?.id) continue;
+    const isEligible = eligible.some((e) => e.id === p.id);
+
+    const li = document.createElement("li");
+    const rowBtn = document.createElement("button");
+    rowBtn.type = "button";
+    rowBtn.className = "sh-nominee-row" + (isEligible ? "" : " is-ineligible");
+    rowBtn.disabled = !isEligible;
+
+    const nameSpan = document.createElement("span");
+    nameSpan.className = "sh-nominee-name";
+    nameSpan.textContent = p.name;
+    rowBtn.appendChild(nameSpan);
+
+    if (!isEligible) {
+      const note = document.createElement("span");
+      note.className = "sh-nominee-note";
+      note.textContent = "term-limited";
+      rowBtn.appendChild(note);
+    }
+
+    rowBtn.addEventListener("click", () => {
+      for (const row of nomineeListEl.querySelectorAll(".sh-nominee-row")) row.classList.remove("is-selected");
+      rowBtn.classList.add("is-selected");
+      nominateConfirmBtn.disabled = false;
+      nominateConfirmBtn.dataset.nomineeId = p.id;
+    });
+
+    li.appendChild(rowBtn);
+    nomineeListEl.appendChild(li);
+  }
+}
+
+nominateConfirmBtn.addEventListener("click", () => {
+  const nomineeId = nominateConfirmBtn.dataset.nomineeId;
+  if (!nomineeId) return;
+  board.chancellorId = nomineeId;
+  board.votes = {};
+  showView("vote");
+  renderVote();
+});
+
+function renderVote() {
+  const president = currentPresident();
+  const chancellor = players.find((p) => p.id === board.chancellorId);
+  votePresidentNameEl.textContent = president ? president.name : "—";
+  voteChancellorNameEl.textContent = chancellor ? chancellor.name : "—";
+
+  populateViewerSelect(voteViewerSelect);
+  voteViewerSelect.value = board.viewerId;
+
+  const myVote = board.votes[board.viewerId];
+  voteJaBtn.classList.toggle("is-picked", myVote === "ja");
+  voteNeinBtn.classList.toggle("is-picked", myVote === "nein");
+
+  const votedCount = Object.keys(board.votes).length;
+  const allVoted = votedCount === players.length;
+  voteStatusTextEl.textContent = allVoted ? "Everyone's voted." : `${votedCount} of ${players.length} voted.`;
+  voteRevealBtn.hidden = !allVoted;
+}
+
+voteViewerSelect.addEventListener("change", () => {
+  board.viewerId = voteViewerSelect.value;
+  renderVote();
+});
+
+// After voting, jump to the next player who hasn't voted yet — keeps a
+// "pass the device around the table" flow moving without extra taps.
+function advanceVoteViewer() {
+  const next = players.find((p) => !board.votes[p.id]);
+  if (next) board.viewerId = next.id;
+}
+
+voteJaBtn.addEventListener("click", () => {
+  board.votes[board.viewerId] = "ja";
+  advanceVoteViewer();
+  renderVote();
+});
+voteNeinBtn.addEventListener("click", () => {
+  board.votes[board.viewerId] = "nein";
+  advanceVoteViewer();
+  renderVote();
+});
+
+voteRevealBtn.addEventListener("click", () => {
+  showView("vote-reveal");
+  renderVoteReveal();
+});
+
+function renderVoteReveal() {
+  const jaCount = Object.values(board.votes).filter((v) => v === "ja").length;
+  const neinCount = Object.values(board.votes).filter((v) => v === "nein").length;
+  const passed = jaCount > neinCount;
+  board.pendingOutcome = passed;
+
+  voteOutcomeBannerEl.className = "sh-outcome-banner " + (passed ? "is-pass" : "is-fail");
+  voteOutcomeBannerEl.innerHTML = passed
+    ? `Government approved!<p>${jaCount} Ja · ${neinCount} Nein — draw and resolve the legislative session at the table.</p>`
+    : `Government rejected.<p>${jaCount} Ja · ${neinCount} Nein — the election tracker moves up${
+        board.tracker >= 2 ? " (one more fail and the top policy auto-enacts)" : ""
+      }.</p>`;
+
+  voteTallyListEl.innerHTML = "";
+  for (const p of players) {
+    const li = document.createElement("li");
+    li.className = "sh-vote-tally-row";
+    const name = document.createElement("span");
+    name.className = "sh-vote-tally-name";
+    name.textContent = p.name;
+    const badge = document.createElement("span");
+    const vote = board.votes[p.id];
+    badge.className = "sh-vote-tally-badge is-" + vote;
+    badge.textContent = vote === "ja" ? "Ja" : "Nein";
+    li.append(name, badge);
+    voteTallyListEl.appendChild(li);
+  }
+}
+
+voteContinueBtn.addEventListener("click", () => {
+  const president = currentPresident();
+  if (board.pendingOutcome) {
+    board.lastPresidentId = president?.id ?? null;
+    board.lastChancellorId = board.chancellorId;
+    board.tracker = 0;
+  } else {
+    board.tracker += 1;
+    // Chaos: three failed elections in a row auto-enacts the top policy at
+    // the table (not modeled here since there's no real policy deck yet)
+    // and resets the tracker.
+    if (board.tracker >= 3) board.tracker = 0;
+  }
+  board.chancellorId = null;
+  board.votes = {};
+  board.presidentIdx = (board.presidentIdx + 1) % Math.max(1, players.length);
+  board.round += 1;
+  showView("board");
+  renderBoard();
+});
+
 backBtn.addEventListener("click", () => (location.href = "/"));
 roleBackBtn.addEventListener("click", () => (location.href = "/"));
 tableBackBtn.addEventListener("click", () => (location.href = "/"));
+boardBackBtn.addEventListener("click", () => (location.href = "/"));
+nominateBackBtn.addEventListener("click", () => (location.href = "/"));
+voteBackBtn.addEventListener("click", () => (location.href = "/"));
+voteRevealBackBtn.addEventListener("click", () => (location.href = "/"));
 
 copyCodeBtn.addEventListener("click", async () => {
   if (!room) return;
@@ -247,15 +609,16 @@ if (!room) {
           renderLobby();
         } else if (phase === "table") {
           renderTable();
+        } else if (phase === "reveal") {
+          renderReadyStrip();
+          updateReadyButton();
         }
-        // During "reveal", the roster (players[]) is kept in sync silently —
-        // the role card itself only reflects this player's own "role"
-        // message, not the shared player list.
         break;
       case "role":
         myRole = { role: data.role, teammates: data.teammates, hidden: data.hidden };
         flipped = false;
         seen = false;
+        board = null;
         showView("role");
         renderRoleCard();
         break;
@@ -267,6 +630,7 @@ if (!room) {
         flipped = false;
         seen = false;
         myRole = null;
+        board = null;
         showView("lobby");
         renderLobby();
         break;

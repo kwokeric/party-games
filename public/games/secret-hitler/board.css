@@ -1,0 +1,350 @@
+.sh-mockup-banner {
+  width: 100%;
+  background: rgba(255, 193, 7, 0.12);
+  border: 1px solid rgba(255, 193, 7, 0.35);
+  border-radius: 12px;
+  padding: 12px 14px;
+  box-sizing: border-box;
+  margin-bottom: 20px;
+}
+
+.sh-mockup-banner p {
+  margin: 0;
+  font-size: 12.5px;
+  line-height: 1.5;
+  color: rgba(255, 255, 255, 0.75);
+}
+
+.sh-mockup-banner strong {
+  color: rgba(255, 255, 255, 0.92);
+}
+
+.sh-board {
+  width: 100%;
+  background: rgba(255, 255, 255, 0.06);
+  border-radius: 14px;
+  padding: 16px;
+  box-sizing: border-box;
+  margin-bottom: 20px;
+}
+
+.sh-track-block + .sh-track-block {
+  margin-top: 14px;
+}
+
+.sh-track-head {
+  display: flex;
+  align-items: baseline;
+  justify-content: space-between;
+  margin-bottom: 8px;
+}
+
+.sh-track-head span:first-child {
+  font-family: "Fredoka", system-ui, sans-serif;
+  font-size: 13px;
+  font-weight: 600;
+  color: rgba(255, 255, 255, 0.85);
+}
+
+.sh-track-goal {
+  font-size: 11px;
+  color: rgba(255, 255, 255, 0.45);
+}
+
+.sh-track {
+  display: flex;
+  gap: 6px;
+}
+
+.sh-track-slot {
+  flex: 1;
+  height: 34px;
+  border-radius: 7px;
+  background: rgba(255, 255, 255, 0.08);
+  border: 1px solid rgba(255, 255, 255, 0.12);
+}
+
+.sh-track-liberal .sh-track-slot.is-filled {
+  background: #0d8fd6;
+  border-color: #0d8fd6;
+}
+
+.sh-track-fascist .sh-track-slot.is-filled {
+  background: #d5484a;
+  border-color: #d5484a;
+}
+
+.sh-tracker {
+  display: flex;
+  gap: 10px;
+}
+
+.sh-tracker .sh-track-slot {
+  height: 22px;
+  border-radius: 999px;
+  flex: none;
+  width: 22px;
+}
+
+.sh-tracker .sh-track-slot.is-filled {
+  background: #e0a83b;
+  border-color: #e0a83b;
+}
+
+.sh-board-demo-controls {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  margin-top: 16px;
+  padding-top: 14px;
+  border-top: 1px dashed rgba(255, 255, 255, 0.15);
+  font-size: 11.5px;
+  color: rgba(255, 255, 255, 0.45);
+  flex-wrap: wrap;
+}
+
+.sh-board-demo-controls .lobby-stepper-btn {
+  width: 26px;
+  height: 26px;
+  font-size: 15px;
+}
+
+.sh-board-demo-controls .lobby-stepper-btn:nth-of-type(2) {
+  margin-right: 10px;
+}
+
+.sh-gov-row {
+  width: 100%;
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  background: rgba(255, 255, 255, 0.06);
+  border-radius: 14px;
+  padding: 16px;
+  box-sizing: border-box;
+  margin-bottom: 20px;
+}
+
+.sh-gov-slot {
+  flex: 1;
+  min-width: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+
+.sh-gov-arrow {
+  color: rgba(255, 255, 255, 0.3);
+  font-size: 18px;
+  flex-shrink: 0;
+}
+
+.sh-gov-role {
+  font-size: 11px;
+  font-weight: 600;
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
+  color: rgba(255, 255, 255, 0.45);
+}
+
+.sh-gov-name {
+  font-family: "Fredoka", system-ui, sans-serif;
+  font-size: 16px;
+  font-weight: 600;
+  color: #ffffff;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.sh-demo-switcher {
+  width: 100%;
+  background: rgba(255, 255, 255, 0.06);
+  border: 1px dashed rgba(255, 255, 255, 0.25);
+  border-radius: 12px;
+  padding: 12px 14px;
+  box-sizing: border-box;
+  margin-bottom: 20px;
+}
+
+.sh-demo-switcher label {
+  display: block;
+  font-family: "Fredoka", system-ui, sans-serif;
+  font-size: 12px;
+  font-weight: 600;
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
+  color: rgba(255, 255, 255, 0.55);
+  margin-bottom: 6px;
+}
+
+.sh-demo-switcher select {
+  width: 100%;
+  height: 38px;
+  border-radius: 8px;
+  border: none;
+  padding: 0 10px;
+  font-family: "Fredoka", system-ui, sans-serif;
+  font-size: 14px;
+  font-weight: 600;
+}
+
+.sh-nominee-list {
+  width: 100%;
+  list-style: none;
+  margin: 0 0 20px;
+  padding: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.sh-nominee-row {
+  width: 100%;
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  background: rgba(255, 255, 255, 0.06);
+  border: 1px solid transparent;
+  border-radius: 12px;
+  padding: 10px 14px;
+  box-sizing: border-box;
+  cursor: pointer;
+  text-align: left;
+}
+
+.sh-nominee-row.is-selected {
+  border-color: #067bc2;
+  background: rgba(6, 123, 194, 0.18);
+}
+
+.sh-nominee-row:disabled,
+.sh-nominee-row.is-ineligible {
+  opacity: 0.4;
+  cursor: not-allowed;
+}
+
+.sh-nominee-name {
+  font-family: "Fredoka", system-ui, sans-serif;
+  font-size: 14.5px;
+  font-weight: 600;
+  color: #ffffff;
+  flex: 1;
+}
+
+.sh-nominee-note {
+  font-size: 11.5px;
+  color: rgba(255, 255, 255, 0.45);
+}
+
+.sh-vote-buttons {
+  width: 100%;
+  display: flex;
+  gap: 12px;
+  margin-bottom: 14px;
+}
+
+.sh-vote-btn {
+  flex: 1;
+  height: 64px;
+  border: none;
+  border-radius: 16px;
+  font-family: "Fredoka", system-ui, sans-serif;
+  font-size: 20px;
+  font-weight: 700;
+  color: #ffffff;
+  cursor: pointer;
+}
+
+.sh-vote-btn.is-ja {
+  background: #1f9d55;
+}
+
+.sh-vote-btn.is-nein {
+  background: #d5484a;
+}
+
+.sh-vote-btn:disabled {
+  opacity: 0.4;
+  cursor: default;
+}
+
+.sh-vote-btn.is-picked {
+  box-shadow: inset 0 0 0 3px rgba(255, 255, 255, 0.65);
+}
+
+.sh-outcome-banner {
+  width: 100%;
+  border-radius: 14px;
+  padding: 18px;
+  box-sizing: border-box;
+  text-align: center;
+  margin-bottom: 20px;
+  font-family: "Fredoka", system-ui, sans-serif;
+  font-size: 17px;
+  font-weight: 700;
+  color: #ffffff;
+}
+
+.sh-outcome-banner.is-pass {
+  background: rgba(31, 157, 85, 0.25);
+  border: 1px solid rgba(31, 157, 85, 0.5);
+}
+
+.sh-outcome-banner.is-fail {
+  background: rgba(213, 72, 74, 0.25);
+  border: 1px solid rgba(213, 72, 74, 0.5);
+}
+
+.sh-outcome-banner p {
+  margin: 6px 0 0;
+  font-size: 12.5px;
+  font-weight: 400;
+  color: rgba(255, 255, 255, 0.7);
+}
+
+.sh-vote-tally-list {
+  width: 100%;
+  list-style: none;
+  margin: 0 0 20px;
+  padding: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.sh-vote-tally-row {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  background: rgba(255, 255, 255, 0.06);
+  border-radius: 12px;
+  padding: 10px 14px;
+  box-sizing: border-box;
+}
+
+.sh-vote-tally-name {
+  font-family: "Fredoka", system-ui, sans-serif;
+  font-size: 14px;
+  font-weight: 600;
+  color: #ffffff;
+  flex: 1;
+}
+
+.sh-vote-tally-badge {
+  font-family: "Fredoka", system-ui, sans-serif;
+  font-size: 12px;
+  font-weight: 700;
+  padding: 4px 10px;
+  border-radius: 999px;
+}
+
+.sh-vote-tally-badge.is-ja {
+  background: rgba(31, 157, 85, 0.25);
+  color: #4ade80;
+}
+
+.sh-vote-tally-badge.is-nein {
+  background: rgba(213, 72, 74, 0.25);
+  color: #f87171;
+}

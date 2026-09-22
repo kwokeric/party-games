@@ -1,6 +1,20 @@
 @import url("https://fonts.googleapis.com/css2?family=Fredoka:wght@500;600;700&display=swap");
 
-.lobby-view {
+/* .sh-role-view (role/table/board/etc.) sets an unconditional `display`,
+   which — being equal specificity to the UA default `[hidden]{display:none}`
+   — would otherwise win and keep a "hidden" section visible underneath
+   whichever view is actually showing. Match the Color and Guess the Size
+   both carry this same override; Secret Hitler needs it too. */
+[hidden] {
+  display: none !important;
+}
+
+/* Global, not scoped to .lobby-view — .lobby-action-btn and friends get
+   reused on the role/table/board/nominate/vote views too (all siblings of
+   .lobby-view, not descendants), and var() silently resolves to nothing
+   outside the scope it's defined in. That was quietly making every reused
+   button transparent off the lobby. */
+:root {
   --blue: #067bc2;
   --light-blue: #84bcda;
   --cream: #f0eee6;
@@ -8,7 +22,9 @@
   --ink: rgba(0, 0, 0, 0.85);
   --ink-soft: rgba(0, 0, 0, 0.6);
   --ink-faint: rgba(0, 0, 0, 0.4);
+}
 
+.lobby-view {
   margin: -2rem calc(50% - 50vw) 0;
   background: var(--cream);
   color: var(--ink);
