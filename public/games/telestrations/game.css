@@ -1,0 +1,156 @@
+.telestrations-page {
+  max-width: 1000px;
+}
+
+/* Several elements on this page set an unconditional `display` in their
+   class rule, which — being equal specificity to the UA default
+   `[hidden]{display:none}` — would otherwise win and keep them visible
+   while `hidden` is set. */
+[hidden] {
+  display: none !important;
+}
+
+.view {
+  margin-top: 1rem;
+}
+
+.guess-banner {
+  background: #067bc2;
+  padding: 16px 20px;
+  box-sizing: border-box;
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+
+.guess-icon-btn {
+  border: none;
+  cursor: pointer;
+  width: 32px;
+  height: 32px;
+  border-radius: 999px;
+  background: rgba(255, 255, 255, 0.2);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+  padding: 0;
+}
+
+.guess-banner-title {
+  font-family: "Fredoka", system-ui, sans-serif;
+  font-weight: 600;
+  font-size: 17px;
+  color: #ffffff;
+  flex: 1;
+}
+
+.guess-room-pill {
+  background: rgba(255, 255, 255, 0.16);
+  font-family: "Fredoka", system-ui, sans-serif;
+  font-weight: 600;
+  font-size: 13px;
+  letter-spacing: 1.5px;
+  color: #ffffff;
+  padding: 5px 10px;
+  border-radius: 999px;
+}
+
+.guess-status-card {
+  width: calc(100% - 40px);
+  max-width: calc(1000px - 40px);
+  min-height: 50px;
+  margin: 0 auto;
+  background: #ffffff;
+  border-radius: 0 0 16px 16px;
+  padding: 12px 14px 10px;
+  box-sizing: border-box;
+  box-shadow: 0 8px 16px rgba(6, 123, 194, 0.1);
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.countdown-status-row {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+
+.guess-status-text {
+  font-size: 12.5px;
+  color: rgba(0, 0, 0, 0.5);
+  flex: 1;
+}
+
+.guess-connection {
+  display: flex;
+  align-items: center;
+  gap: 5px;
+  font-size: 12px;
+  color: rgba(0, 0, 0, 0.5);
+}
+
+.guess-dot {
+  width: 7px;
+  height: 7px;
+  border-radius: 999px;
+  background: #9aa0ab;
+  flex-shrink: 0;
+}
+
+.guess-dot.connected {
+  background: #3fb27f;
+}
+
+.guess-dot.disconnected {
+  background: #d56062;
+}
+
+.guess-submit-btn {
+  width: 100%;
+  height: 52px;
+  margin-top: 16px;
+  border: none;
+  cursor: pointer;
+  border-radius: 15px;
+  background: #067bc2;
+  color: #ffffff;
+  font-family: "Fredoka", system-ui, sans-serif;
+  font-size: 16px;
+  font-weight: 600;
+}
+
+.guess-submit-btn:disabled {
+  background: rgba(0, 0, 0, 0.3);
+  cursor: not-allowed;
+}
+
+.countdown-bar {
+  --pct: 100;
+  width: 100%;
+  height: 9px;
+  border-radius: 999px;
+  background: rgba(0, 0, 0, 0.08);
+  overflow: hidden;
+  position: relative;
+}
+
+.countdown-bar-fill {
+  position: absolute;
+  top: 0;
+  left: 0;
+  bottom: 0;
+  width: calc(var(--pct) * 1%);
+  border-radius: 999px;
+  background: linear-gradient(90deg, #067bc2, #d56062);
+  transition: width 0.2s linear;
+}
+
+.countdown-num {
+  flex-shrink: 0;
+  font-family: "Fredoka", system-ui, sans-serif;
+  font-weight: 700;
+  font-size: 12px;
+  color: #067bc2;
+}

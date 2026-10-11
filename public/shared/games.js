@@ -24,6 +24,12 @@ const HITLER_ICON = `
   </svg>
 `;
 
+const PENCIL_ICON = `
+  <svg width="24" height="24" viewBox="0 0 24 24" fill="none">
+    <path d="M14.5 5.5L17.5 2.5C17.8 2.2 18.3 2.2 18.6 2.5L21.5 5.4C21.8 5.7 21.8 6.2 21.5 6.5L18.5 9.5M14.5 5.5L3.5 16.5L2.5 21.5L7.5 20.5L18.5 9.5M14.5 5.5L18.5 9.5" stroke="#067bc2" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"></path>
+  </svg>
+`;
+
 /** @type {{id: string, title: string, description: string, path: string, badge: string, icon: string}[]} */
 export const GAMES = [
   {
@@ -52,5 +58,14 @@ export const GAMES = [
     path: "/games/secret-hitler/",
     badge: "5-10 Players",
     icon: HITLER_ICON,
+  },
+  {
+    id: "telestrations",
+    title: "Chain Doodles",
+    description:
+      "A Telestrations-style chain game: draw a weird auto-generated prompt, guess the next player's drawing, and watch the chain drift.",
+    path: "/games/telestrations/",
+    badge: "4-8 Players",
+    icon: PENCIL_ICON,
   },
 ];

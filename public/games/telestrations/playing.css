@@ -1,0 +1,51 @@
+.playing-view {
+  margin: -2rem calc(50% - 50vw) 0;
+  padding-bottom: 32px;
+}
+
+.playing-body {
+  max-width: 1000px;
+  margin: 0 auto;
+  padding: 0 20px;
+  box-sizing: border-box;
+  display: flex;
+  flex-direction: column;
+}
+
+.playing-kind-label {
+  margin: 20px 0 0;
+  font-family: "Fredoka", system-ui, sans-serif;
+  font-size: 15px;
+  font-weight: 600;
+  color: rgba(0, 0, 0, 0.85);
+}
+
+.playing-prompt-card {
+  margin-top: 12px;
+  background: #ffffff;
+  border: 1px solid rgba(0, 0, 0, 0.08);
+  border-radius: 14px;
+  padding: 18px;
+  font-size: 18px;
+  font-weight: 600;
+  color: #067bc2;
+  text-align: center;
+}
+
+.playing-input {
+  margin-top: 16px;
+  width: 100%;
+  min-height: 90px;
+  box-sizing: border-box;
+  border: 1px solid rgba(0, 0, 0, 0.12);
+  border-radius: 14px;
+  padding: 14px;
+  font-family: system-ui, sans-serif;
+  font-size: 15px;
+  resize: vertical;
+}
+
+.playing-input:disabled {
+  background: rgba(0, 0, 0, 0.04);
+  color: rgba(0, 0, 0, 0.4);
+}

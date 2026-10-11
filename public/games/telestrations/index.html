@@ -1,0 +1,133 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Chain Doodles</title>
+    <link rel="icon" href="/favicon.ico" sizes="any" />
+    <link rel="stylesheet" href="/normalize.css" />
+    <link rel="stylesheet" href="/styles.css" />
+    <link rel="stylesheet" href="/shared/app-shell.css" />
+    <link rel="stylesheet" href="./game.css" />
+    <link rel="stylesheet" href="./lobby.css" />
+    <link rel="stylesheet" href="./playing.css" />
+    <link rel="stylesheet" href="./reveal.css" />
+    <link rel="stylesheet" href="./results.css" />
+  </head>
+  <body>
+    <main class="page telestrations-page">
+      <section id="lobby-view" class="view lobby-view">
+        <div class="app-topbar">
+          <span class="app-topbar-dot"></span>
+          <span class="app-topbar-word">PARTY GAMES</span>
+        </div>
+        <div class="app-shell">
+          <div class="app-pagehead">
+            <div class="app-pagehead-left">
+              <button id="back-btn" class="app-back-btn" type="button" aria-label="Back to home">
+                <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="#111" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><line x1="19" y1="12" x2="5" y2="12"></line><polyline points="12 19 5 12 12 5"></polyline></svg>
+              </button>
+              <div class="app-pagehead-titles">
+                <h1>Chain Doodles</h1>
+                <p>Waiting for players to join</p>
+              </div>
+            </div>
+            <button id="copy-code-btn" class="app-code-chip lobby-code-chip" type="button" aria-label="Copy room code">
+              <span id="lobby-room-code">-</span>
+              <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="9" y="9" width="13" height="13" rx="2"></rect><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"></path></svg>
+            </button>
+          </div>
+
+          <div class="lobby-panel">
+            <h3>How to play</h3>
+            <ul class="lobby-howto-list">
+              <li>Everyone gets a secret, auto-generated prompt like "Astronaut Pizza."</li>
+              <li>Take turns drawing what you're given, then guessing what the previous drawing shows — passed along a chain.</li>
+              <li>At the end, watch every chain drift from the original prompt, and vote for the funniest.</li>
+            </ul>
+            <p class="lobby-phase1-note">Phase 1 preview: rounds use text instead of real drawings — the drawing canvas comes in a later update.</p>
+          </div>
+
+          <div class="lobby-panel lobby-players-panel">
+            <h3>Players</h3>
+            <ul id="lobby-player-list" class="lobby-player-list"></ul>
+            <p id="lobby-range-hint" class="lobby-waiting"></p>
+            <button id="start-btn" class="lobby-action-btn" type="button" hidden>Start game</button>
+            <button id="ready-btn" class="lobby-action-btn" type="button" hidden>Ready up</button>
+            <p id="lobby-waiting" class="lobby-waiting" hidden></p>
+          </div>
+        </div>
+      </section>
+
+      <section id="playing-view" class="view playing-view" hidden>
+        <div class="guess-banner">
+          <button id="playing-back-btn" class="guess-icon-btn" type="button" aria-label="Back to home">
+            <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="#ffffff" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><line x1="19" y1="12" x2="5" y2="12"></line><polyline points="12 19 5 12 12 5"></polyline></svg>
+          </button>
+          <div class="guess-banner-title">Chain Doodles</div>
+          <div class="guess-room-pill" id="playing-room-code">-</div>
+        </div>
+
+        <div class="guess-status-card">
+          <div class="countdown-bar" id="countdown-ring">
+            <div class="countdown-bar-fill"></div>
+          </div>
+          <div class="countdown-status-row">
+            <span class="countdown-num" id="countdown-num">60</span>
+            <span class="guess-status-text" id="playing-status-text"></span>
+            <span class="guess-connection">
+              <span id="playing-connection-dot" class="guess-dot"></span>
+              <span id="playing-connection-text">Connecting…</span>
+            </span>
+          </div>
+        </div>
+
+        <div class="playing-body">
+          <p class="playing-kind-label" id="playing-kind-label"></p>
+          <div class="playing-prompt-card" id="playing-prompt-card"></div>
+          <textarea id="playing-input" class="playing-input" maxlength="140" placeholder=""></textarea>
+          <button id="playing-submit-btn" class="guess-submit-btn" type="button">Submit</button>
+        </div>
+      </section>
+
+      <section id="reveal-view" class="view reveal-view" hidden>
+        <div class="guess-banner">
+          <button id="reveal-back-btn" class="guess-icon-btn" type="button" aria-label="Back to home">
+            <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="#ffffff" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><line x1="19" y1="12" x2="5" y2="12"></line><polyline points="12 19 5 12 12 5"></polyline></svg>
+          </button>
+          <div class="guess-banner-title">Chain Doodles</div>
+          <div class="guess-room-pill" id="reveal-room-code">-</div>
+        </div>
+
+        <div class="guess-status-card">
+          <span class="guess-status-text" id="reveal-status-text"></span>
+          <span class="guess-status-text" id="reveal-vote-progress"></span>
+        </div>
+
+        <div class="reveal-body">
+          <ol id="reveal-chain-list" class="reveal-chain-list"></ol>
+          <button id="vote-btn" class="guess-submit-btn" type="button">😂 Vote for this chain</button>
+          <button id="next-chain-btn" class="lobby-action-btn" type="button" hidden>Next chain</button>
+        </div>
+      </section>
+
+      <section id="results-view" class="view results-view" hidden>
+        <div class="guess-banner">
+          <button id="results-back-btn" class="guess-icon-btn" type="button" aria-label="Back to home">
+            <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="#ffffff" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><line x1="19" y1="12" x2="5" y2="12"></line><polyline points="12 19 5 12 12 5"></polyline></svg>
+          </button>
+          <div class="guess-banner-title">Chain Doodles</div>
+          <div class="guess-room-pill" id="results-room-code">-</div>
+        </div>
+
+        <div class="reveal-body">
+          <h2 class="results-heading">Funniest chains</h2>
+          <ol id="results-list" class="results-chain-list"></ol>
+          <button id="play-again-btn" class="lobby-action-btn" type="button" hidden>Play again</button>
+          <p id="results-waiting" class="lobby-waiting" hidden>Waiting for the host to start a new game…</p>
+        </div>
+      </section>
+    </main>
+    <script type="module" src="./client.js"></script>
+  </body>
+</html>

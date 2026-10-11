@@ -1,0 +1,47 @@
+.reveal-view {
+  margin: -2rem calc(50% - 50vw) 0;
+  padding-bottom: 32px;
+}
+
+.reveal-body {
+  max-width: 1000px;
+  margin: 0 auto;
+  padding: 0 20px;
+  box-sizing: border-box;
+  display: flex;
+  flex-direction: column;
+}
+
+.reveal-chain-list {
+  margin: 16px 0 0;
+  padding: 0;
+  list-style: none;
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+
+.reveal-chain-entry {
+  background: #ffffff;
+  border: 1px solid rgba(0, 0, 0, 0.08);
+  border-radius: 14px;
+  padding: 14px 16px;
+}
+
+.reveal-entry-label {
+  display: block;
+  font-family: "Fredoka", system-ui, sans-serif;
+  font-size: 12px;
+  font-weight: 600;
+  letter-spacing: 0.03em;
+  text-transform: uppercase;
+  color: rgba(0, 0, 0, 0.4);
+  margin-bottom: 6px;
+}
+
+.reveal-entry-text {
+  margin: 0;
+  font-size: 16px;
+  font-weight: 600;
+  color: #067bc2;
+}

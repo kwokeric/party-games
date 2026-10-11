@@ -11,7 +11,8 @@
       { "name": "Lobby", "class_name": "Lobby" },
       { "name": "GuessTheSize", "class_name": "GuessTheSize" },
       { "name": "MatchTheColor", "class_name": "MatchTheColor" },
-      { "name": "SecretHitler", "class_name": "SecretHitler" }
+      { "name": "SecretHitler", "class_name": "SecretHitler" },
+      { "name": "Telestrations", "class_name": "Telestrations" }
     ]
   },
   "migrations": [
@@ -26,6 +27,10 @@
     {
       "tag": "v3",
       "new_sqlite_classes": ["SecretHitler"]
+    },
+    {
+      "tag": "v4",
+      "new_sqlite_classes": ["Telestrations"]
     }
   ]
 }
