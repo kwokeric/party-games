@@ -19,6 +19,16 @@ const lobbyPlayerListEl = el("lobby-player-list");
 const startBtn = el("start-btn");
 const readyBtn = el("ready-btn");
 const lobbyHintEl = el("lobby-hint");
+const lobbySettingsPanel = el("lobby-settings-panel");
+const lobbySettingsSummary = el("lobby-settings-summary");
+const durationDropdown = el("duration-dropdown");
+const durationChip = el("duration-chip");
+const durationChipText = el("duration-chip-text");
+const durationPopover = el("duration-popover");
+const difficultyDropdown = el("difficulty-dropdown");
+const difficultyChip = el("difficulty-chip");
+const difficultyChipText = el("difficulty-chip-text");
+const difficultyPopover = el("difficulty-popover");
 
 const playingBackBtn = el("playing-back-btn");
 const playingRoomCodeEl = el("playing-room-code");
@@ -41,16 +51,14 @@ const playingSubmitBtn = el("playing-submit-btn");
 const revealBackBtn = el("reveal-back-btn");
 const revealRoomCodeEl = el("reveal-room-code");
 const revealStatusTextEl = el("reveal-status-text");
-const revealVoteProgressEl = el("reveal-vote-progress");
 const revealChainListEl = el("reveal-chain-list");
-const voteBtn = el("vote-btn");
 const nextChainBtn = el("next-chain-btn");
+const revealWaitingEl = el("reveal-waiting");
 
 const resultsBackBtn = el("results-back-btn");
 const resultsRoomCodeEl = el("results-room-code");
-const resultsListEl = el("results-list");
+const resultsReadyStatusEl = el("results-ready-status");
 const playAgainBtn = el("play-again-btn");
-const resultsWaitingEl = el("results-waiting");
 
 lobbyRoomCodeEl.textContent = room ?? "(none)";
 playingRoomCodeEl.textContent = room ?? "(none)";
@@ -67,7 +75,11 @@ let roundDurationMs = 60000;
 let countdownTimer = null;
 let currentKind = null;
 let drawingApi = null;
-let hasVotedThisChain = false;
+let settings = { roundDurationMs: 60000, difficulty: "hard" };
+
+const MIN_ROUND_DURATION_MS = 20000;
+const MAX_ROUND_DURATION_MS = 100000;
+const DURATION_STEP_MS = 10000;
 
 function showView(view) {
   lobbyView.hidden = view !== "lobby";
@@ -78,6 +90,86 @@ function showView(view) {
 
 function isHost() {
   return players.find((p) => p.id === myId)?.isHost ?? false;
+}
+
+function formatDuration(ms) {
+  return `${ms / 1000}s`;
+}
+
+// Populated once — the option list itself never changes, only which one is
+// marked selected.
+for (let ms = MIN_ROUND_DURATION_MS; ms <= MAX_ROUND_DURATION_MS; ms += DURATION_STEP_MS) {
+  const opt = document.createElement("button");
+  opt.type = "button";
+  opt.className = "lobby-dropdown-option";
+  opt.dataset.ms = String(ms);
+  opt.textContent = formatDuration(ms);
+  durationPopover.appendChild(opt);
+}
+
+function closeDropdowns() {
+  for (const chip of [durationChip, difficultyChip]) {
+    chip.classList.remove("is-open");
+    chip.setAttribute("aria-expanded", "false");
+  }
+  durationPopover.hidden = true;
+  difficultyPopover.hidden = true;
+}
+
+function toggleDropdown(chip, popover) {
+  const willOpen = popover.hidden;
+  closeDropdowns();
+  chip.classList.toggle("is-open", willOpen);
+  chip.setAttribute("aria-expanded", String(willOpen));
+  popover.hidden = !willOpen;
+}
+
+durationChip.addEventListener("click", () => toggleDropdown(durationChip, durationPopover));
+difficultyChip.addEventListener("click", () => toggleDropdown(difficultyChip, difficultyPopover));
+
+durationPopover.addEventListener("click", (event) => {
+  const option = event.target.closest(".lobby-dropdown-option");
+  if (!option) return;
+  closeDropdowns();
+  sendSettings({ ...settings, roundDurationMs: Number(option.dataset.ms) });
+});
+
+difficultyPopover.addEventListener("click", (event) => {
+  const option = event.target.closest(".lobby-dropdown-option");
+  if (!option) return;
+  closeDropdowns();
+  sendSettings({ ...settings, difficulty: option.dataset.value });
+});
+
+document.addEventListener("click", (event) => {
+  if (!durationDropdown.contains(event.target) && !difficultyDropdown.contains(event.target)) closeDropdowns();
+});
+
+function renderSettings(amHost) {
+  lobbySettingsPanel.hidden = !amHost;
+  lobbySettingsSummary.hidden = amHost;
+
+  durationChipText.textContent = formatDuration(settings.roundDurationMs);
+  difficultyChipText.textContent = settings.difficulty === "easy" ? "Easy" : "Hard";
+
+  for (const opt of durationPopover.querySelectorAll(".lobby-dropdown-option")) {
+    opt.classList.toggle("is-selected", Number(opt.dataset.ms) === settings.roundDurationMs);
+  }
+  for (const opt of difficultyPopover.querySelectorAll(".lobby-dropdown-option")) {
+    opt.classList.toggle("is-selected", opt.dataset.value === settings.difficulty);
+  }
+
+  if (!amHost) {
+    lobbySettingsSummary.textContent = `${formatDuration(settings.roundDurationMs)} per round · ${
+      settings.difficulty === "easy" ? "Easy (one word)" : "Hard (two words)"
+    }`;
+  }
+}
+
+function sendSettings(next) {
+  settings = next;
+  renderSettings(true);
+  socket?.send(JSON.stringify({ type: "settings", roundDurationMs: settings.roundDurationMs, difficulty: settings.difficulty }));
 }
 
 function renderPlayers() {
@@ -131,7 +223,10 @@ function renderPlayers() {
       readyBtn.textContent = me?.ready ? "Not ready" : "Ready up";
       readyBtn.classList.toggle("is-ready", Boolean(me?.ready));
     }
+    renderSettings(amHost);
   }
+
+  if (phase === "results") updateResultsReadyUI();
 
   if (phase === "playing") {
     const submittedCount = players.filter((p) => p.submitted).length;
@@ -232,11 +327,9 @@ function sizeAndRenderCanvas(canvas, strokes) {
 
 function renderRevealChain(chainIndex, totalChains, entries) {
   phase = "reveal";
-  hasVotedThisChain = false;
   showView("reveal");
 
   revealStatusTextEl.textContent = `Chain ${chainIndex + 1} of ${totalChains}`;
-  revealVoteProgressEl.textContent = "";
   revealChainListEl.innerHTML = "";
 
   entries.forEach((entry, idx) => {
@@ -261,54 +354,38 @@ function renderRevealChain(chainIndex, totalChains, entries) {
     }
   });
 
-  voteBtn.disabled = false;
-  voteBtn.textContent = "😂 Vote for this chain";
-  nextChainBtn.hidden = !isHost();
-  nextChainBtn.textContent = chainIndex >= totalChains - 1 ? "See results" : "Next chain";
+  const amHost = isHost();
+  nextChainBtn.hidden = !amHost;
+  nextChainBtn.textContent = chainIndex >= totalChains - 1 ? "Done" : "Next chain";
+  revealWaitingEl.hidden = amHost;
 }
 
-function renderResults(chains) {
+// No votes or ranking — everyone's already seen every chain during the
+// reveal. This screen is just "ready to go again?": each non-host player
+// presses Play again once (one-way, like the lobby's ready-up), and the
+// host's own button stays disabled until every one of them has.
+function updateResultsReadyUI() {
+  const amHost = isHost();
+  const others = players.filter((p) => !p.isHost);
+  const readyCount = others.filter((p) => p.ready).length;
+
+  if (amHost) {
+    const everyoneElseReady = others.length === 0 || others.every((p) => p.ready);
+    playAgainBtn.disabled = !everyoneElseReady;
+    playAgainBtn.textContent = "Play again";
+    resultsReadyStatusEl.textContent = everyoneElseReady ? "" : `${readyCount} of ${others.length} players ready`;
+  } else {
+    const me = players.find((p) => p.id === myId);
+    playAgainBtn.disabled = Boolean(me?.ready);
+    playAgainBtn.textContent = me?.ready ? "Waiting for others…" : "Play again";
+    resultsReadyStatusEl.textContent = me?.ready ? "Waiting for the host to start a new game…" : "";
+  }
+}
+
+function renderResults() {
   phase = "results";
   showView("results");
-  resultsListEl.innerHTML = "";
-
-  chains.forEach((chain, rank) => {
-    const li = document.createElement("li");
-    li.className = "results-chain-item";
-    resultsListEl.appendChild(li); // attach first so canvas sizing below can measure it
-
-    const head = document.createElement("div");
-    head.className = "results-chain-head";
-    const rankEl = document.createElement("span");
-    rankEl.className = "results-rank";
-    rankEl.textContent = `#${rank + 1}`;
-    const votesEl = document.createElement("span");
-    votesEl.className = "results-votes";
-    votesEl.textContent = `${chain.votes} vote${chain.votes === 1 ? "" : "s"}`;
-    head.append(rankEl, votesEl);
-    li.appendChild(head);
-
-    chain.entries.forEach((entry, idx) => {
-      const label = document.createElement("p");
-      label.className = "results-entry-text";
-      const who = document.createElement("strong");
-      who.textContent = `${entryWhoLabel(entry, idx)}: `;
-      label.appendChild(who);
-
-      if (entry.type === "drawing") {
-        li.appendChild(label);
-        const canvas = createEntryCanvas("results-entry-canvas");
-        li.appendChild(canvas);
-        sizeAndRenderCanvas(canvas, entry.strokes);
-      } else {
-        label.appendChild(document.createTextNode(entry.text));
-        li.appendChild(label);
-      }
-    });
-  });
-
-  playAgainBtn.hidden = !isHost();
-  resultsWaitingEl.hidden = isHost();
+  updateResultsReadyUI();
 }
 
 playingSubmitBtn.addEventListener("click", () => {
@@ -331,20 +408,16 @@ playingSubmitBtn.addEventListener("click", () => {
 playingUndoBtn.addEventListener("click", () => drawingApi?.undo());
 playingClearBtn.addEventListener("click", () => drawingApi?.clear());
 
-voteBtn.addEventListener("click", () => {
-  if (hasVotedThisChain) return;
-  hasVotedThisChain = true;
-  voteBtn.disabled = true;
-  voteBtn.textContent = "Voted!";
-  socket?.send(JSON.stringify({ type: "vote" }));
-});
-
 nextChainBtn.addEventListener("click", () => {
   socket?.send(JSON.stringify({ type: "next-chain" }));
 });
 
 playAgainBtn.addEventListener("click", () => {
-  socket?.send(JSON.stringify({ type: "reset" }));
+  if (isHost()) {
+    socket?.send(JSON.stringify({ type: "reset" }));
+  } else {
+    socket?.send(JSON.stringify({ type: "ready" }));
+  }
 });
 
 startBtn.addEventListener("click", () => {
@@ -417,6 +490,7 @@ if (!room) {
         phase = data.phase;
         minPlayers = data.minPlayers;
         maxPlayers = data.maxPlayers;
+        if (data.settings) settings = data.settings;
         renderPlayers();
         if (phase === "lobby") showView("lobby");
         break;
@@ -426,11 +500,8 @@ if (!room) {
       case "reveal-chain":
         renderRevealChain(data.chainIndex, data.totalChains, data.entries);
         break;
-      case "vote-progress":
-        revealVoteProgressEl.textContent = `${data.votedCount} of ${data.total} voted`;
-        break;
       case "results":
-        renderResults(data.chains);
+        renderResults();
         break;
       case "lobby":
         phase = "lobby";

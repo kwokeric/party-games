@@ -7,8 +7,8 @@ import {
 import prompts from "../../public/games/telestrations/prompts.json";
 
 // The full chain-rotation engine (rotation math, private per-turn delivery,
-// alarm-forced placeholders, host-paced reveal, voting), now with real
-// freehand drawings: draw rounds submit vector strokes (see
+// alarm-forced placeholders, host-paced reveal), with real freehand
+// drawings: draw rounds submit vector strokes (see
 // public/games/telestrations/drawing.js for the client-side canvas and the
 // matching NORM_WIDTH/NORM_HEIGHT normalized space), guess rounds submit
 // text, alternating by entry index. This DO never renders a stroke itself —
@@ -19,7 +19,14 @@ type Phase = "lobby" | "playing" | "reveal" | "results";
 
 const MIN_PLAYERS = 4;
 const MAX_PLAYERS = 8;
-const ROUND_DURATION_MS = 60_000;
+
+const MIN_ROUND_DURATION_MS = 20_000;
+const MAX_ROUND_DURATION_MS = 100_000;
+const DURATION_STEP_MS = 10_000;
+const DEFAULT_ROUND_DURATION_MS = 60_000;
+
+type Difficulty = "easy" | "hard";
+const DEFAULT_DIFFICULTY: Difficulty = "hard";
 
 // Must match drawing.js's NORM_WIDTH/NORM_HEIGHT — this is the fixed space
 // every client normalizes stroke points into, so a drawing replays
@@ -49,8 +56,10 @@ function clamp(value: number, min: number, max: number): number {
   return Math.min(max, Math.max(min, value));
 }
 
-function pickPrompt(): string {
+// Easy: one plain word. Hard: the original "weird two-noun mashup" prompt.
+function pickPrompt(difficulty: Difficulty): string {
   const i = Math.floor(Math.random() * prompts.length);
+  if (difficulty === "easy") return prompts[i];
   let j = Math.floor(Math.random() * prompts.length);
   while (j === i) j = Math.floor(Math.random() * prompts.length);
   return `${prompts[i]} ${prompts[j]}`;
@@ -86,6 +95,9 @@ export default class Telestrations extends Server {
   players = new Map<string, Player>();
   phase: Phase = "lobby";
 
+  roundDurationMs = DEFAULT_ROUND_DURATION_MS;
+  difficulty: Difficulty = DEFAULT_DIFFICULTY;
+
   // Frozen at game start — the whole rotation formula below is keyed off
   // these ids, so this array must never change once a game is running.
   playerOrder: string[] = [];
@@ -95,8 +107,6 @@ export default class Telestrations extends Server {
   submittedIds = new Set<string>();
 
   revealIndex = 0;
-  votesByChain: number[] = [];
-  votedForCurrent = new Set<string>();
 
   onConnect(connection: Connection, ctx: ConnectionContext) {
     const url = new URL(ctx.request.url);
@@ -140,7 +150,13 @@ export default class Telestrations extends Server {
 
   onMessage(connection: Connection, message: WSMessage) {
     if (typeof message !== "string") return;
-    let data: { type?: string; text?: string; strokes?: unknown };
+    let data: {
+      type?: string;
+      text?: string;
+      strokes?: unknown;
+      roundDurationMs?: number;
+      difficulty?: string;
+    };
     try {
       data = JSON.parse(message);
     } catch {
@@ -149,12 +165,12 @@ export default class Telestrations extends Server {
 
     if (data.type === "start") {
       this.startGame(connection);
+    } else if (data.type === "settings") {
+      this.updateSettings(connection, data.roundDurationMs, data.difficulty);
     } else if (data.type === "ready") {
       this.handleReady(connection);
     } else if (data.type === "submit") {
       this.submitEntry(connection, data);
-    } else if (data.type === "vote") {
-      this.castVote(connection);
     } else if (data.type === "next-chain") {
       this.nextChain(connection);
     } else if (data.type === "reset") {
@@ -166,6 +182,23 @@ export default class Telestrations extends Server {
     return [...this.players.values()].some((p) => p.isHost);
   }
 
+  // Only the host, and only from the lobby — mirrors Match the Color's
+  // settings gate, so mid-game changes can't desync a round already in
+  // flight.
+  updateSettings(connection: Connection, roundDurationMs?: number, difficulty?: string) {
+    const player = this.players.get(connection.id);
+    if (!player?.isHost) return;
+    if (this.phase !== "lobby") return;
+
+    if (typeof roundDurationMs === "number") {
+      this.roundDurationMs = clamp(roundDurationMs, MIN_ROUND_DURATION_MS, MAX_ROUND_DURATION_MS);
+    }
+    if (difficulty === "easy" || difficulty === "hard") {
+      this.difficulty = difficulty;
+    }
+    this.broadcastPlayers();
+  }
+
   startGame(connection: Connection) {
     const host = this.players.get(connection.id);
     if (!host?.isHost) return;
@@ -174,7 +207,7 @@ export default class Telestrations extends Server {
 
     this.playerOrder = [...this.players.keys()];
     this.chains = this.playerOrder.map(() => ({
-      entries: [{ type: "text", text: pickPrompt() }],
+      entries: [{ type: "text", text: pickPrompt(this.difficulty) }],
     }));
     for (const p of this.players.values()) p.ready = false;
     this.beginRound(1);
@@ -185,7 +218,7 @@ export default class Telestrations extends Server {
     this.phase = "playing";
     this.submittedIds = new Set();
     for (const p of this.players.values()) p.submitted = false;
-    this.roundEndsAt = Date.now() + ROUND_DURATION_MS;
+    this.roundEndsAt = Date.now() + this.roundDurationMs;
     await this.ctx.storage.setAlarm(this.roundEndsAt);
 
     for (const p of this.players.values()) {
@@ -230,7 +263,7 @@ export default class Telestrations extends Server {
         totalRounds,
         kind: this.roundKind(this.round),
         prevEntry,
-        durationMs: ROUND_DURATION_MS,
+        durationMs: this.roundDurationMs,
         endsAt: this.roundEndsAt,
       })
     );
@@ -299,8 +332,6 @@ export default class Telestrations extends Server {
   beginReveal() {
     this.phase = "reveal";
     this.revealIndex = 0;
-    this.votesByChain = this.chains.map(() => 0);
-    this.votedForCurrent = new Set();
     this.broadcastRevealChain();
     this.broadcastPlayers();
   }
@@ -326,21 +357,6 @@ export default class Telestrations extends Server {
     );
   }
 
-  castVote(connection: Connection) {
-    if (this.phase !== "reveal") return;
-    const player = this.players.get(connection.id);
-    if (!player || this.votedForCurrent.has(player.id)) return;
-    this.votedForCurrent.add(player.id);
-    this.votesByChain[this.revealIndex] = (this.votesByChain[this.revealIndex] ?? 0) + 1;
-    this.broadcast(
-      JSON.stringify({
-        type: "vote-progress",
-        votedCount: this.votedForCurrent.size,
-        total: this.players.size,
-      })
-    );
-  }
-
   nextChain(connection: Connection) {
     const host = this.players.get(connection.id);
     if (!host?.isHost) return;
@@ -350,48 +366,56 @@ export default class Telestrations extends Server {
       this.beginResults();
     } else {
       this.revealIndex += 1;
-      this.votedForCurrent = new Set();
       this.broadcastRevealChain();
     }
   }
 
-  rankedChains() {
-    return this.chains
-      .map((_, chainIndex) => ({
-        chainIndex,
-        votes: this.votesByChain[chainIndex] ?? 0,
-        entries: this.chainEntriesForReveal(chainIndex),
-      }))
-      .sort((a, b) => b.votes - a.votes);
-  }
-
+  // No voting, no winner — everyone's already seen every chain during the
+  // reveal. This phase is just "is everyone ready to play again?", gated
+  // the same way dealing a new Secret Hitler round is: the host's own
+  // button only unlocks once every other player has readied up.
   beginResults() {
     this.phase = "results";
-    this.broadcast(JSON.stringify({ type: "results", chains: this.rankedChains() }));
+    for (const p of this.players.values()) p.ready = false;
+    this.broadcast(JSON.stringify({ type: "results" }));
     this.broadcastPlayers();
   }
 
-  // Lobby-only toggle, same as the other games' optional "I'm paying
-  // attention" signal — the host can still start regardless.
+  // A single "ready" message means different things depending on the
+  // phase: toggling the optional lobby signal, or (one-way, can't undo)
+  // confirming "play again" once the game is over.
   handleReady(connection: Connection) {
-    if (this.phase !== "lobby") return;
     const player = this.players.get(connection.id);
-    if (!player || player.isHost) return;
-    player.ready = !player.ready;
-    this.broadcastPlayers();
+    if (!player) return;
+
+    if (this.phase === "lobby") {
+      if (player.isHost) return;
+      player.ready = !player.ready;
+      this.broadcastPlayers();
+      return;
+    }
+
+    if (this.phase === "results") {
+      if (player.ready) return;
+      player.ready = true;
+      this.broadcastPlayers();
+    }
   }
 
   resetToLobby(connection: Connection) {
     const host = this.players.get(connection.id);
     if (!host?.isHost) return;
 
+    if (this.phase === "results") {
+      const everyoneElseReady = [...this.players.values()].filter((p) => !p.isHost).every((p) => p.ready);
+      if (!everyoneElseReady) return;
+    }
+
     this.phase = "lobby";
     this.playerOrder = [];
     this.chains = [];
     this.round = 0;
     this.revealIndex = 0;
-    this.votesByChain = [];
-    this.votedForCurrent = new Set();
     this.submittedIds = new Set();
     for (const p of this.players.values()) {
       p.ready = false;
@@ -417,7 +441,7 @@ export default class Telestrations extends Server {
         })
       );
     } else if (this.phase === "results") {
-      connection.send(JSON.stringify({ type: "results", chains: this.rankedChains() }));
+      connection.send(JSON.stringify({ type: "results" }));
     }
   }
 
@@ -428,6 +452,7 @@ export default class Telestrations extends Server {
         phase: this.phase,
         minPlayers: MIN_PLAYERS,
         maxPlayers: MAX_PLAYERS,
+        settings: { roundDurationMs: this.roundDurationMs, difficulty: this.difficulty },
         players: [...this.players.values()].map((p) => ({
           id: p.id,
           name: p.name,

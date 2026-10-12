@@ -43,9 +43,38 @@
             <ul class="lobby-howto-list">
               <li>Everyone gets a secret, auto-generated prompt like "Astronaut Pizza."</li>
               <li>Take turns drawing what you're given, then guessing what the previous drawing shows — passed along a chain.</li>
-              <li>At the end, watch every chain drift from the original prompt, and vote for the funniest.</li>
+              <li>At the end, watch every chain drift from the original prompt, one chain at a time.</li>
             </ul>
           </div>
+
+          <div id="lobby-settings-panel" class="lobby-panel lobby-settings-panel" hidden>
+            <h3>Round settings</h3>
+            <div class="lobby-settings-row">
+              <span class="lobby-settings-label">Time per round</span>
+              <div class="lobby-dropdown" id="duration-dropdown">
+                <button id="duration-chip" class="lobby-dropdown-chip" type="button" aria-haspopup="listbox" aria-expanded="false">
+                  <span id="duration-chip-text">60s</span>
+                  <svg width="10" height="6" viewBox="0 0 10 6"><path d="M1 1l4 4 4-4" stroke="#067bc2" stroke-width="1.6" fill="none" stroke-linecap="round" stroke-linejoin="round"/></svg>
+                </button>
+                <div id="duration-popover" class="lobby-dropdown-popover" role="listbox" hidden></div>
+              </div>
+            </div>
+            <div class="lobby-settings-row">
+              <span class="lobby-settings-label">Difficulty</span>
+              <div class="lobby-dropdown" id="difficulty-dropdown">
+                <button id="difficulty-chip" class="lobby-dropdown-chip" type="button" aria-haspopup="listbox" aria-expanded="false">
+                  <span id="difficulty-chip-text">Hard</span>
+                  <svg width="10" height="6" viewBox="0 0 10 6"><path d="M1 1l4 4 4-4" stroke="#067bc2" stroke-width="1.6" fill="none" stroke-linecap="round" stroke-linejoin="round"/></svg>
+                </button>
+                <div id="difficulty-popover" class="lobby-dropdown-popover" role="listbox" hidden>
+                  <button type="button" class="lobby-dropdown-option" data-value="easy">Easy — one word</button>
+                  <button type="button" class="lobby-dropdown-option" data-value="hard">Hard — two words</button>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <p id="lobby-settings-summary" class="lobby-settings-summary" hidden></p>
 
           <div class="lobby-panel lobby-players-panel">
             <h3>Players</h3>
@@ -112,13 +141,12 @@
 
         <div class="guess-status-card">
           <span class="guess-status-text" id="reveal-status-text"></span>
-          <span class="guess-status-text" id="reveal-vote-progress"></span>
         </div>
 
         <div class="reveal-body">
           <ol id="reveal-chain-list" class="reveal-chain-list"></ol>
-          <button id="vote-btn" class="guess-submit-btn" type="button">😂 Vote for this chain</button>
           <button id="next-chain-btn" class="lobby-action-btn" type="button" hidden>Next chain</button>
+          <p id="reveal-waiting" class="lobby-waiting" hidden>Waiting for the host to continue…</p>
         </div>
       </section>
 
@@ -132,10 +160,9 @@
         </div>
 
         <div class="reveal-body">
-          <h2 class="results-heading">Funniest chains</h2>
-          <ol id="results-list" class="results-chain-list"></ol>
-          <button id="play-again-btn" class="lobby-action-btn" type="button" hidden>Play again</button>
-          <p id="results-waiting" class="lobby-waiting" hidden>Waiting for the host to start a new game…</p>
+          <h2 class="results-heading">That's every chain!</h2>
+          <p id="results-ready-status" class="lobby-waiting results-ready-status"></p>
+          <button id="play-again-btn" class="lobby-action-btn" type="button">Play again</button>
         </div>
       </section>
     </main>
