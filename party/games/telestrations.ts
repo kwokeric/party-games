@@ -21,12 +21,12 @@ const MIN_PLAYERS = 4;
 const MAX_PLAYERS = 8;
 
 const MIN_ROUND_DURATION_MS = 20_000;
-const MAX_ROUND_DURATION_MS = 100_000;
+const MAX_ROUND_DURATION_MS = 120_000;
 const DURATION_STEP_MS = 10_000;
 const DEFAULT_ROUND_DURATION_MS = 60_000;
 
 type Difficulty = "easy" | "hard";
-const DEFAULT_DIFFICULTY: Difficulty = "hard";
+const DEFAULT_DIFFICULTY: Difficulty = "easy";
 
 // Must match drawing.js's NORM_WIDTH/NORM_HEIGHT — this is the fixed space
 // every client normalizes stroke points into, so a drawing replays

@@ -75,10 +75,10 @@ let roundDurationMs = 60000;
 let countdownTimer = null;
 let currentKind = null;
 let drawingApi = null;
-let settings = { roundDurationMs: 60000, difficulty: "hard" };
+let settings = { roundDurationMs: 60000, difficulty: "easy" };
 
 const MIN_ROUND_DURATION_MS = 20000;
-const MAX_ROUND_DURATION_MS = 100000;
+const MAX_ROUND_DURATION_MS = 120000;
 const DURATION_STEP_MS = 10000;
 
 function showView(view) {
