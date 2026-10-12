@@ -49,3 +49,47 @@
   background: rgba(0, 0, 0, 0.04);
   color: rgba(0, 0, 0, 0.4);
 }
+
+.playing-prompt-canvas-wrap {
+  margin-top: 12px;
+}
+
+/* 4:3 to match drawing.js's NORM_WIDTH/NORM_HEIGHT (1000x750), so a stroke
+   recorded on one player's canvas replays at the same proportions here. */
+#playing-prompt-canvas,
+#playing-draw-canvas {
+  width: 100%;
+  aspect-ratio: 4 / 3;
+  display: block;
+  background: #ffffff;
+  border: 1px solid rgba(0, 0, 0, 0.1);
+  border-radius: 14px;
+}
+
+.playing-draw-wrap {
+  margin-top: 12px;
+}
+
+#playing-draw-canvas {
+  touch-action: none;
+  cursor: crosshair;
+}
+
+.playing-draw-toolbar {
+  display: flex;
+  gap: 8px;
+  margin-top: 10px;
+}
+
+.playing-tool-btn {
+  flex: 1;
+  height: 38px;
+  border: none;
+  cursor: pointer;
+  border-radius: 10px;
+  background: rgba(0, 0, 0, 0.06);
+  color: rgba(0, 0, 0, 0.7);
+  font-family: "Fredoka", system-ui, sans-serif;
+  font-size: 13.5px;
+  font-weight: 600;
+}

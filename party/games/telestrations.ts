@@ -6,11 +6,14 @@ import {
 } from "partyserver";
 import prompts from "../../public/games/telestrations/prompts.json";
 
-// Phase 1: the full chain-rotation engine (rotation math, private per-turn
-// delivery, alarm-forced placeholders, host-paced reveal, voting), played
-// with plain text standing in for drawings. The canvas itself — and
-// swapping these text entries for drawn ones — lands in a later phase; the
-// message shapes here are already close to what that will need.
+// The full chain-rotation engine (rotation math, private per-turn delivery,
+// alarm-forced placeholders, host-paced reveal, voting), now with real
+// freehand drawings: draw rounds submit vector strokes (see
+// public/games/telestrations/drawing.js for the client-side canvas and the
+// matching NORM_WIDTH/NORM_HEIGHT normalized space), guess rounds submit
+// text, alternating by entry index. This DO never renders a stroke itself —
+// it only stores and relays the point data — so there's no dependency on
+// drawing.js's DOM-only pieces (canvas, pointer events) here.
 
 type Phase = "lobby" | "playing" | "reveal" | "results";
 
@@ -18,7 +21,19 @@ const MIN_PLAYERS = 4;
 const MAX_PLAYERS = 8;
 const ROUND_DURATION_MS = 60_000;
 
-type Entry = { text: string };
+// Must match drawing.js's NORM_WIDTH/NORM_HEIGHT — this is the fixed space
+// every client normalizes stroke points into, so a drawing replays
+// correctly on any viewer's screen regardless of their canvas's own size.
+const NORM_WIDTH = 1000;
+const NORM_HEIGHT = 750;
+// Generous but bounded, so a malformed or hostile client can't balloon a
+// drawing's payload before it gets relayed on to every other player.
+const MAX_STROKES = 500;
+const MAX_POINTS_PER_STROKE = 800;
+const MAX_TOTAL_POINTS = 6000;
+
+type Point = { x: number; y: number };
+type Entry = { type: "text"; text: string } | { type: "drawing"; strokes: Point[][] };
 type Chain = { entries: Entry[] };
 
 type Player = {
@@ -30,11 +45,41 @@ type Player = {
   submitted: boolean;
 };
 
+function clamp(value: number, min: number, max: number): number {
+  return Math.min(max, Math.max(min, value));
+}
+
 function pickPrompt(): string {
   const i = Math.floor(Math.random() * prompts.length);
   let j = Math.floor(Math.random() * prompts.length);
   while (j === i) j = Math.floor(Math.random() * prompts.length);
   return `${prompts[i]} ${prompts[j]}`;
+}
+
+// Never trusts the shape of client input: drops anything that isn't a
+// finite {x, y} pair, clamps coordinates into the normalized space (so an
+// out-of-range point can't break another viewer's render), and caps both
+// stroke count and points per stroke.
+function sanitizeStrokes(input: unknown): Point[][] {
+  if (!Array.isArray(input)) return [];
+  const strokes: Point[][] = [];
+  let totalPoints = 0;
+
+  for (const rawStroke of input.slice(0, MAX_STROKES)) {
+    if (!Array.isArray(rawStroke)) continue;
+    const cleaned: Point[] = [];
+    for (const rawPoint of rawStroke.slice(0, MAX_POINTS_PER_STROKE)) {
+      if (totalPoints >= MAX_TOTAL_POINTS) break;
+      const point = rawPoint as { x?: unknown; y?: unknown } | null;
+      if (!point || typeof point.x !== "number" || typeof point.y !== "number") continue;
+      if (!Number.isFinite(point.x) || !Number.isFinite(point.y)) continue;
+      cleaned.push({ x: clamp(point.x, 0, NORM_WIDTH), y: clamp(point.y, 0, NORM_HEIGHT) });
+      totalPoints++;
+    }
+    if (cleaned.length > 0) strokes.push(cleaned);
+    if (totalPoints >= MAX_TOTAL_POINTS) break;
+  }
+  return strokes;
 }
 
 export default class Telestrations extends Server {
@@ -95,7 +140,7 @@ export default class Telestrations extends Server {
 
   onMessage(connection: Connection, message: WSMessage) {
     if (typeof message !== "string") return;
-    let data: { type?: string; text?: string };
+    let data: { type?: string; text?: string; strokes?: unknown };
     try {
       data = JSON.parse(message);
     } catch {
@@ -106,8 +151,8 @@ export default class Telestrations extends Server {
       this.startGame(connection);
     } else if (data.type === "ready") {
       this.handleReady(connection);
-    } else if (data.type === "submit" && typeof data.text === "string") {
-      this.submitEntry(connection, data.text);
+    } else if (data.type === "submit") {
+      this.submitEntry(connection, data);
     } else if (data.type === "vote") {
       this.castVote(connection);
     } else if (data.type === "next-chain") {
@@ -128,7 +173,9 @@ export default class Telestrations extends Server {
     if (this.players.size < MIN_PLAYERS || this.players.size > MAX_PLAYERS) return;
 
     this.playerOrder = [...this.players.keys()];
-    this.chains = this.playerOrder.map(() => ({ entries: [{ text: pickPrompt() }] }));
+    this.chains = this.playerOrder.map(() => ({
+      entries: [{ type: "text", text: pickPrompt() }],
+    }));
     for (const p of this.players.values()) p.ready = false;
     this.beginRound(1);
   }
@@ -159,14 +206,21 @@ export default class Telestrations extends Server {
     return (((i - round) % n) + n) % n;
   }
 
+  // Odd rounds illustrate the previous (always text) entry; even rounds
+  // guess at the previous (always drawn) entry. Entry index parity mirrors
+  // this exactly: entries[0, 2, 4, ...] are text, entries[1, 3, 5, ...] are
+  // drawings — so this one check derives both.
+  roundKind(round: number): "draw" | "guess" {
+    return round % 2 === 1 ? "draw" : "guess";
+  }
+
   // Content differs for every player every round, so (unlike the broadcast-
   // heavy games) this has to go out as individual private sends.
   sendRoundTo(connection: Connection, playerId: string) {
     const chainIndex = this.chainIndexFor(playerId, this.round);
     if (chainIndex === null) return;
     const chain = this.chains[chainIndex];
-    const promptText = chain.entries[this.round - 1]?.text ?? "";
-    const kind = this.round % 2 === 1 ? "draw" : "guess";
+    const prevEntry: Entry = chain.entries[this.round - 1] ?? { type: "text", text: "" };
     const totalRounds = this.playerOrder.length - 1;
 
     connection.send(
@@ -174,24 +228,32 @@ export default class Telestrations extends Server {
         type: "round-start",
         round: this.round,
         totalRounds,
-        kind,
-        promptText,
+        kind: this.roundKind(this.round),
+        prevEntry,
         durationMs: ROUND_DURATION_MS,
         endsAt: this.roundEndsAt,
       })
     );
   }
 
-  submitEntry(connection: Connection, text: string) {
+  submitEntry(connection: Connection, data: { text?: string; strokes?: unknown }) {
     if (this.phase !== "playing") return;
     const player = this.players.get(connection.id);
     if (!player || this.submittedIds.has(player.id)) return;
     const chainIndex = this.chainIndexFor(player.id, this.round);
     if (chainIndex === null) return;
 
-    this.chains[chainIndex].entries[this.round] = {
-      text: text.trim().slice(0, 140) || "(blank)",
-    };
+    // The round's kind — not anything the client claims — decides what
+    // shape this submission must take.
+    const entry: Entry =
+      this.roundKind(this.round) === "draw"
+        ? { type: "drawing", strokes: sanitizeStrokes(data.strokes) }
+        : {
+            type: "text",
+            text: (typeof data.text === "string" ? data.text : "").trim().slice(0, 140) || "(blank)",
+          };
+
+    this.chains[chainIndex].entries[this.round] = entry;
     this.submittedIds.add(player.id);
     player.submitted = true;
     this.broadcastPlayers();
@@ -217,11 +279,13 @@ export default class Telestrations extends Server {
 
     // Anyone who never submitted (AFK, disconnected, or just too slow) gets
     // a placeholder so one stalled seat can't softlock every chain.
+    const kind = this.roundKind(this.round);
     for (const id of this.playerOrder) {
       if (this.submittedIds.has(id)) continue;
       const chainIndex = this.chainIndexFor(id, this.round);
       if (chainIndex === null) continue;
-      this.chains[chainIndex].entries[this.round] = { text: "(no answer)" };
+      this.chains[chainIndex].entries[this.round] =
+        kind === "draw" ? { type: "drawing", strokes: [] } : { type: "text", text: "(no answer)" };
     }
 
     const totalRounds = this.playerOrder.length - 1;
@@ -246,7 +310,7 @@ export default class Telestrations extends Server {
     const n = this.playerOrder.length;
     return chain.entries.map((entry, idx) => {
       const authorId = this.playerOrder[(chainIndex + idx) % n];
-      return { text: entry.text, authorName: this.players.get(authorId)?.name ?? "?" };
+      return { ...entry, authorName: this.players.get(authorId)?.name ?? "?" };
     });
   }
 

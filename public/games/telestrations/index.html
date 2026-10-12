@@ -45,7 +45,6 @@
               <li>Take turns drawing what you're given, then guessing what the previous drawing shows — passed along a chain.</li>
               <li>At the end, watch every chain drift from the original prompt, and vote for the funniest.</li>
             </ul>
-            <p class="lobby-phase1-note">Phase 1 preview: rounds use text instead of real drawings — the drawing canvas comes in a later update.</p>
           </div>
 
           <div class="lobby-panel lobby-players-panel">
@@ -83,8 +82,21 @@
 
         <div class="playing-body">
           <p class="playing-kind-label" id="playing-kind-label"></p>
-          <div class="playing-prompt-card" id="playing-prompt-card"></div>
-          <textarea id="playing-input" class="playing-input" maxlength="140" placeholder=""></textarea>
+
+          <div class="playing-prompt-card" id="playing-prompt-card" hidden></div>
+          <div class="playing-prompt-canvas-wrap" id="playing-prompt-canvas-wrap" hidden>
+            <canvas id="playing-prompt-canvas"></canvas>
+          </div>
+
+          <div class="playing-draw-wrap" id="playing-draw-wrap" hidden>
+            <canvas id="playing-draw-canvas"></canvas>
+            <div class="playing-draw-toolbar">
+              <button id="playing-undo-btn" class="playing-tool-btn" type="button">Undo</button>
+              <button id="playing-clear-btn" class="playing-tool-btn" type="button">Clear</button>
+            </div>
+          </div>
+
+          <textarea id="playing-input" class="playing-input" maxlength="140" placeholder="" hidden></textarea>
           <button id="playing-submit-btn" class="guess-submit-btn" type="button">Submit</button>
         </div>
       </section>

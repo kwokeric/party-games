@@ -1,3 +1,5 @@
+import { attachDrawingCanvas, renderStrokes } from "./drawing.js";
+
 const params = new URLSearchParams(location.search);
 const room = params.get("room");
 const isHostUrl = params.get("host") === "1";
@@ -27,6 +29,12 @@ const countdownRing = el("countdown-ring");
 const countdownNum = el("countdown-num");
 const playingKindLabelEl = el("playing-kind-label");
 const playingPromptCardEl = el("playing-prompt-card");
+const playingPromptCanvasWrapEl = el("playing-prompt-canvas-wrap");
+const playingPromptCanvasEl = el("playing-prompt-canvas");
+const playingDrawWrapEl = el("playing-draw-wrap");
+const playingDrawCanvasEl = el("playing-draw-canvas");
+const playingUndoBtn = el("playing-undo-btn");
+const playingClearBtn = el("playing-clear-btn");
 const playingInputEl = el("playing-input");
 const playingSubmitBtn = el("playing-submit-btn");
 
@@ -57,6 +65,8 @@ let maxPlayers = 8;
 let roundEndsAt = 0;
 let roundDurationMs = 60000;
 let countdownTimer = null;
+let currentKind = null;
+let drawingApi = null;
 let hasVotedThisChain = false;
 
 function showView(view) {
@@ -111,15 +121,9 @@ function renderPlayers() {
     startBtn.disabled = !inRange;
     readyBtn.hidden = amHost;
 
+    lobbyHintEl.hidden = inRange;
     if (!inRange) {
-      lobbyHintEl.hidden = false;
       lobbyHintEl.textContent = `Needs ${minPlayers}-${maxPlayers} players (currently ${count}).`;
-    } else if (!amHost) {
-      const host = players.find((p) => p.isHost);
-      lobbyHintEl.hidden = false;
-      lobbyHintEl.textContent = `Waiting for ${host?.name ?? "the host"} to start`;
-    } else {
-      lobbyHintEl.hidden = true;
     }
 
     if (!amHost) {
@@ -151,29 +155,86 @@ function tickCountdown() {
   if (remainingMs <= 0) stopCountdown();
 }
 
-function startPlaying(round, totalRounds, kind, promptText, durationMs, endsAt) {
+function renderPromptCanvas(strokes) {
+  const rect = playingPromptCanvasEl.getBoundingClientRect();
+  const dpr = window.devicePixelRatio || 1;
+  playingPromptCanvasEl.width = Math.round(rect.width * dpr);
+  playingPromptCanvasEl.height = Math.round(rect.height * dpr);
+  renderStrokes(playingPromptCanvasEl.getContext("2d"), strokes, playingPromptCanvasEl.width, playingPromptCanvasEl.height);
+}
+
+function startPlaying(round, totalRounds, kind, prevEntry, durationMs, endsAt) {
   phase = "playing";
+  currentKind = kind;
   roundDurationMs = durationMs;
   roundEndsAt = endsAt;
+  showView("playing");
+
   playingKindLabelEl.textContent =
-    kind === "draw"
-      ? `Round ${round} of ${totalRounds} — Draw this (Phase 1 stand-in: describe it in words)`
-      : `Round ${round} of ${totalRounds} — Guess what this describes`;
-  playingPromptCardEl.textContent = promptText;
-  playingInputEl.value = "";
-  playingInputEl.placeholder = kind === "draw" ? "Describe what you'd draw…" : "Your guess…";
-  playingInputEl.disabled = false;
+    kind === "draw" ? `Round ${round} of ${totalRounds} — Draw this` : `Round ${round} of ${totalRounds} — Guess what this drawing shows`;
+
+  // What you're responding to: a text prompt (always true on draw rounds)
+  // or a drawing to interpret (always true on guess rounds).
+  const showingText = prevEntry.type === "text";
+  playingPromptCardEl.hidden = !showingText;
+  playingPromptCanvasWrapEl.hidden = showingText;
+  if (showingText) {
+    playingPromptCardEl.textContent = prevEntry.text;
+  } else {
+    renderPromptCanvas(prevEntry.strokes);
+  }
+
+  // Your response surface: the real drawing canvas, or a text box.
+  if (drawingApi) {
+    drawingApi.destroy();
+    drawingApi = null;
+  }
+  const isDraw = kind === "draw";
+  playingDrawWrapEl.hidden = !isDraw;
+  playingInputEl.hidden = isDraw;
+  if (isDraw) {
+    drawingApi = attachDrawingCanvas(playingDrawCanvasEl, {});
+  } else {
+    playingInputEl.value = "";
+    playingInputEl.placeholder = "Your guess…";
+    playingInputEl.disabled = false;
+  }
+
   playingSubmitBtn.disabled = false;
   playingSubmitBtn.textContent = "Submit";
-  showView("playing");
   stopCountdown();
   tickCountdown();
   countdownTimer = setInterval(tickCountdown, 250);
 }
 
+function entryWhoLabel(entry, idx) {
+  if (idx === 0) return "The prompt";
+  return idx % 2 === 1 ? `${entry.authorName} drew` : `${entry.authorName} guessed`;
+}
+
+// Sizing/rendering a canvas needs it already attached to the document (an
+// unattached or hidden element measures as 0x0), so this creates it, lets
+// the caller attach it, then renders — call sizeAndRenderCanvas only AFTER
+// appending the returned element.
+function createEntryCanvas(className) {
+  const canvas = document.createElement("canvas");
+  canvas.className = className;
+  return canvas;
+}
+
+function sizeAndRenderCanvas(canvas, strokes) {
+  const rect = canvas.getBoundingClientRect();
+  const dpr = window.devicePixelRatio || 1;
+  canvas.width = Math.round(rect.width * dpr);
+  canvas.height = Math.round(rect.height * dpr);
+  renderStrokes(canvas.getContext("2d"), strokes, canvas.width, canvas.height);
+}
+
 function renderRevealChain(chainIndex, totalChains, entries) {
   phase = "reveal";
   hasVotedThisChain = false;
+  showView("reveal");
+
   revealStatusTextEl.textContent = `Chain ${chainIndex + 1} of ${totalChains}`;
   revealVoteProgressEl.textContent = "";
   revealChainListEl.innerHTML = "";
@@ -181,38 +242,40 @@ function renderRevealChain(chainIndex, totalChains, entries) {
   entries.forEach((entry, idx) => {
     const li = document.createElement("li");
     li.className = "reveal-chain-entry";
+    revealChainListEl.appendChild(li); // attach first so canvas sizing below can measure it
 
     const label = document.createElement("span");
     label.className = "reveal-entry-label";
-    label.textContent =
-      idx === 0
-        ? "The prompt"
-        : idx % 2 === 1
-          ? `${entry.authorName} drew`
-          : `${entry.authorName} guessed`;
+    label.textContent = entryWhoLabel(entry, idx);
+    li.appendChild(label);
 
-    const text = document.createElement("p");
-    text.className = "reveal-entry-text";
-    text.textContent = entry.text;
-
-    li.append(label, text);
-    revealChainListEl.appendChild(li);
+    if (entry.type === "drawing") {
+      const canvas = createEntryCanvas("reveal-entry-canvas");
+      li.appendChild(canvas);
+      sizeAndRenderCanvas(canvas, entry.strokes);
+    } else {
+      const text = document.createElement("p");
+      text.className = "reveal-entry-text";
+      text.textContent = entry.text;
+      li.appendChild(text);
+    }
   });
 
   voteBtn.disabled = false;
   voteBtn.textContent = "😂 Vote for this chain";
   nextChainBtn.hidden = !isHost();
   nextChainBtn.textContent = chainIndex >= totalChains - 1 ? "See results" : "Next chain";
-  showView("reveal");
 }
 
 function renderResults(chains) {
   phase = "results";
+  showView("results");
   resultsListEl.innerHTML = "";
 
   chains.forEach((chain, rank) => {
     const li = document.createElement("li");
     li.className = "results-chain-item";
+    resultsListEl.appendChild(li); // attach first so canvas sizing below can measure it
 
     const head = document.createElement("div");
     head.className = "results-chain-head";
@@ -226,30 +289,47 @@ function renderResults(chains) {
     li.appendChild(head);
 
     chain.entries.forEach((entry, idx) => {
-      const p = document.createElement("p");
-      p.className = "results-entry-text";
+      const label = document.createElement("p");
+      label.className = "results-entry-text";
       const who = document.createElement("strong");
-      who.textContent = `${idx === 0 ? "Prompt" : idx % 2 === 1 ? `${entry.authorName} drew` : `${entry.authorName} guessed`}: `;
-      p.append(who, document.createTextNode(entry.text));
-      li.appendChild(p);
-    });
+      who.textContent = `${entryWhoLabel(entry, idx)}: `;
+      label.appendChild(who);
 
-    resultsListEl.appendChild(li);
+      if (entry.type === "drawing") {
+        li.appendChild(label);
+        const canvas = createEntryCanvas("results-entry-canvas");
+        li.appendChild(canvas);
+        sizeAndRenderCanvas(canvas, entry.strokes);
+      } else {
+        label.appendChild(document.createTextNode(entry.text));
+        li.appendChild(label);
+      }
+    });
   });
 
   playAgainBtn.hidden = !isHost();
   resultsWaitingEl.hidden = isHost();
-  showView("results");
 }
 
 playingSubmitBtn.addEventListener("click", () => {
-  const text = playingInputEl.value.trim();
-  if (!text) return;
-  socket?.send(JSON.stringify({ type: "submit", text }));
+  if (currentKind === "draw") {
+    socket?.send(JSON.stringify({ type: "submit", strokes: drawingApi?.getStrokes() ?? [] }));
+  } else {
+    const text = playingInputEl.value.trim();
+    if (!text) return;
+    socket?.send(JSON.stringify({ type: "submit", text }));
+  }
   playingInputEl.disabled = true;
   playingSubmitBtn.disabled = true;
   playingSubmitBtn.textContent = "Waiting for others…";
+  if (drawingApi) {
+    drawingApi.destroy();
+    drawingApi = null;
+  }
 });
+
+playingUndoBtn.addEventListener("click", () => drawingApi?.undo());
+playingClearBtn.addEventListener("click", () => drawingApi?.clear());
 
 voteBtn.addEventListener("click", () => {
   if (hasVotedThisChain) return;
@@ -341,7 +421,7 @@ if (!room) {
         if (phase === "lobby") showView("lobby");
         break;
       case "round-start":
-        startPlaying(data.round, data.totalRounds, data.kind, data.promptText, data.durationMs, data.endsAt);
+        startPlaying(data.round, data.totalRounds, data.kind, data.prevEntry, data.durationMs, data.endsAt);
         break;
       case "reveal-chain":
         renderRevealChain(data.chainIndex, data.totalChains, data.entries);

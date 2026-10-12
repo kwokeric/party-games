@@ -57,3 +57,14 @@
   color: rgba(0, 0, 0, 0.5);
   font-weight: 600;
 }
+
+.results-entry-canvas {
+  display: block;
+  width: 100%;
+  max-width: 360px;
+  aspect-ratio: 4 / 3;
+  background: #ffffff;
+  border: 1px solid rgba(0, 0, 0, 0.08);
+  border-radius: 10px;
+  margin: 0 0 8px;
+}
