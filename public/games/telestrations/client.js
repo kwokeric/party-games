@@ -457,7 +457,7 @@ copyCodeBtn.addEventListener("click", async () => {
 let socket;
 
 if (!room) {
-  console.warn("Chain Doodles loaded without a room code.");
+  console.warn("Telestrations loaded without a room code.");
 } else {
   const protocol = location.protocol === "https:" ? "wss:" : "ws:";
   const connectParams = new URLSearchParams();

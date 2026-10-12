@@ -61,9 +61,9 @@ export const GAMES = [
   },
   {
     id: "telestrations",
-    title: "Chain Doodles",
+    title: "Telestrations",
     description:
-      "A Telestrations-style chain game: draw a weird auto-generated prompt, guess the next player's drawing, and watch the chain drift.",
+      "Draw a weird auto-generated prompt, guess the next player's drawing, and watch the chain drift all the way around the table.",
     path: "/games/telestrations/",
     badge: "4-8 Players",
     icon: PENCIL_ICON,
