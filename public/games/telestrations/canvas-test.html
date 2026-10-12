@@ -1,0 +1,151 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Chain Doodles — canvas test harness</title>
+    <style>
+      body {
+        margin: 0;
+        font-family: system-ui, sans-serif;
+        background: #f0eee6;
+        color: rgba(0, 0, 0, 0.85);
+        padding: 20px;
+        box-sizing: border-box;
+      }
+      h1 {
+        font-size: 18px;
+        margin: 0 0 4px;
+      }
+      p.sub {
+        margin: 0 0 20px;
+        font-size: 13px;
+        color: rgba(0, 0, 0, 0.5);
+      }
+      .panels {
+        display: flex;
+        flex-wrap: wrap;
+        gap: 20px;
+      }
+      .panel {
+        flex: 1 1 320px;
+        min-width: 280px;
+        max-width: 420px;
+      }
+      .panel h2 {
+        font-size: 13px;
+        text-transform: uppercase;
+        letter-spacing: 0.04em;
+        color: rgba(0, 0, 0, 0.45);
+        margin: 0 0 8px;
+      }
+      canvas {
+        width: 100%;
+        aspect-ratio: 4 / 3;
+        display: block;
+        background: #ffffff;
+        border: 1px solid rgba(0, 0, 0, 0.12);
+        border-radius: 12px;
+        touch-action: none;
+      }
+      .toolbar {
+        display: flex;
+        gap: 8px;
+        margin-top: 10px;
+      }
+      button {
+        cursor: pointer;
+        border: none;
+        border-radius: 8px;
+        padding: 8px 14px;
+        background: #067bc2;
+        color: #fff;
+        font-size: 13px;
+        font-weight: 600;
+      }
+      button.secondary {
+        background: rgba(0, 0, 0, 0.08);
+        color: rgba(0, 0, 0, 0.7);
+      }
+      #status {
+        margin-top: 10px;
+        font-size: 12.5px;
+        color: rgba(0, 0, 0, 0.55);
+      }
+      pre {
+        background: #ffffff;
+        border: 1px solid rgba(0, 0, 0, 0.1);
+        border-radius: 8px;
+        padding: 10px;
+        font-size: 11px;
+        max-height: 260px;
+        overflow: auto;
+        white-space: pre-wrap;
+        word-break: break-all;
+      }
+    </style>
+  </head>
+  <body>
+    <h1>Canvas test harness (Phase 2 — standalone, no server)</h1>
+    <p class="sub">
+      Draw on the left. "Submit" serializes the strokes to JSON (exactly what would go over the WebSocket), then
+      parses that JSON back and redraws it on the right — proving the stroke data round-trips without needing the
+      server.
+    </p>
+    <div class="panels">
+      <div class="panel">
+        <h2>Draw here</h2>
+        <canvas id="draw-canvas"></canvas>
+        <div class="toolbar">
+          <button id="undo-btn" class="secondary" type="button">Undo</button>
+          <button id="clear-btn" class="secondary" type="button">Clear</button>
+          <button id="submit-btn" type="button">Submit →</button>
+        </div>
+        <p id="status">0 strokes</p>
+      </div>
+      <div class="panel">
+        <h2>Replayed from JSON (right side of the wire)</h2>
+        <canvas id="replay-canvas"></canvas>
+        <p id="replay-status">Nothing submitted yet.</p>
+        <pre id="json-output"></pre>
+      </div>
+    </div>
+
+    <script type="module">
+      import { attachDrawingCanvas, renderStrokes } from "./drawing.js";
+
+      const drawCanvas = document.getElementById("draw-canvas");
+      const replayCanvas = document.getElementById("replay-canvas");
+      const undoBtn = document.getElementById("undo-btn");
+      const clearBtn = document.getElementById("clear-btn");
+      const submitBtn = document.getElementById("submit-btn");
+      const statusEl = document.getElementById("status");
+      const replayStatusEl = document.getElementById("replay-status");
+      const jsonOutputEl = document.getElementById("json-output");
+
+      const drawing = attachDrawingCanvas(drawCanvas, {
+        onChange: (state) => {
+          statusEl.textContent = `${state.strokes.length} stroke${state.strokes.length === 1 ? "" : "s"}`;
+        },
+      });
+
+      undoBtn.addEventListener("click", () => drawing.undo());
+      clearBtn.addEventListener("click", () => drawing.clear());
+
+      submitBtn.addEventListener("click", () => {
+        const payload = JSON.stringify({ type: "submit", strokes: drawing.getStrokes() });
+        jsonOutputEl.textContent = payload;
+
+        const parsed = JSON.parse(payload);
+        const rect = replayCanvas.getBoundingClientRect();
+        const dpr = window.devicePixelRatio || 1;
+        replayCanvas.width = Math.round(rect.width * dpr);
+        replayCanvas.height = Math.round(rect.height * dpr);
+        renderStrokes(replayCanvas.getContext("2d"), parsed.strokes, replayCanvas.width, replayCanvas.height);
+
+        const bytes = new Blob([payload]).size;
+        replayStatusEl.textContent = `Replayed ${parsed.strokes.length} stroke(s) from ${bytes.toLocaleString()} bytes of JSON.`;
+      });
+    </script>
+  </body>
+</html>

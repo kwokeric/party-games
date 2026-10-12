@@ -14,10 +14,9 @@ const backBtn = el("back-btn");
 const lobbyRoomCodeEl = el("lobby-room-code");
 const copyCodeBtn = el("copy-code-btn");
 const lobbyPlayerListEl = el("lobby-player-list");
-const lobbyRangeHintEl = el("lobby-range-hint");
 const startBtn = el("start-btn");
 const readyBtn = el("ready-btn");
-const lobbyWaitingEl = el("lobby-waiting");
+const lobbyHintEl = el("lobby-hint");
 
 const playingBackBtn = el("playing-back-btn");
 const playingRoomCodeEl = el("playing-room-code");
@@ -111,11 +110,19 @@ function renderPlayers() {
     startBtn.hidden = !amHost;
     startBtn.disabled = !inRange;
     readyBtn.hidden = amHost;
-    lobbyWaitingEl.hidden = amHost;
-    lobbyRangeHintEl.textContent = inRange ? "" : `Needs ${minPlayers}-${maxPlayers} players (currently ${count}).`;
-    if (!amHost) {
+
+    if (!inRange) {
+      lobbyHintEl.hidden = false;
+      lobbyHintEl.textContent = `Needs ${minPlayers}-${maxPlayers} players (currently ${count}).`;
+    } else if (!amHost) {
       const host = players.find((p) => p.isHost);
-      lobbyWaitingEl.textContent = `Waiting for ${host?.name ?? "the host"} to start`;
+      lobbyHintEl.hidden = false;
+      lobbyHintEl.textContent = `Waiting for ${host?.name ?? "the host"} to start`;
+    } else {
+      lobbyHintEl.hidden = true;
+    }
+
+    if (!amHost) {
       const me = players.find((p) => p.id === myId);
       readyBtn.textContent = me?.ready ? "Not ready" : "Ready up";
       readyBtn.classList.toggle("is-ready", Boolean(me?.ready));
