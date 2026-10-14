@@ -209,16 +209,21 @@ function renderPlayers() {
     const amHost = isHost();
     const count = players.length;
     const inRange = count >= minPlayers && count <= maxPlayers;
+    const others = players.filter((p) => !p.isHost);
+    const everyoneElseReady = others.every((p) => p.ready);
     startBtn.hidden = !amHost;
-    startBtn.disabled = !inRange;
+    startBtn.disabled = !inRange || !everyoneElseReady;
     readyBtn.hidden = amHost;
 
-    lobbyHintEl.hidden = inRange;
-    if (!inRange) {
-      lobbyHintEl.textContent = `Needs ${minPlayers}-${maxPlayers} players (currently ${count}).`;
-    }
-
-    if (!amHost) {
+    if (amHost) {
+      lobbyHintEl.hidden = inRange && everyoneElseReady;
+      if (!inRange) {
+        lobbyHintEl.textContent = `Needs ${minPlayers}-${maxPlayers} players (currently ${count}).`;
+      } else if (!everyoneElseReady) {
+        lobbyHintEl.textContent = "Waiting for everyone to ready up before you can start.";
+      }
+    } else {
+      lobbyHintEl.hidden = true;
       const me = players.find((p) => p.id === myId);
       readyBtn.textContent = me?.ready ? "Not ready" : "Ready up";
       readyBtn.classList.toggle("is-ready", Boolean(me?.ready));
@@ -241,13 +246,40 @@ function stopCountdown() {
   }
 }
 
+// Shared by the Submit button and the countdown hitting zero. A manual
+// click still requires non-empty guess text (force=false); once time's up,
+// whatever is on the canvas or in the box goes in as-is (force=true) — the
+// server would otherwise silently replace it with a blank placeholder the
+// moment its own alarm fires, discarding real work just because Submit was
+// never explicitly clicked.
+function submitCurrentEntry(force) {
+  if (playingSubmitBtn.disabled) return;
+  if (currentKind === "draw") {
+    socket?.send(JSON.stringify({ type: "submit", strokes: drawingApi?.getStrokes() ?? [] }));
+  } else {
+    const text = playingInputEl.value.trim();
+    if (!text && !force) return;
+    socket?.send(JSON.stringify({ type: "submit", text }));
+  }
+  playingInputEl.disabled = true;
+  playingSubmitBtn.disabled = true;
+  playingSubmitBtn.textContent = "Waiting for others…";
+  if (drawingApi) {
+    drawingApi.destroy();
+    drawingApi = null;
+  }
+}
+
 function tickCountdown() {
   const remainingMs = Math.max(0, roundEndsAt - Date.now());
   const remainingS = Math.ceil(remainingMs / 1000);
   countdownNum.textContent = String(remainingS);
   const pct = roundDurationMs ? Math.max(0, Math.min(100, (remainingMs / roundDurationMs) * 100)) : 100;
   countdownRing.style.setProperty("--pct", String(pct));
-  if (remainingMs <= 0) stopCountdown();
+  if (remainingMs <= 0) {
+    stopCountdown();
+    submitCurrentEntry(true);
+  }
 }
 
 function renderPromptCanvas(strokes) {
@@ -388,22 +420,7 @@ function renderResults() {
   updateResultsReadyUI();
 }
 
-playingSubmitBtn.addEventListener("click", () => {
-  if (currentKind === "draw") {
-    socket?.send(JSON.stringify({ type: "submit", strokes: drawingApi?.getStrokes() ?? [] }));
-  } else {
-    const text = playingInputEl.value.trim();
-    if (!text) return;
-    socket?.send(JSON.stringify({ type: "submit", text }));
-  }
-  playingInputEl.disabled = true;
-  playingSubmitBtn.disabled = true;
-  playingSubmitBtn.textContent = "Waiting for others…";
-  if (drawingApi) {
-    drawingApi.destroy();
-    drawingApi = null;
-  }
-});
+playingSubmitBtn.addEventListener("click", () => submitCurrentEntry(false));
 
 playingUndoBtn.addEventListener("click", () => drawingApi?.undo());
 playingClearBtn.addEventListener("click", () => drawingApi?.clear());

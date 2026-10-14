@@ -205,6 +205,9 @@ export default class Telestrations extends Server {
     if (this.phase !== "lobby") return;
     if (this.players.size < MIN_PLAYERS || this.players.size > MAX_PLAYERS) return;
 
+    const everyoneElseReady = [...this.players.values()].filter((p) => !p.isHost).every((p) => p.ready);
+    if (!everyoneElseReady) return;
+
     this.playerOrder = [...this.players.keys()];
     this.chains = this.playerOrder.map(() => ({
       entries: [{ type: "text", text: pickPrompt(this.difficulty) }],

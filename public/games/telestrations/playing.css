@@ -35,14 +35,13 @@
 .playing-input {
   margin-top: 16px;
   width: 100%;
-  min-height: 90px;
+  height: 48px;
   box-sizing: border-box;
   border: 1px solid rgba(0, 0, 0, 0.12);
   border-radius: 14px;
-  padding: 14px;
+  padding: 0 14px;
   font-family: system-ui, sans-serif;
   font-size: 15px;
-  resize: vertical;
 }
 
 .playing-input:disabled {
