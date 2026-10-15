@@ -3,6 +3,15 @@
   padding-bottom: 32px;
 }
 
+.reveal-body {
+  max-width: 1000px;
+  margin: 0 auto;
+  padding: 0 20px;
+  box-sizing: border-box;
+  display: flex;
+  flex-direction: column;
+}
+
 .results-heading {
   margin: 20px 0 0;
   font-family: "Fredoka", system-ui, sans-serif;
@@ -10,6 +19,92 @@
   color: rgba(0, 0, 0, 0.85);
 }
 
+.reveal-chain-list {
+  margin: 16px 0 0;
+  padding: 0;
+  list-style: none;
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+
+.reveal-chain-entry {
+  background: #ffffff;
+  border: 1px solid rgba(0, 0, 0, 0.08);
+  border-radius: 14px;
+  padding: 14px 16px;
+}
+
+.reveal-entry-label {
+  display: block;
+  font-family: "Fredoka", system-ui, sans-serif;
+  font-size: 12px;
+  font-weight: 600;
+  letter-spacing: 0.03em;
+  text-transform: uppercase;
+  color: rgba(0, 0, 0, 0.4);
+  margin-bottom: 6px;
+}
+
+.reveal-entry-text {
+  margin: 0;
+  font-size: 16px;
+  font-weight: 600;
+  color: #067bc2;
+}
+
+.reveal-entry-canvas {
+  display: block;
+  width: 100%;
+  max-width: 360px;
+  aspect-ratio: 4 / 3;
+  background: #ffffff;
+  border: 1px solid rgba(0, 0, 0, 0.08);
+  border-radius: 10px;
+}
+
+/* The pagination control — "at the bottom" of each chain's drawings,
+   letting every player browse back and forth through all the chains
+   independently, at their own pace (no host pacing anymore). */
+.chain-pager {
+  margin-top: 16px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 16px;
+}
+
+.chain-pager-btn {
+  width: 40px;
+  height: 40px;
+  border: none;
+  cursor: pointer;
+  border-radius: 999px;
+  background: #067bc2;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+}
+
+.chain-pager-btn:disabled {
+  background: rgba(0, 0, 0, 0.15);
+  cursor: not-allowed;
+}
+
+.chain-pager-btn:disabled svg {
+  opacity: 0.5;
+}
+
+.chain-pager-label {
+  min-width: 110px;
+  text-align: center;
+  font-family: "Fredoka", system-ui, sans-serif;
+  font-size: 14px;
+  font-weight: 600;
+  color: rgba(0, 0, 0, 0.7);
+}
+
 .results-ready-status {
-  margin: 10px 0 20px;
+  margin: 20px 0 20px;
 }

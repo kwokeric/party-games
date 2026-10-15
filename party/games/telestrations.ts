@@ -7,15 +7,15 @@ import {
 import prompts from "../../public/games/telestrations/prompts.json";
 
 // The full chain-rotation engine (rotation math, private per-turn delivery,
-// alarm-forced placeholders, host-paced reveal), with real freehand
-// drawings: draw rounds submit vector strokes (see
+// alarm-forced placeholders, a freely-browsable reveal at the end), with
+// real freehand drawings: draw rounds submit vector strokes (see
 // public/games/telestrations/drawing.js for the client-side canvas and the
 // matching NORM_WIDTH/NORM_HEIGHT normalized space), guess rounds submit
 // text, alternating by entry index. This DO never renders a stroke itself —
 // it only stores and relays the point data — so there's no dependency on
 // drawing.js's DOM-only pieces (canvas, pointer events) here.
 
-type Phase = "lobby" | "playing" | "reveal" | "results";
+type Phase = "lobby" | "playing" | "results";
 
 const MIN_PLAYERS = 4;
 const MAX_PLAYERS = 8;
@@ -105,8 +105,13 @@ export default class Telestrations extends Server {
   round = 0; // 1..N-1 while playing
   roundEndsAt = 0;
   submittedIds = new Set<string>();
-
-  revealIndex = 0;
+  // Latest in-progress strokes per player for the current draw round, kept
+  // up to date as they draw (not just at submit time). The client's own
+  // timeout auto-submit can lose the race against the server's alarm —
+  // especially a backgrounded tab, where browsers throttle JS timers but
+  // this alarm fires regardless — so the alarm-driven placeholder below
+  // falls back to the latest draft instead of a blank canvas.
+  drafts = new Map<string, Point[][]>();
 
   onConnect(connection: Connection, ctx: ConnectionContext) {
     const url = new URL(ctx.request.url);
@@ -171,8 +176,8 @@ export default class Telestrations extends Server {
       this.handleReady(connection);
     } else if (data.type === "submit") {
       this.submitEntry(connection, data);
-    } else if (data.type === "next-chain") {
-      this.nextChain(connection);
+    } else if (data.type === "draft") {
+      this.saveDraft(connection, data.strokes);
     } else if (data.type === "reset") {
       this.resetToLobby(connection);
     }
@@ -220,6 +225,7 @@ export default class Telestrations extends Server {
     this.round = round;
     this.phase = "playing";
     this.submittedIds = new Set();
+    this.drafts = new Map();
     for (const p of this.players.values()) p.submitted = false;
     this.roundEndsAt = Date.now() + this.roundDurationMs;
     await this.ctx.storage.setAlarm(this.roundEndsAt);
@@ -291,9 +297,21 @@ export default class Telestrations extends Server {
 
     this.chains[chainIndex].entries[this.round] = entry;
     this.submittedIds.add(player.id);
+    this.drafts.delete(player.id);
     player.submitted = true;
     this.broadcastPlayers();
     this.checkAllSubmitted();
+  }
+
+  // Lightweight, silent update of what a player has drawn so far this
+  // round — not a submission (doesn't mark them as submitted, doesn't
+  // broadcast). Purely a safety net for resolveRound's placeholder below.
+  saveDraft(connection: Connection, strokes: unknown) {
+    if (this.phase !== "playing") return;
+    if (this.roundKind(this.round) !== "draw") return;
+    const player = this.players.get(connection.id);
+    if (!player || this.submittedIds.has(player.id)) return;
+    this.drafts.set(player.id, sanitizeStrokes(strokes));
   }
 
   // Checked against the frozen seat list, not however many players are
@@ -313,30 +331,25 @@ export default class Telestrations extends Server {
   async resolveRound() {
     await this.ctx.storage.deleteAlarm();
 
-    // Anyone who never submitted (AFK, disconnected, or just too slow) gets
-    // a placeholder so one stalled seat can't softlock every chain.
+    // Anyone who never explicitly submitted (AFK, disconnected, backgrounded
+    // tab, or just too slow) gets whatever they'd drawn so far instead of a
+    // blank canvas — only an actually-blank draft (or no draft at all)
+    // falls back to an empty drawing.
     const kind = this.roundKind(this.round);
     for (const id of this.playerOrder) {
       if (this.submittedIds.has(id)) continue;
       const chainIndex = this.chainIndexFor(id, this.round);
       if (chainIndex === null) continue;
       this.chains[chainIndex].entries[this.round] =
-        kind === "draw" ? { type: "drawing", strokes: [] } : { type: "text", text: "(no answer)" };
+        kind === "draw" ? { type: "drawing", strokes: this.drafts.get(id) ?? [] } : { type: "text", text: "(no answer)" };
     }
 
     const totalRounds = this.playerOrder.length - 1;
     if (this.round >= totalRounds) {
-      this.beginReveal();
+      this.finishGame();
     } else {
       await this.beginRound(this.round + 1);
     }
-  }
-
-  beginReveal() {
-    this.phase = "reveal";
-    this.revealIndex = 0;
-    this.broadcastRevealChain();
-    this.broadcastPlayers();
   }
 
   chainEntriesForReveal(chainIndex: number) {
@@ -348,39 +361,20 @@ export default class Telestrations extends Server {
     });
   }
 
-  broadcastRevealChain() {
-    if (!this.chains[this.revealIndex]) return;
-    this.broadcast(
-      JSON.stringify({
-        type: "reveal-chain",
-        chainIndex: this.revealIndex,
-        totalChains: this.chains.length,
-        entries: this.chainEntriesForReveal(this.revealIndex),
-      })
-    );
+  allChainsForReveal() {
+    return this.chains.map((_, chainIndex) => this.chainEntriesForReveal(chainIndex));
   }
 
-  nextChain(connection: Connection) {
-    const host = this.players.get(connection.id);
-    if (!host?.isHost) return;
-    if (this.phase !== "reveal") return;
-
-    if (this.revealIndex >= this.chains.length - 1) {
-      this.beginResults();
-    } else {
-      this.revealIndex += 1;
-      this.broadcastRevealChain();
-    }
-  }
-
-  // No voting, no winner — everyone's already seen every chain during the
-  // reveal. This phase is just "is everyone ready to play again?", gated
-  // the same way dealing a new Secret Hitler round is: the host's own
-  // button only unlocks once every other player has readied up.
-  beginResults() {
+  // No host-paced stepping and no voting — every chain goes out to
+  // everyone at once, so each player can page back and forth through them
+  // independently and at their own pace. This phase then doubles as "is
+  // everyone ready to play again?", gated the same way dealing a new
+  // Secret Hitler round is: the host's own button only unlocks once every
+  // other player has readied up.
+  finishGame() {
     this.phase = "results";
     for (const p of this.players.values()) p.ready = false;
-    this.broadcast(JSON.stringify({ type: "results" }));
+    this.broadcast(JSON.stringify({ type: "results", chains: this.allChainsForReveal() }));
     this.broadcastPlayers();
   }
 
@@ -418,8 +412,8 @@ export default class Telestrations extends Server {
     this.playerOrder = [];
     this.chains = [];
     this.round = 0;
-    this.revealIndex = 0;
     this.submittedIds = new Set();
+    this.drafts = new Map();
     for (const p of this.players.values()) {
       p.ready = false;
       p.submitted = false;
@@ -434,17 +428,8 @@ export default class Telestrations extends Server {
 
     if (this.phase === "playing") {
       this.sendRoundTo(connection, player.id);
-    } else if (this.phase === "reveal" && this.chains[this.revealIndex]) {
-      connection.send(
-        JSON.stringify({
-          type: "reveal-chain",
-          chainIndex: this.revealIndex,
-          totalChains: this.chains.length,
-          entries: this.chainEntriesForReveal(this.revealIndex),
-        })
-      );
     } else if (this.phase === "results") {
-      connection.send(JSON.stringify({ type: "results" }));
+      connection.send(JSON.stringify({ type: "results", chains: this.allChainsForReveal() }));
     }
   }
 

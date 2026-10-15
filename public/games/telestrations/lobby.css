@@ -1,6 +1,6 @@
 @import url("https://fonts.googleapis.com/css2?family=Fredoka:wght@500;600;700&display=swap");
 
-.lobby-view {
+:root {
   --blue: #067bc2;
   --light-blue: #84bcda;
   --cream: #f0eee6;
@@ -8,7 +8,9 @@
   --ink: rgba(0, 0, 0, 0.85);
   --ink-soft: rgba(0, 0, 0, 0.6);
   --ink-faint: rgba(0, 0, 0, 0.4);
+}
 
+.lobby-view {
   margin: -2rem calc(50% - 50vw) 0;
   background: var(--cream);
   color: var(--ink);

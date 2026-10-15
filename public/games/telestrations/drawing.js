@@ -98,10 +98,13 @@ export function renderStrokes(ctx, strokes, canvasWidth, canvasHeight, options =
 // the strokes out to submit). Sizes the canvas's backing bitmap by
 // devicePixelRatio for crisp lines, while all stroke math stays in the
 // normalized space above so the DPR scaling never leaks into the data.
+const DRAFT_THROTTLE_MS = 250;
+
 export function attachDrawingCanvas(canvasEl, options = {}) {
   const ctx = canvasEl.getContext("2d");
   const state = createDrawingState();
   let activePointerId = null;
+  let lastChangeNotifyAt = 0;
 
   function resize() {
     const rect = canvasEl.getBoundingClientRect();
@@ -120,19 +123,36 @@ export function attachDrawingCanvas(canvasEl, options = {}) {
     return toNormalizedPoint(event.clientX, event.clientY, rect);
   }
 
+  function notifyChange() {
+    lastChangeNotifyAt = Date.now();
+    options.onChange?.(state);
+  }
+
+  // A long, uninterrupted drag only calls pointerdown and pointerup once
+  // each, many seconds apart — if a caller uses onChange to mirror strokes
+  // elsewhere (e.g. a live "draft" checkpoint in case a round's timer cuts
+  // the drag off mid-stroke), that checkpoint would otherwise sit stale for
+  // the drag's entire duration. Throttled rather than per-pointermove
+  // (which can fire 60+ times/sec) to keep that mirroring cheap.
+  function notifyChangeThrottled() {
+    if (Date.now() - lastChangeNotifyAt < DRAFT_THROTTLE_MS) return;
+    notifyChange();
+  }
+
   function onPointerDown(event) {
     if (activePointerId !== null) return;
     activePointerId = event.pointerId;
     canvasEl.setPointerCapture(activePointerId);
     beginStroke(state, pointFromEvent(event));
     redraw();
-    options.onChange?.(state);
+    notifyChange();
   }
 
   function onPointerMove(event) {
     if (event.pointerId !== activePointerId) return;
     addPoint(state, pointFromEvent(event));
     redraw();
+    notifyChangeThrottled();
   }
 
   function onPointerUp(event) {
@@ -140,7 +160,7 @@ export function attachDrawingCanvas(canvasEl, options = {}) {
     canvasEl.releasePointerCapture(activePointerId);
     activePointerId = null;
     endStroke(state);
-    options.onChange?.(state);
+    notifyChange();
   }
 
   canvasEl.addEventListener("pointerdown", onPointerDown);
@@ -156,12 +176,12 @@ export function attachDrawingCanvas(canvasEl, options = {}) {
     undo() {
       undo(state);
       redraw();
-      options.onChange?.(state);
+      notifyChange();
     },
     clear() {
       clear(state);
       redraw();
-      options.onChange?.(state);
+      notifyChange();
     },
     getStrokes() {
       return state.strokes;

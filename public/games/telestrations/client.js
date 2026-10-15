@@ -9,7 +9,6 @@ const el = (id) => document.getElementById(id);
 
 const lobbyView = el("lobby-view");
 const playingView = el("playing-view");
-const revealView = el("reveal-view");
 const resultsView = el("results-view");
 
 const backBtn = el("back-btn");
@@ -48,21 +47,17 @@ const playingClearBtn = el("playing-clear-btn");
 const playingInputEl = el("playing-input");
 const playingSubmitBtn = el("playing-submit-btn");
 
-const revealBackBtn = el("reveal-back-btn");
-const revealRoomCodeEl = el("reveal-room-code");
-const revealStatusTextEl = el("reveal-status-text");
-const revealChainListEl = el("reveal-chain-list");
-const nextChainBtn = el("next-chain-btn");
-const revealWaitingEl = el("reveal-waiting");
-
 const resultsBackBtn = el("results-back-btn");
 const resultsRoomCodeEl = el("results-room-code");
+const chainEntryListEl = el("chain-entry-list");
+const chainPrevBtn = el("chain-prev-btn");
+const chainNextBtn = el("chain-next-btn");
+const chainPagerLabelEl = el("chain-pager-label");
 const resultsReadyStatusEl = el("results-ready-status");
 const playAgainBtn = el("play-again-btn");
 
 lobbyRoomCodeEl.textContent = room ?? "(none)";
 playingRoomCodeEl.textContent = room ?? "(none)";
-revealRoomCodeEl.textContent = room ?? "(none)";
 resultsRoomCodeEl.textContent = room ?? "(none)";
 
 let myId = null;
@@ -75,7 +70,10 @@ let roundDurationMs = 60000;
 let countdownTimer = null;
 let currentKind = null;
 let drawingApi = null;
+let alreadySubmitted = false;
 let settings = { roundDurationMs: 60000, difficulty: "easy" };
+let allChains = [];
+let currentChainIndex = 0;
 
 const MIN_ROUND_DURATION_MS = 20000;
 const MAX_ROUND_DURATION_MS = 120000;
@@ -84,7 +82,6 @@ const DURATION_STEP_MS = 10000;
 function showView(view) {
   lobbyView.hidden = view !== "lobby";
   playingView.hidden = view !== "playing";
-  revealView.hidden = view !== "reveal";
   resultsView.hidden = view !== "results";
 }
 
@@ -253,7 +250,7 @@ function stopCountdown() {
 // moment its own alarm fires, discarding real work just because Submit was
 // never explicitly clicked.
 function submitCurrentEntry(force) {
-  if (playingSubmitBtn.disabled) return;
+  if (alreadySubmitted) return;
   if (currentKind === "draw") {
     socket?.send(JSON.stringify({ type: "submit", strokes: drawingApi?.getStrokes() ?? [] }));
   } else {
@@ -261,6 +258,7 @@ function submitCurrentEntry(force) {
     if (!text && !force) return;
     socket?.send(JSON.stringify({ type: "submit", text }));
   }
+  alreadySubmitted = true;
   playingInputEl.disabled = true;
   playingSubmitBtn.disabled = true;
   playingSubmitBtn.textContent = "Waiting for others…";
@@ -268,6 +266,16 @@ function submitCurrentEntry(force) {
     drawingApi.destroy();
     drawingApi = null;
   }
+}
+
+// The button starts disabled each round (nothing to submit yet) and stays
+// that way until there's a real guess typed or at least one stroke drawn —
+// this only governs the manual click; the timeout path (force=true above)
+// still submits whatever exists, even nothing, once time is actually up.
+function updateSubmitEnabled() {
+  if (alreadySubmitted) return;
+  playingSubmitBtn.disabled =
+    currentKind === "draw" ? !drawingApi || drawingApi.isEmpty() : playingInputEl.value.trim().length === 0;
 }
 
 function tickCountdown() {
@@ -293,6 +301,7 @@ function renderPromptCanvas(strokes) {
 function startPlaying(round, totalRounds, kind, prevEntry, durationMs, endsAt) {
   phase = "playing";
   currentKind = kind;
+  alreadySubmitted = false;
   roundDurationMs = durationMs;
   roundEndsAt = endsAt;
   showView("playing");
@@ -320,15 +329,25 @@ function startPlaying(round, totalRounds, kind, prevEntry, durationMs, endsAt) {
   playingDrawWrapEl.hidden = !isDraw;
   playingInputEl.hidden = isDraw;
   if (isDraw) {
-    drawingApi = attachDrawingCanvas(playingDrawCanvasEl, {});
+    drawingApi = attachDrawingCanvas(playingDrawCanvasEl, {
+      // Keeps the server's copy of "what has this player drawn so far"
+      // fresh after every completed stroke (not a submission — just a
+      // draft), so a timeout that beats this tab's own auto-submit (a
+      // backgrounded/throttled tab, a slow network) still has real strokes
+      // to fall back to instead of a blank canvas.
+      onChange: (state) => {
+        socket?.send(JSON.stringify({ type: "draft", strokes: state.strokes }));
+        updateSubmitEnabled();
+      },
+    });
   } else {
     playingInputEl.value = "";
     playingInputEl.placeholder = "Your guess…";
     playingInputEl.disabled = false;
   }
 
-  playingSubmitBtn.disabled = false;
   playingSubmitBtn.textContent = "Submit";
+  updateSubmitEnabled();
   stopCountdown();
   tickCountdown();
   countdownTimer = setInterval(tickCountdown, 250);
@@ -357,17 +376,18 @@ function sizeAndRenderCanvas(canvas, strokes) {
   renderStrokes(canvas.getContext("2d"), strokes, canvas.width, canvas.height);
 }
 
-function renderRevealChain(chainIndex, totalChains, entries) {
-  phase = "reveal";
-  showView("reveal");
-
-  revealStatusTextEl.textContent = `Chain ${chainIndex + 1} of ${totalChains}`;
-  revealChainListEl.innerHTML = "";
+// Renders whichever chain is currently paged to. Entirely local/client-side
+// — every chain's full data already arrived in one "results" message, so
+// paging back and forth is instant and independent per player, with no
+// server round-trip and no one else's view moving along with it.
+function renderChainPage() {
+  const entries = allChains[currentChainIndex] ?? [];
+  chainEntryListEl.innerHTML = "";
 
   entries.forEach((entry, idx) => {
     const li = document.createElement("li");
     li.className = "reveal-chain-entry";
-    revealChainListEl.appendChild(li); // attach first so canvas sizing below can measure it
+    chainEntryListEl.appendChild(li); // attach first so canvas sizing below can measure it
 
     const label = document.createElement("span");
     label.className = "reveal-entry-label";
@@ -386,16 +406,15 @@ function renderRevealChain(chainIndex, totalChains, entries) {
     }
   });
 
-  const amHost = isHost();
-  nextChainBtn.hidden = !amHost;
-  nextChainBtn.textContent = chainIndex >= totalChains - 1 ? "Done" : "Next chain";
-  revealWaitingEl.hidden = amHost;
+  chainPagerLabelEl.textContent = `Chain ${currentChainIndex + 1} of ${allChains.length}`;
+  chainPrevBtn.disabled = currentChainIndex <= 0;
+  chainNextBtn.disabled = currentChainIndex >= allChains.length - 1;
 }
 
-// No votes or ranking — everyone's already seen every chain during the
-// reveal. This screen is just "ready to go again?": each non-host player
-// presses Play again once (one-way, like the lobby's ready-up), and the
-// host's own button stays disabled until every one of them has.
+// No votes or ranking — everyone can browse every chain at their own pace.
+// This screen is also "ready to go again?": each non-host player presses
+// Play again once (one-way, like the lobby's ready-up), and the host's own
+// button stays disabled until every one of them has.
 function updateResultsReadyUI() {
   const amHost = isHost();
   const others = players.filter((p) => !p.isHost);
@@ -414,9 +433,12 @@ function updateResultsReadyUI() {
   }
 }
 
-function renderResults() {
+function renderResults(chains) {
   phase = "results";
+  allChains = chains;
+  currentChainIndex = 0;
   showView("results");
+  renderChainPage();
   updateResultsReadyUI();
 }
 
@@ -424,9 +446,18 @@ playingSubmitBtn.addEventListener("click", () => submitCurrentEntry(false));
 
 playingUndoBtn.addEventListener("click", () => drawingApi?.undo());
 playingClearBtn.addEventListener("click", () => drawingApi?.clear());
+playingInputEl.addEventListener("input", updateSubmitEnabled);
 
-nextChainBtn.addEventListener("click", () => {
-  socket?.send(JSON.stringify({ type: "next-chain" }));
+chainPrevBtn.addEventListener("click", () => {
+  if (currentChainIndex <= 0) return;
+  currentChainIndex -= 1;
+  renderChainPage();
+});
+
+chainNextBtn.addEventListener("click", () => {
+  if (currentChainIndex >= allChains.length - 1) return;
+  currentChainIndex += 1;
+  renderChainPage();
 });
 
 playAgainBtn.addEventListener("click", () => {
@@ -448,9 +479,6 @@ backBtn.addEventListener("click", () => {
   location.href = "/";
 });
 playingBackBtn.addEventListener("click", () => {
-  location.href = "/";
-});
-revealBackBtn.addEventListener("click", () => {
   location.href = "/";
 });
 resultsBackBtn.addEventListener("click", () => {
@@ -514,11 +542,8 @@ if (!room) {
       case "round-start":
         startPlaying(data.round, data.totalRounds, data.kind, data.prevEntry, data.durationMs, data.endsAt);
         break;
-      case "reveal-chain":
-        renderRevealChain(data.chainIndex, data.totalChains, data.entries);
-        break;
       case "results":
-        renderResults();
+        renderResults(data.chains);
         break;
       case "lobby":
         phase = "lobby";

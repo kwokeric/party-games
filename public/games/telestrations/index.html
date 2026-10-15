@@ -11,7 +11,6 @@
     <link rel="stylesheet" href="./game.css" />
     <link rel="stylesheet" href="./lobby.css" />
     <link rel="stylesheet" href="./playing.css" />
-    <link rel="stylesheet" href="./reveal.css" />
     <link rel="stylesheet" href="./results.css" />
   </head>
   <body>
@@ -43,7 +42,7 @@
             <ul class="lobby-howto-list">
               <li>Everyone gets a secret, auto-generated prompt like "Astronaut Pizza."</li>
               <li>Take turns drawing what you're given, then guessing what the previous drawing shows — passed along a chain.</li>
-              <li>At the end, watch every chain drift from the original prompt, one chain at a time.</li>
+              <li>At the end, browse back and forth through every chain to see how far each one drifted.</li>
             </ul>
           </div>
 
@@ -130,26 +129,6 @@
         </div>
       </section>
 
-      <section id="reveal-view" class="view reveal-view" hidden>
-        <div class="guess-banner">
-          <button id="reveal-back-btn" class="guess-icon-btn" type="button" aria-label="Back to home">
-            <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="#ffffff" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><line x1="19" y1="12" x2="5" y2="12"></line><polyline points="12 19 5 12 12 5"></polyline></svg>
-          </button>
-          <div class="guess-banner-title">Telestrations</div>
-          <div class="guess-room-pill" id="reveal-room-code">-</div>
-        </div>
-
-        <div class="guess-status-card">
-          <span class="guess-status-text" id="reveal-status-text"></span>
-        </div>
-
-        <div class="reveal-body">
-          <ol id="reveal-chain-list" class="reveal-chain-list"></ol>
-          <button id="next-chain-btn" class="lobby-action-btn" type="button" hidden>Next chain</button>
-          <p id="reveal-waiting" class="lobby-waiting" hidden>Waiting for the host to continue…</p>
-        </div>
-      </section>
-
       <section id="results-view" class="view results-view" hidden>
         <div class="guess-banner">
           <button id="results-back-btn" class="guess-icon-btn" type="button" aria-label="Back to home">
@@ -160,7 +139,19 @@
         </div>
 
         <div class="reveal-body">
-          <h2 class="results-heading">That's every chain!</h2>
+          <h2 class="results-heading">Every chain</h2>
+          <ol id="chain-entry-list" class="reveal-chain-list"></ol>
+
+          <div class="chain-pager">
+            <button id="chain-prev-btn" class="chain-pager-btn" type="button" aria-label="Previous chain">
+              <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#ffffff" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="15 18 9 12 15 6"></polyline></svg>
+            </button>
+            <span id="chain-pager-label" class="chain-pager-label">Chain 1 of 1</span>
+            <button id="chain-next-btn" class="chain-pager-btn" type="button" aria-label="Next chain">
+              <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#ffffff" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="9 18 15 12 9 6"></polyline></svg>
+            </button>
+          </div>
+
           <p id="results-ready-status" class="lobby-waiting results-ready-status"></p>
           <button id="play-again-btn" class="lobby-action-btn" type="button">Play again</button>
         </div>
