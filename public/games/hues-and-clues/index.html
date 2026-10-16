@@ -1,0 +1,193 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Hues and Clues</title>
+    <link rel="icon" href="/favicon.ico" sizes="any" />
+    <link rel="stylesheet" href="/normalize.css" />
+    <link rel="stylesheet" href="/styles.css" />
+    <link rel="stylesheet" href="/shared/app-shell.css" />
+    <link rel="stylesheet" href="./game.css" />
+    <link rel="stylesheet" href="./lobby.css" />
+    <link rel="stylesheet" href="./turn.css" />
+    <link rel="stylesheet" href="./guessing.css" />
+    <link rel="stylesheet" href="./reveal.css" />
+    <link rel="stylesheet" href="./final.css" />
+  </head>
+  <body>
+    <main class="page hc-page">
+      <section id="lobby-view" class="view lobby-view">
+        <div class="app-topbar">
+          <span class="app-topbar-dot"></span>
+          <span class="app-topbar-word">PARTY GAMES</span>
+        </div>
+        <div class="app-shell">
+          <div class="app-pagehead">
+            <div class="app-pagehead-left">
+              <button id="back-btn" class="app-back-btn" type="button" aria-label="Back to home">
+                <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="#111" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><line x1="19" y1="12" x2="5" y2="12"></line><polyline points="12 19 5 12 12 5"></polyline></svg>
+              </button>
+              <div class="app-pagehead-titles">
+                <h1>Hues and Clues</h1>
+                <p>Waiting for players to join</p>
+              </div>
+            </div>
+            <button id="copy-code-btn" class="app-code-chip lobby-code-chip" type="button" aria-label="Copy room code">
+              <span id="lobby-room-code">-</span>
+              <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="9" y="9" width="13" height="13" rx="2"></rect><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"></path></svg>
+            </button>
+          </div>
+
+          <div class="lobby-panel">
+            <h3>How to play</h3>
+            <ul class="lobby-howto-list">
+              <li>Each round, one player picks a secret color on the grid.</li>
+              <li>They give everyone ONE word as a clue — no color names allowed.</li>
+              <li>Everyone else taps the grid to guess. Closest guess scores the most: 3 pts right on, 2 pts one away, 1 pt two away, 0 otherwise.</li>
+              <li>Clue-giving rotates until everyone's had a turn.</li>
+            </ul>
+          </div>
+
+          <div class="lobby-panel lobby-players-panel">
+            <h3>Players</h3>
+            <ul id="lobby-player-list" class="lobby-player-list"></ul>
+            <button id="start-btn" class="lobby-action-btn" type="button" hidden>Start game</button>
+            <button id="ready-btn" class="lobby-action-btn" type="button" hidden>Ready up</button>
+            <p id="lobby-hint" class="lobby-hint" hidden></p>
+          </div>
+        </div>
+      </section>
+
+      <section id="turn-view" class="view turn-view" hidden>
+        <div class="guess-banner">
+          <button id="turn-back-btn" class="guess-icon-btn" type="button" aria-label="Back to home">
+            <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="#ffffff" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><line x1="19" y1="12" x2="5" y2="12"></line><polyline points="12 19 5 12 12 5"></polyline></svg>
+          </button>
+          <div class="guess-banner-title">Hues and Clues</div>
+          <div class="guess-room-pill" id="turn-room-code">-</div>
+        </div>
+
+        <div class="guess-status-card">
+          <div class="countdown-bar" id="turn-countdown-ring">
+            <div class="countdown-bar-fill"></div>
+          </div>
+          <div class="countdown-status-row">
+            <span class="countdown-num" id="turn-countdown-num">60</span>
+            <span class="guess-status-text" id="turn-status-text"></span>
+          </div>
+        </div>
+
+        <!-- clue-giver only: step 1, pick one of 4 cards -->
+        <div id="card-draw-body" class="screen-body" hidden>
+          <p class="kind-label">Pick one of these 4 colors — that's what you'll clue everyone toward</p>
+          <div id="card-grid" class="card-grid"></div>
+          <p class="hint-note">Tap a card to pick it — you can change your mind before confirming.</p>
+          <button id="confirm-card-btn" class="lobby-action-btn" type="button" disabled>Confirm color</button>
+        </div>
+
+        <!-- clue-giver only: step 2, give the clue -->
+        <div id="give-clue-body" class="screen-body" hidden>
+          <p class="kind-label">Give everyone a one-word clue for your color</p>
+          <div class="grid-viewport" id="mine-viewport">
+            <div class="grid-content" id="mine-grid"></div>
+            <div class="zoom-controls">
+              <button class="zoom-btn" id="mine-zoom-in" type="button" aria-label="Zoom in">+</button>
+              <button class="zoom-btn" id="mine-zoom-out" type="button" aria-label="Zoom out">–</button>
+            </div>
+          </div>
+          <p class="hint-note">Only you can see the pin.</p>
+          <input id="clue-input" class="clue-input" type="text" maxlength="24" placeholder="One word only…" />
+          <button id="submit-clue-btn" class="guess-submit-btn" type="button" disabled>Send clue</button>
+        </div>
+
+        <!-- everyone else -->
+        <div id="waiting-for-clue-body" class="screen-body" hidden>
+          <p id="waiting-for-clue-text" class="hint-note waiting-text"></p>
+        </div>
+      </section>
+
+      <section id="guessing-view" class="view guessing-view" hidden>
+        <div class="guess-banner">
+          <button id="guessing-back-btn" class="guess-icon-btn" type="button" aria-label="Back to home">
+            <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="#ffffff" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><line x1="19" y1="12" x2="5" y2="12"></line><polyline points="12 19 5 12 12 5"></polyline></svg>
+          </button>
+          <div class="guess-banner-title">Hues and Clues</div>
+          <div class="guess-room-pill" id="guessing-room-code">-</div>
+        </div>
+
+        <div class="guess-status-card">
+          <div class="countdown-bar" id="guessing-countdown-ring">
+            <div class="countdown-bar-fill"></div>
+          </div>
+          <div class="countdown-status-row">
+            <span class="countdown-num" id="guessing-countdown-num">45</span>
+            <span class="guess-status-text" id="guessing-status-text"></span>
+          </div>
+        </div>
+
+        <div class="screen-body">
+          <div id="clue-banner" class="clue-banner"></div>
+
+          <div id="guess-interactive-body" hidden>
+            <div class="grid-viewport" id="guess-viewport">
+              <div class="grid-content" id="guess-grid"></div>
+              <div class="zoom-controls">
+                <button class="zoom-btn" id="guess-zoom-in" type="button" aria-label="Zoom in">+</button>
+                <button class="zoom-btn" id="guess-zoom-out" type="button" aria-label="Zoom out">–</button>
+              </div>
+            </div>
+            <p class="hint-note">Pinch or scroll to zoom · drag to pan · tap a cell to guess.</p>
+            <button id="lock-guess-btn" class="guess-submit-btn" type="button" disabled>Lock in guess</button>
+          </div>
+
+          <p id="guess-waiting-text" class="hint-note waiting-text" hidden>Everyone's guessing your color now…</p>
+        </div>
+      </section>
+
+      <section id="reveal-view" class="view reveal-view" hidden>
+        <div class="guess-banner">
+          <button id="reveal-back-btn" class="guess-icon-btn" type="button" aria-label="Back to home">
+            <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="#ffffff" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><line x1="19" y1="12" x2="5" y2="12"></line><polyline points="12 19 5 12 12 5"></polyline></svg>
+          </button>
+          <div class="guess-banner-title">Hues and Clues</div>
+          <div class="guess-room-pill" id="reveal-room-code">-</div>
+        </div>
+
+        <div class="guess-status-card">
+          <span class="guess-status-text" id="reveal-status-text"></span>
+        </div>
+
+        <div class="screen-body">
+          <div class="grid-viewport" id="reveal-viewport">
+            <div class="grid-content" id="reveal-grid"></div>
+            <div class="zoom-controls">
+              <button class="zoom-btn" id="reveal-zoom-in" type="button" aria-label="Zoom in">+</button>
+              <button class="zoom-btn" id="reveal-zoom-out" type="button" aria-label="Zoom out">–</button>
+            </div>
+          </div>
+          <ol id="results-list" class="results-list"></ol>
+          <p class="hint-note">3 pts right on · 2 pts one away · 1 pt two away · 0 otherwise</p>
+          <button id="continue-btn" class="lobby-action-btn" type="button">Continue</button>
+        </div>
+      </section>
+
+      <section id="final-view" class="view final-view" hidden>
+        <div class="guess-banner">
+          <button id="final-back-btn" class="guess-icon-btn" type="button" aria-label="Back to home">
+            <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="#ffffff" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><line x1="19" y1="12" x2="5" y2="12"></line><polyline points="12 19 5 12 12 5"></polyline></svg>
+          </button>
+          <div class="guess-banner-title">Hues and Clues</div>
+          <div class="guess-room-pill" id="final-room-code">-</div>
+        </div>
+
+        <div class="screen-body">
+          <h2 class="final-heading">Final standings</h2>
+          <ol id="standings-list" class="standings-list"></ol>
+          <button id="play-again-btn" class="lobby-action-btn" type="button">Play again</button>
+        </div>
+      </section>
+    </main>
+    <script type="module" src="./client.js"></script>
+  </body>
+</html>

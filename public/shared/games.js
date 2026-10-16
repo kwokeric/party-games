@@ -30,6 +30,16 @@ const PENCIL_ICON = `
   </svg>
 `;
 
+const PALETTE_ICON = `
+  <svg width="24" height="24" viewBox="0 0 24 24" fill="none">
+    <path d="M12 3C7.03 3 3 6.58 3 11c0 2.21 1.79 3 4 3h1.5a1.5 1.5 0 0 1 0 3H8c-.55 0-1 .45-1 1 0 1.66 2.24 3 5 3 4.97 0 9-4.03 9-9s-4.03-9-9-9Z" stroke="#067bc2" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"></path>
+    <circle cx="7.5" cy="10.5" r="1.15" fill="#067bc2"></circle>
+    <circle cx="11" cy="7.3" r="1.15" fill="#067bc2"></circle>
+    <circle cx="15.6" cy="7.8" r="1.15" fill="#067bc2"></circle>
+    <circle cx="17.2" cy="12" r="1.15" fill="#067bc2"></circle>
+  </svg>
+`;
+
 /** @type {{id: string, title: string, description: string, path: string, badge: string, icon: string}[]} */
 export const GAMES = [
   {
@@ -67,5 +77,14 @@ export const GAMES = [
     path: "/games/telestrations/",
     badge: "4-8 Players",
     icon: PENCIL_ICON,
+  },
+  {
+    id: "hues-and-clues",
+    title: "Hues and Clues",
+    description:
+      "Pick a secret color on the grid, give everyone a one-word clue, and see who can pinpoint it closest.",
+    path: "/games/hues-and-clues/",
+    badge: "3-8 Players",
+    icon: PALETTE_ICON,
   },
 ];

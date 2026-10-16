@@ -1,0 +1,26 @@
+.guessing-view {
+  margin: -2rem calc(50% - 50vw) 0;
+  padding-bottom: 32px;
+}
+
+.clue-banner {
+  background: #ffffff;
+  border: 1px solid rgba(0, 0, 0, 0.08);
+  border-radius: 14px;
+  padding: 14px;
+  margin-bottom: 14px;
+  font-size: 13px;
+  color: rgba(0, 0, 0, 0.6);
+  text-align: center;
+}
+
+.clue-banner strong {
+  display: block;
+  margin-top: 4px;
+  font-family: "Fredoka", system-ui, sans-serif;
+  font-size: 22px;
+  font-weight: 700;
+  color: #067bc2;
+  letter-spacing: 0.5px;
+  text-transform: uppercase;
+}
