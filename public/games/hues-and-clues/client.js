@@ -9,6 +9,7 @@ const el = (id) => document.getElementById(id);
 
 const lobbyView = el("lobby-view");
 const turnView = el("turn-view");
+const clue2View = el("clue2-view");
 const guessingView = el("guessing-view");
 const revealView = el("reveal-view");
 const finalView = el("final-view");
@@ -20,6 +21,12 @@ const lobbyPlayerListEl = el("lobby-player-list");
 const startBtn = el("start-btn");
 const readyBtn = el("ready-btn");
 const lobbyHintEl = el("lobby-hint");
+const lobbySettingsPanel = el("lobby-settings-panel");
+const lobbySettingsSummary = el("lobby-settings-summary");
+const durationDropdown = el("duration-dropdown");
+const durationChip = el("duration-chip");
+const durationChipText = el("duration-chip-text");
+const durationPopover = el("duration-popover");
 
 const turnBackBtn = el("turn-back-btn");
 const turnRoomCodeEl = el("turn-room-code");
@@ -39,18 +46,36 @@ const submitClueBtn = el("submit-clue-btn");
 const waitingForClueBody = el("waiting-for-clue-body");
 const waitingForClueTextEl = el("waiting-for-clue-text");
 
+const clue2BackBtn = el("clue2-back-btn");
+const clue2RoomCodeEl = el("clue2-room-code");
+const clue2CountdownRing = el("clue2-countdown-ring");
+const clue2CountdownNum = el("clue2-countdown-num");
+const clue2StatusTextEl = el("clue2-status-text");
+const giveClue2Body = el("give-clue2-body");
+const clue2Clue1BannerEl = el("clue2-clue1-banner");
+const clue2Input = el("clue2-input");
+const submitClue2Btn = el("submit-clue2-btn");
+const waitingForClue2Body = el("waiting-for-clue2-body");
+const waitingForClue2TextEl = el("waiting-for-clue2-text");
+
 const guessingBackBtn = el("guessing-back-btn");
 const guessingRoomCodeEl = el("guessing-room-code");
 const guessingCountdownRing = el("guessing-countdown-ring");
 const guessingCountdownNum = el("guessing-countdown-num");
 const guessingStatusTextEl = el("guessing-status-text");
 const clueBannerEl = el("clue-banner");
+const turnTrackerEl = el("turn-tracker");
 const guessInteractiveBody = el("guess-interactive-body");
 const guessViewport = el("guess-viewport");
 const guessGridEl = el("guess-grid");
 const guessZoomInBtn = el("guess-zoom-in");
 const guessZoomOutBtn = el("guess-zoom-out");
 const lockGuessBtn = el("lock-guess-btn");
+const guessWaitingBody = el("guess-waiting-body");
+const guessWaitViewport = el("guess-wait-viewport");
+const guessWaitGridEl = el("guess-wait-grid");
+const guessWaitZoomInBtn = el("guess-wait-zoom-in");
+const guessWaitZoomOutBtn = el("guess-wait-zoom-out");
 const guessWaitingTextEl = el("guess-waiting-text");
 
 const revealBackBtn = el("reveal-back-btn");
@@ -70,11 +95,16 @@ const playAgainBtn = el("play-again-btn");
 
 lobbyRoomCodeEl.textContent = room ?? "(none)";
 turnRoomCodeEl.textContent = room ?? "(none)";
+clue2RoomCodeEl.textContent = room ?? "(none)";
 guessingRoomCodeEl.textContent = room ?? "(none)";
 revealRoomCodeEl.textContent = room ?? "(none)";
 finalRoomCodeEl.textContent = room ?? "(none)";
 
 const PLAYER_PALETTE = ["#84bcda", "#d56062", "#8c6fd1", "#4fae8f", "#e8a73a", "#c77dc2", "#5aa9e6", "#e07a5f"];
+
+const MIN_GUESS_DURATION_MS = 15000;
+const MAX_GUESS_DURATION_MS = 60000;
+const DURATION_STEP_MS = 15000;
 
 let myId = null;
 let players = [];
@@ -82,6 +112,7 @@ let phase = "lobby";
 let minPlayers = 3;
 let maxPlayers = 8;
 let clueGiverId = null;
+let settings = { guessDurationMs: null };
 
 let roundEndsAt = 0;
 let roundDurationMs = 60000;
@@ -91,12 +122,27 @@ let cardOptions = [];
 let pickedCardIndex = null;
 let pickedCard = null;
 
+let clue1 = "";
+let clue2 = "";
+let guessRound = 1;
+let currentGuesserId = null;
+let round1Pins = [];
+let round2Pins = [];
+// One stable color per player for the WHOLE game — derived from the
+// players list's own (stable, join-order) sequence, so a given player
+// reads as the same color in the lobby, the turn tracker, every grid pin,
+// and the results/standings lists. Recomputed on every "players" update,
+// but that's a no-op in practice once a game is running, since the
+// underlying order never changes mid-game.
+let globalColorMap = {};
+
 let selectedGuessCell = null;
 let guessLocked = false;
 
 function showView(view) {
   lobbyView.hidden = view !== "lobby";
   turnView.hidden = view !== "turn";
+  clue2View.hidden = view !== "clue2";
   guessingView.hidden = view !== "guessing";
   revealView.hidden = view !== "reveal";
   finalView.hidden = view !== "final";
@@ -104,6 +150,10 @@ function showView(view) {
 
 function isHost() {
   return players.find((p) => p.id === myId)?.isHost ?? false;
+}
+
+function initialOf(name) {
+  return name?.charAt(0).toUpperCase() || "?";
 }
 
 function colorMapFor(entries) {
@@ -114,6 +164,95 @@ function colorMapFor(entries) {
   return map;
 }
 
+function formatDuration(ms) {
+  return ms === null ? "No limit" : `${ms / 1000}s`;
+}
+
+// Populated once — the option list itself never changes, only which one is
+// marked selected.
+for (let ms = MIN_GUESS_DURATION_MS; ms <= MAX_GUESS_DURATION_MS; ms += DURATION_STEP_MS) {
+  const opt = document.createElement("button");
+  opt.type = "button";
+  opt.className = "lobby-dropdown-option";
+  opt.dataset.ms = String(ms);
+  opt.textContent = formatDuration(ms);
+  durationPopover.appendChild(opt);
+}
+durationPopover.appendChild(Object.assign(document.createElement("div"), { className: "lobby-dropdown-divider" }));
+const noLimitOpt = document.createElement("button");
+noLimitOpt.type = "button";
+noLimitOpt.className = "lobby-dropdown-option is-untimed";
+noLimitOpt.dataset.ms = "";
+noLimitOpt.textContent = "No limit";
+durationPopover.appendChild(noLimitOpt);
+
+function closeDurationDropdown() {
+  durationChip.classList.remove("is-open");
+  durationChip.setAttribute("aria-expanded", "false");
+  durationPopover.hidden = true;
+}
+
+durationChip.addEventListener("click", () => {
+  const willOpen = durationPopover.hidden;
+  durationChip.classList.toggle("is-open", willOpen);
+  durationChip.setAttribute("aria-expanded", String(willOpen));
+  durationPopover.hidden = !willOpen;
+});
+
+durationPopover.addEventListener("click", (event) => {
+  const option = event.target.closest(".lobby-dropdown-option");
+  if (!option) return;
+  const guessDurationMs = option.dataset.ms === "" ? null : Number(option.dataset.ms);
+  closeDurationDropdown();
+  sendSettings({ guessDurationMs });
+});
+
+document.addEventListener("click", (event) => {
+  if (!durationDropdown.contains(event.target)) closeDurationDropdown();
+});
+
+function renderSettings(amHost) {
+  lobbySettingsPanel.hidden = !amHost;
+  lobbySettingsSummary.hidden = amHost;
+
+  durationChipText.textContent = formatDuration(settings.guessDurationMs);
+  for (const opt of durationPopover.querySelectorAll(".lobby-dropdown-option")) {
+    const ms = opt.dataset.ms === "" ? null : Number(opt.dataset.ms);
+    opt.classList.toggle("is-selected", ms === settings.guessDurationMs);
+  }
+
+  if (!amHost) {
+    lobbySettingsSummary.textContent = `${formatDuration(settings.guessDurationMs)} per guess`;
+  }
+}
+
+function sendSettings(next) {
+  settings = next;
+  renderSettings(true);
+  socket?.send(JSON.stringify({ type: "settings", guessDurationMs: settings.guessDurationMs }));
+}
+
+function isOccupiedByOther(cell) {
+  return [...round1Pins, ...round2Pins].some((p) => p.col === cell.col && p.row === cell.row && p.id !== myId);
+}
+
+// Every placed pin so far this turn, as grid markers: round-1 pins render
+// solid while guess round 1 is still live, but once round 2 starts they
+// become faint "ghost" outlines (superseded by the solid round-2 pin).
+function pinsAsMarkers() {
+  const markers = [];
+  const round1Type = guessRound === 2 ? "ghost" : "player";
+  for (const pin of round1Pins) {
+    markers.push({ col: pin.col, row: pin.row, type: round1Type, label: initialOf(pin.name), color: globalColorMap[pin.id] });
+  }
+  if (guessRound === 2) {
+    for (const pin of round2Pins) {
+      markers.push({ col: pin.col, row: pin.row, type: "player", label: initialOf(pin.name), color: globalColorMap[pin.id] });
+    }
+  }
+  return markers;
+}
+
 function renderPlayers() {
   lobbyPlayerListEl.innerHTML = "";
   for (const p of players) {
@@ -122,7 +261,8 @@ function renderPlayers() {
 
     const avatar = document.createElement("span");
     avatar.className = "lobby-avatar";
-    avatar.textContent = p.name.trim().charAt(0) || "?";
+    avatar.textContent = initialOf(p.name);
+    avatar.style.background = globalColorMap[p.id] ?? "#84bcda";
 
     const nameEl = document.createElement("span");
     nameEl.className = "lobby-player-name";
@@ -170,12 +310,7 @@ function renderPlayers() {
       readyBtn.textContent = me?.ready ? "Not ready" : "Ready up";
       readyBtn.classList.toggle("is-ready", Boolean(me?.ready));
     }
-  }
-
-  if (phase === "guessing") {
-    const guessers = players.filter((p) => p.id !== clueGiverId);
-    const guessedCount = guessers.filter((p) => p.guessed).length;
-    guessingStatusTextEl.textContent = `${guessedCount} of ${guessers.length} guessed`;
+    renderSettings(amHost);
   }
 }
 
@@ -211,7 +346,9 @@ mineZoomOutBtn.addEventListener("click", () => minePanZoom.zoomOut());
 
 const guessPanZoom = initPanZoom(guessViewport, guessGridEl, {
   onTap: (cell) => {
-    if (phase !== "guessing" || guessLocked || myId === clueGiverId) return;
+    if (phase !== "guessing" || guessLocked) return;
+    if (currentGuesserId !== myId) return;
+    if (isOccupiedByOther(cell)) return;
     selectedGuessCell = cell;
     lockGuessBtn.disabled = false;
     renderGuessGrid();
@@ -219,6 +356,10 @@ const guessPanZoom = initPanZoom(guessViewport, guessGridEl, {
 });
 guessZoomInBtn.addEventListener("click", () => guessPanZoom.zoomIn());
 guessZoomOutBtn.addEventListener("click", () => guessPanZoom.zoomOut());
+
+const guessWaitPanZoom = initPanZoom(guessWaitViewport, guessWaitGridEl);
+guessWaitZoomInBtn.addEventListener("click", () => guessWaitPanZoom.zoomIn());
+guessWaitZoomOutBtn.addEventListener("click", () => guessWaitPanZoom.zoomOut());
 
 const revealPanZoom = initPanZoom(revealViewport, revealGridEl);
 revealZoomInBtn.addEventListener("click", () => revealPanZoom.zoomIn());
@@ -252,14 +393,39 @@ function renderMineGrid() {
 }
 
 function renderGuessGrid() {
-  const markers = selectedGuessCell ? [{ col: selectedGuessCell.col, row: selectedGuessCell.row, type: "self" }] : [];
+  const markers = pinsAsMarkers();
+  if (selectedGuessCell) markers.push({ col: selectedGuessCell.col, row: selectedGuessCell.row, type: "self" });
   buildGrid(guessGridEl, markers, true);
+}
+
+function renderTurnTracker(order, turnIndex) {
+  turnTrackerEl.innerHTML = "";
+  order.forEach((entry, i) => {
+    const chip = document.createElement("div");
+    chip.className = "turn-chip" + (i < turnIndex ? " done" : i === turnIndex ? " active" : "");
+
+    const avatar = document.createElement("span");
+    avatar.className = "turn-chip-avatar";
+    avatar.textContent = initialOf(entry.name);
+    avatar.style.background = globalColorMap[entry.id] ?? "#84bcda";
+
+    const label = document.createElement("span");
+    label.className = "turn-chip-label";
+    label.textContent = entry.name;
+
+    chip.append(avatar, label);
+    turnTrackerEl.appendChild(chip);
+  });
 }
 
 function startTurn(data) {
   phase = "turn";
   roundDurationMs = data.durationMs;
   roundEndsAt = data.endsAt;
+  clue1 = "";
+  clue2 = "";
+  round1Pins = [];
+  round2Pins = [];
   showView("turn");
 
   turnStatusTextEl.textContent = `Round ${data.round} of ${data.totalRounds}`;
@@ -288,35 +454,94 @@ function startTurn(data) {
   startCountdown(turnCountdownRing, turnCountdownNum);
 }
 
-function startGuessing(data) {
+function startClue2(data) {
+  phase = "clue2";
+  roundDurationMs = data.durationMs;
+  roundEndsAt = data.endsAt;
+  clue1 = data.clue1;
+  showView("clue2");
+
+  clue2StatusTextEl.textContent = `Round ${data.round} of ${data.totalRounds} — clue 2 of 2`;
+
+  giveClue2Body.hidden = !data.isClueGiver;
+  waitingForClue2Body.hidden = data.isClueGiver;
+
+  if (data.isClueGiver) {
+    clue2Clue1BannerEl.innerHTML = "";
+    const label = document.createElement("span");
+    label.textContent = "Your first clue was:";
+    const strong = document.createElement("strong");
+    strong.textContent = data.clue1;
+    clue2Clue1BannerEl.append(label, strong);
+
+    clue2Input.value = "";
+    clue2Input.disabled = false;
+    submitClue2Btn.disabled = true;
+    submitClue2Btn.textContent = "Send second clue";
+  } else {
+    waitingForClue2TextEl.textContent = "Everyone's placed their first guess — waiting for the second clue…";
+  }
+
+  startCountdown(clue2CountdownRing, clue2CountdownNum);
+}
+
+function startGuessTurn(data) {
   phase = "guessing";
   roundDurationMs = data.durationMs;
   roundEndsAt = data.endsAt;
+  guessRound = data.guessRound;
+  currentGuesserId = data.guesserId;
+  clue1 = data.clue1;
+  clue2 = data.clue2;
+  round1Pins = data.round1Pins ?? [];
+  round2Pins = data.round2Pins ?? [];
   showView("guessing");
 
-  guessingStatusTextEl.textContent = `Round ${data.round} of ${data.totalRounds}`;
+  guessingStatusTextEl.textContent = `Round ${data.round} of ${data.totalRounds} — guess ${data.guessRound} of 2`;
 
   clueBannerEl.innerHTML = "";
   const label = document.createElement("span");
-  label.textContent = `${data.clueGiverName}'s clue:`;
+  label.textContent = data.guessRound === 2 ? "Clues:" : "Clue:";
   const strong = document.createElement("strong");
-  strong.textContent = data.clue;
+  strong.textContent = data.guessRound === 2 ? `${data.clue1} → ${data.clue2}` : data.clue1;
   clueBannerEl.append(label, strong);
 
-  const amClueGiver = myId === clueGiverId;
-  guessInteractiveBody.hidden = amClueGiver;
-  guessWaitingTextEl.hidden = !amClueGiver;
+  renderTurnTracker(data.order, data.turnIndex);
 
-  if (!amClueGiver) {
+  const isMyTurn = currentGuesserId === myId;
+  guessInteractiveBody.hidden = !isMyTurn;
+  guessWaitingBody.hidden = isMyTurn;
+
+  if (isMyTurn) {
     selectedGuessCell = null;
     guessLocked = false;
     lockGuessBtn.disabled = true;
-    lockGuessBtn.textContent = "Lock in guess";
+    lockGuessBtn.textContent = `Lock in guess ${data.guessRound}`;
     renderGuessGrid();
     guessPanZoom.reset();
+  } else {
+    buildGrid(guessWaitGridEl, pinsAsMarkers(), false);
+    guessWaitPanZoom.reset();
+
+    if (myId === clueGiverId) {
+      guessWaitingTextEl.textContent = "Everyone's guessing your color now…";
+    } else {
+      const guesserName = data.order.find((o) => o.id === currentGuesserId)?.name ?? "someone";
+      guessWaitingTextEl.textContent = `Waiting for ${guesserName} to guess (${data.turnIndex + 1} of ${data.order.length})…`;
+    }
   }
 
-  startCountdown(guessingCountdownRing, guessingCountdownNum);
+  // "No limit" (the server sends durationMs: null) means there's nothing
+  // to count down — hide the ring entirely rather than show a countdown
+  // that never actually ends anything.
+  const timed = Boolean(data.durationMs);
+  guessingCountdownRing.hidden = !timed;
+  guessingCountdownNum.hidden = !timed;
+  if (timed) {
+    startCountdown(guessingCountdownRing, guessingCountdownNum);
+  } else {
+    stopCountdown();
+  }
 }
 
 function renderReveal(data) {
@@ -324,14 +549,17 @@ function renderReveal(data) {
   showView("reveal");
   stopCountdown();
 
-  revealStatusTextEl.textContent = `Round ${data.round} of ${data.totalRounds} — ${data.clueGiverName}'s color`;
+  const clueText = data.clue2 ? `${data.clue1} → ${data.clue2}` : data.clue1;
+  revealStatusTextEl.textContent = `Round ${data.round} of ${data.totalRounds} — ${data.clueGiverName}'s color (${clueText})`;
 
-  const colorFor = colorMapFor(data.results);
   const markers = [];
   if (data.target) markers.push({ col: data.target.col, row: data.target.row, type: "flag" });
+  for (const pin of data.round1Pins ?? []) {
+    markers.push({ col: pin.col, row: pin.row, type: "ghost", label: initialOf(pin.name), color: globalColorMap[pin.id] });
+  }
   for (const r of data.results) {
     if (r.col === null || r.row === null) continue;
-    markers.push({ col: r.col, row: r.row, type: "player", label: r.name.charAt(0).toUpperCase() || "?", color: colorFor[r.id] });
+    markers.push({ col: r.col, row: r.row, type: "player", label: initialOf(r.name), color: globalColorMap[r.id] });
   }
   buildGrid(revealGridEl, markers, false);
   revealPanZoom.reset();
@@ -348,8 +576,8 @@ function renderReveal(data) {
 
     const avatar = document.createElement("span");
     avatar.className = "results-avatar";
-    avatar.textContent = r.name.charAt(0).toUpperCase() || "?";
-    avatar.style.background = colorFor[r.id] ?? "#84bcda";
+    avatar.textContent = initialOf(r.name);
+    avatar.style.background = globalColorMap[r.id] ?? "#84bcda";
 
     const name = document.createElement("span");
     name.className = "results-name";
@@ -384,6 +612,11 @@ function renderFinal(standings) {
     rank.className = "standings-rank";
     rank.textContent = `#${i + 1}`;
 
+    const avatar = document.createElement("span");
+    avatar.className = "standings-avatar";
+    avatar.textContent = initialOf(s.name);
+    avatar.style.background = globalColorMap[s.id] ?? "#84bcda";
+
     const name = document.createElement("span");
     name.className = "standings-name";
     name.textContent = s.name + (s.id === myId ? " (you)" : "");
@@ -392,7 +625,7 @@ function renderFinal(standings) {
     score.className = "standings-score";
     score.textContent = `${s.score} pts`;
 
-    li.append(rank, name, score);
+    li.append(rank, avatar, name, score);
     standingsListEl.appendChild(li);
   });
 
@@ -424,6 +657,19 @@ submitClueBtn.addEventListener("click", () => {
   submitClueBtn.textContent = "Waiting…";
 });
 
+clue2Input.addEventListener("input", () => {
+  submitClue2Btn.disabled = clue2Input.value.trim().length === 0;
+});
+
+submitClue2Btn.addEventListener("click", () => {
+  const text = clue2Input.value.trim();
+  if (!text) return;
+  socket?.send(JSON.stringify({ type: "submit-clue2", text }));
+  clue2Input.disabled = true;
+  submitClue2Btn.disabled = true;
+  submitClue2Btn.textContent = "Waiting…";
+});
+
 lockGuessBtn.addEventListener("click", () => {
   if (!selectedGuessCell || guessLocked) return;
   guessLocked = true;
@@ -451,7 +697,7 @@ readyBtn.addEventListener("click", () => {
   socket?.send(JSON.stringify({ type: "ready" }));
 });
 
-for (const btn of [backBtn, turnBackBtn, guessingBackBtn, revealBackBtn, finalBackBtn]) {
+for (const btn of [backBtn, turnBackBtn, clue2BackBtn, guessingBackBtn, revealBackBtn, finalBackBtn]) {
   btn.addEventListener("click", () => {
     location.href = "/";
   });
@@ -498,14 +744,19 @@ if (!room) {
         minPlayers = data.minPlayers;
         maxPlayers = data.maxPlayers;
         clueGiverId = data.clueGiverId;
+        if (data.settings) settings = data.settings;
+        globalColorMap = colorMapFor(players);
         renderPlayers();
         if (phase === "lobby") showView("lobby");
         break;
       case "turn-start":
         startTurn(data);
         break;
-      case "guessing-start":
-        startGuessing(data);
+      case "clue2-start":
+        startClue2(data);
+        break;
+      case "guess-turn":
+        startGuessTurn(data);
         break;
       case "reveal":
         renderReveal(data);

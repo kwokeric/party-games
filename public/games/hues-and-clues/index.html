@@ -11,6 +11,7 @@
     <link rel="stylesheet" href="./game.css" />
     <link rel="stylesheet" href="./lobby.css" />
     <link rel="stylesheet" href="./turn.css" />
+    <link rel="stylesheet" href="./clue2.css" />
     <link rel="stylesheet" href="./guessing.css" />
     <link rel="stylesheet" href="./reveal.css" />
     <link rel="stylesheet" href="./final.css" />
@@ -44,10 +45,28 @@
             <ul class="lobby-howto-list">
               <li>Each round, one player picks a secret color on the grid.</li>
               <li>They give everyone ONE word as a clue — no color names allowed.</li>
-              <li>Everyone else taps the grid to guess. Closest guess scores the most: 3 pts right on, 2 pts one away, 1 pt two away, 0 otherwise.</li>
+              <li>Going around in turn, everyone places a guess — once a cell is taken, nobody else can use it.</li>
+              <li>The clue-giver gives a second clue (up to two words), then everyone gets a final guess, going around again.</li>
+              <li>Your final guess is what scores: 3 pts right on, 2 pts one away, 1 pt two away, 0 otherwise.</li>
               <li>Clue-giving rotates until everyone's had a turn.</li>
             </ul>
           </div>
+
+          <div id="lobby-settings-panel" class="lobby-panel lobby-settings-panel" hidden>
+            <h3>Round settings</h3>
+            <div class="lobby-settings-row">
+              <span class="lobby-settings-label">Time per guess</span>
+              <div class="lobby-dropdown" id="duration-dropdown">
+                <button id="duration-chip" class="lobby-dropdown-chip" type="button" aria-haspopup="listbox" aria-expanded="false">
+                  <span id="duration-chip-text">No limit</span>
+                  <svg width="10" height="6" viewBox="0 0 10 6"><path d="M1 1l4 4 4-4" stroke="#067bc2" stroke-width="1.6" fill="none" stroke-linecap="round" stroke-linejoin="round"/></svg>
+                </button>
+                <div id="duration-popover" class="lobby-dropdown-popover" role="listbox" hidden></div>
+              </div>
+            </div>
+          </div>
+
+          <p id="lobby-settings-summary" class="lobby-settings-summary" hidden></p>
 
           <div class="lobby-panel lobby-players-panel">
             <h3>Players</h3>
@@ -82,13 +101,12 @@
         <div id="card-draw-body" class="screen-body" hidden>
           <p class="kind-label">Pick one of these 4 colors — that's what you'll clue everyone toward</p>
           <div id="card-grid" class="card-grid"></div>
-          <p class="hint-note">Tap a card to pick it — you can change your mind before confirming.</p>
           <button id="confirm-card-btn" class="lobby-action-btn" type="button" disabled>Confirm color</button>
         </div>
 
         <!-- clue-giver only: step 2, give the clue -->
         <div id="give-clue-body" class="screen-body" hidden>
-          <p class="kind-label">Give everyone a one-word clue for your color</p>
+          <p class="kind-label">Give everyone a one-word clue for your color (clue 1 of 2)</p>
           <div class="grid-viewport" id="mine-viewport">
             <div class="grid-content" id="mine-grid"></div>
             <div class="zoom-controls">
@@ -96,7 +114,6 @@
               <button class="zoom-btn" id="mine-zoom-out" type="button" aria-label="Zoom out">–</button>
             </div>
           </div>
-          <p class="hint-note">Only you can see the pin.</p>
           <input id="clue-input" class="clue-input" type="text" maxlength="24" placeholder="One word only…" />
           <button id="submit-clue-btn" class="guess-submit-btn" type="button" disabled>Send clue</button>
         </div>
@@ -104,6 +121,39 @@
         <!-- everyone else -->
         <div id="waiting-for-clue-body" class="screen-body" hidden>
           <p id="waiting-for-clue-text" class="hint-note waiting-text"></p>
+        </div>
+      </section>
+
+      <section id="clue2-view" class="view clue2-view" hidden>
+        <div class="guess-banner">
+          <button id="clue2-back-btn" class="guess-icon-btn" type="button" aria-label="Back to home">
+            <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="#ffffff" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><line x1="19" y1="12" x2="5" y2="12"></line><polyline points="12 19 5 12 12 5"></polyline></svg>
+          </button>
+          <div class="guess-banner-title">Hues and Clues</div>
+          <div class="guess-room-pill" id="clue2-room-code">-</div>
+        </div>
+
+        <div class="guess-status-card">
+          <div class="countdown-bar" id="clue2-countdown-ring">
+            <div class="countdown-bar-fill"></div>
+          </div>
+          <div class="countdown-status-row">
+            <span class="countdown-num" id="clue2-countdown-num">45</span>
+            <span class="guess-status-text" id="clue2-status-text"></span>
+          </div>
+        </div>
+
+        <!-- clue-giver only -->
+        <div id="give-clue2-body" class="screen-body" hidden>
+          <p class="kind-label">Give a second clue — up to two words, and you can reuse your first</p>
+          <div id="clue2-clue1-banner" class="clue-banner"></div>
+          <input id="clue2-input" class="clue-input" type="text" maxlength="24" placeholder="Up to two words…" />
+          <button id="submit-clue2-btn" class="guess-submit-btn" type="button" disabled>Send second clue</button>
+        </div>
+
+        <!-- everyone else -->
+        <div id="waiting-for-clue2-body" class="screen-body" hidden>
+          <p id="waiting-for-clue2-text" class="hint-note waiting-text"></p>
         </div>
       </section>
 
@@ -121,13 +171,15 @@
             <div class="countdown-bar-fill"></div>
           </div>
           <div class="countdown-status-row">
-            <span class="countdown-num" id="guessing-countdown-num">45</span>
+            <span class="countdown-num" id="guessing-countdown-num">30</span>
             <span class="guess-status-text" id="guessing-status-text"></span>
           </div>
         </div>
 
         <div class="screen-body">
           <div id="clue-banner" class="clue-banner"></div>
+
+          <div id="turn-tracker" class="turn-tracker"></div>
 
           <div id="guess-interactive-body" hidden>
             <div class="grid-viewport" id="guess-viewport">
@@ -137,11 +189,19 @@
                 <button class="zoom-btn" id="guess-zoom-out" type="button" aria-label="Zoom out">–</button>
               </div>
             </div>
-            <p class="hint-note">Pinch or scroll to zoom · drag to pan · tap a cell to guess.</p>
             <button id="lock-guess-btn" class="guess-submit-btn" type="button" disabled>Lock in guess</button>
           </div>
 
-          <p id="guess-waiting-text" class="hint-note waiting-text" hidden>Everyone's guessing your color now…</p>
+          <div id="guess-waiting-body" hidden>
+            <div class="grid-viewport" id="guess-wait-viewport">
+              <div class="grid-content" id="guess-wait-grid"></div>
+              <div class="zoom-controls">
+                <button class="zoom-btn" id="guess-wait-zoom-in" type="button" aria-label="Zoom in">+</button>
+                <button class="zoom-btn" id="guess-wait-zoom-out" type="button" aria-label="Zoom out">–</button>
+              </div>
+            </div>
+            <p id="guess-waiting-text" class="hint-note waiting-text"></p>
+          </div>
         </div>
       </section>
 
@@ -167,7 +227,6 @@
             </div>
           </div>
           <ol id="results-list" class="results-list"></ol>
-          <p class="hint-note">3 pts right on · 2 pts one away · 1 pt two away · 0 otherwise</p>
           <button id="continue-btn" class="lobby-action-btn" type="button">Continue</button>
         </div>
       </section>

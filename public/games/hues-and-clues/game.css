@@ -345,6 +345,93 @@
   font-size: 8px;
 }
 
+/* A round-1 guess shown during round 2 (or at reveal) — a faint outline
+   instead of a solid fill, so it reads as "earlier/superseded" next to
+   the solid final-guess pin. Border/text color set inline per player. */
+.hc-pin-ghost {
+  width: 62%;
+  height: 62%;
+  border-radius: 999px;
+  background: rgba(255, 255, 255, 0.55);
+  border: 2.5px dashed;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-family: "Fredoka", system-ui, sans-serif;
+  font-weight: 700;
+  font-size: 9px;
+}
+
+/* ---- turn tracker: who's placing a guess right now ---- */
+.turn-tracker {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 14px;
+  margin: 4px 0 2px;
+}
+
+.turn-chip {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 4px;
+  opacity: 0.4;
+}
+
+.turn-chip.active {
+  opacity: 1;
+}
+
+.turn-chip.done {
+  opacity: 0.75;
+}
+
+.turn-chip-avatar {
+  position: relative;
+  width: 26px;
+  height: 26px;
+  border-radius: 999px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-family: "Fredoka", system-ui, sans-serif;
+  font-weight: 600;
+  font-size: 10px;
+  color: #fff;
+}
+
+.turn-chip.active .turn-chip-avatar {
+  box-shadow: 0 0 0 3px #067bc2;
+}
+
+.turn-chip.done .turn-chip-avatar::after {
+  content: "✓";
+  position: absolute;
+  bottom: -3px;
+  right: -3px;
+  width: 13px;
+  height: 13px;
+  border-radius: 999px;
+  background: #067bc2;
+  color: #fff;
+  font-size: 8px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.turn-chip-label {
+  font-size: 9px;
+  font-family: "Fredoka", system-ui, sans-serif;
+  font-weight: 600;
+  color: rgba(0, 0, 0, 0.4);
+}
+
+.turn-chip.active .turn-chip-label {
+  color: #067bc2;
+}
+
 .zoom-controls {
   position: absolute;
   right: 8px;
