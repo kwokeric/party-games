@@ -499,6 +499,22 @@ copyCodeBtn.addEventListener("click", async () => {
   }
 });
 
+// Browsers throttle (or fully pause) setInterval in a backgrounded tab —
+// common on mobile when the screen locks or another app comes to the
+// front — so the 250ms countdown tick can stall out well past the real
+// deadline. roundEndsAt/Date.now() in tickCountdown is already
+// absolute-time-based (not accumulation-based), so the moment this tab is
+// looked at again, re-running it immediately catches up and fires the
+// timeout auto-submit right away instead of waiting on a throttled timer
+// that might not fire again for a long while — this is what was making
+// the page look "frozen" when Submit was never explicitly pressed.
+document.addEventListener("visibilitychange", () => {
+  if (document.visibilityState === "visible" && phase === "playing") tickCountdown();
+});
+window.addEventListener("focus", () => {
+  if (phase === "playing") tickCountdown();
+});
+
 let socket;
 
 if (!room) {

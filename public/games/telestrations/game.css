@@ -1,5 +1,19 @@
 .telestrations-page {
   max-width: 1000px;
+  /* A touch-drag that starts a drawing stroke can otherwise be interpreted
+     as a text-selection drag, popping up the native highlight/selection
+     handles mid-draw. Form controls re-enable selection below so typing
+     still works normally. */
+  user-select: none;
+  -webkit-user-select: none;
+  -webkit-touch-callout: none;
+}
+
+.telestrations-page input,
+.telestrations-page textarea {
+  user-select: text;
+  -webkit-user-select: text;
+  -webkit-touch-callout: default;
 }
 
 /* Several elements on this page set an unconditional `display` in their
