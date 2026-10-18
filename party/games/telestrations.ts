@@ -45,6 +45,10 @@ type Chain = { entries: Entry[] };
 
 type Player = {
   id: string;
+  // The connection currently live for this player, or null while they're
+  // disconnected. Never used as the player's identity — connections come
+  // and go on reconnect, this.players is keyed by the stable id instead.
+  connectionId: string | null;
   name: string;
   isHost: boolean;
   connected: boolean;
@@ -93,6 +97,10 @@ function sanitizeStrokes(input: unknown): Point[][] {
 
 export default class Telestrations extends Server {
   players = new Map<string, Player>();
+  // Maps a live connection id to the stable player id that owns it, so a
+  // reconnect (which always arrives as a brand new connection) can be
+  // reattached to the same seat in playerOrder instead of being orphaned.
+  connIndex = new Map<string, string>();
   phase: Phase = "lobby";
 
   roundDurationMs = DEFAULT_ROUND_DURATION_MS;
@@ -115,12 +123,24 @@ export default class Telestrations extends Server {
 
   onConnect(connection: Connection, ctx: ConnectionContext) {
     const url = new URL(ctx.request.url);
-    const isHost = url.searchParams.get("host") === "1" && !this.hasHost();
+    // The client mints and persists this in sessionStorage per room, so a
+    // page refresh reconnects as the SAME player instead of a new one —
+    // critically, as the SAME seat in the frozen playerOrder array, so
+    // their chain assignment and submission state carry over. A connection
+    // with no pid (an old cached tab, a non-browser client) falls back to
+    // the connection id, same as the old unconditional behavior.
+    const pid = url.searchParams.get("pid") || connection.id;
     const requestedName = url.searchParams.get("name")?.trim().slice(0, 20);
 
-    if (!this.players.has(connection.id)) {
-      this.players.set(connection.id, {
-        id: connection.id,
+    const existing = this.players.get(pid);
+    if (existing) {
+      existing.connectionId = connection.id;
+      existing.connected = true;
+    } else {
+      const isHost = url.searchParams.get("host") === "1" && !this.hasHost();
+      this.players.set(pid, {
+        id: pid,
+        connectionId: connection.id,
         name: requestedName || `Player ${this.players.size + 1}`,
         isHost,
         connected: true,
@@ -128,26 +148,42 @@ export default class Telestrations extends Server {
         submitted: false,
       });
     }
+    this.connIndex.set(connection.id, pid);
 
-    connection.send(JSON.stringify({ type: "you", id: connection.id }));
+    connection.send(JSON.stringify({ type: "you", id: pid }));
     this.sendStateTo(connection);
     this.broadcastPlayers();
   }
 
+  // Finds the player behind whichever connection sent a message — never
+  // keyed directly off connection.id, since that changes on every reconnect.
+  playerFor(connection: Connection): Player | undefined {
+    const pid = this.connIndex.get(connection.id);
+    return pid ? this.players.get(pid) : undefined;
+  }
+
   onClose(connection: Connection) {
-    const player = this.players.get(connection.id);
-    if (!player) return;
+    const pid = this.connIndex.get(connection.id);
+    this.connIndex.delete(connection.id);
+    if (!pid) return;
+    const player = this.players.get(pid);
+    // A reconnect can attach a new connection to this player before the
+    // old socket's own close event arrives — ignore a close that's no
+    // longer the current connection for this seat.
+    if (!player || player.connectionId !== connection.id) return;
 
     // Once playerOrder is frozen, the rotation math is keyed off these ids
     // forever — deleting the record on close (like the other games do)
-    // would permanently orphan that seat. Mark it disconnected instead,
-    // and drop isHost so a reloading host can reclaim the role through
-    // the normal onConnect check rather than being locked out.
+    // would permanently orphan that seat. Mark it disconnected instead.
+    // isHost is deliberately left untouched: a matching reconnect (same
+    // pid) should come back as host if they left as host — hasHost()
+    // below is what lets a DIFFERENT player claim the role if the
+    // original host never returns.
     if (this.phase === "lobby") {
-      this.players.delete(connection.id);
+      this.players.delete(pid);
     } else {
+      player.connectionId = null;
       player.connected = false;
-      player.isHost = false;
     }
     this.broadcastPlayers();
     this.checkAllSubmitted();
@@ -184,14 +220,14 @@ export default class Telestrations extends Server {
   }
 
   hasHost(): boolean {
-    return [...this.players.values()].some((p) => p.isHost);
+    return [...this.players.values()].some((p) => p.isHost && p.connected);
   }
 
   // Only the host, and only from the lobby — mirrors Match the Color's
   // settings gate, so mid-game changes can't desync a round already in
   // flight.
   updateSettings(connection: Connection, roundDurationMs?: number, difficulty?: string) {
-    const player = this.players.get(connection.id);
+    const player = this.playerFor(connection);
     if (!player?.isHost) return;
     if (this.phase !== "lobby") return;
 
@@ -205,7 +241,7 @@ export default class Telestrations extends Server {
   }
 
   startGame(connection: Connection) {
-    const host = this.players.get(connection.id);
+    const host = this.playerFor(connection);
     if (!host?.isHost) return;
     if (this.phase !== "lobby") return;
     if (this.players.size < MIN_PLAYERS || this.players.size > MAX_PLAYERS) return;
@@ -231,7 +267,8 @@ export default class Telestrations extends Server {
     await this.ctx.storage.setAlarm(this.roundEndsAt);
 
     for (const p of this.players.values()) {
-      const conn = this.getConnection(p.id);
+      if (!p.connectionId) continue;
+      const conn = this.getConnection(p.connectionId);
       if (conn) this.sendRoundTo(conn, p.id);
     }
     this.broadcastPlayers();
@@ -280,7 +317,7 @@ export default class Telestrations extends Server {
 
   submitEntry(connection: Connection, data: { text?: string; strokes?: unknown }) {
     if (this.phase !== "playing") return;
-    const player = this.players.get(connection.id);
+    const player = this.playerFor(connection);
     if (!player || this.submittedIds.has(player.id)) return;
     const chainIndex = this.chainIndexFor(player.id, this.round);
     if (chainIndex === null) return;
@@ -309,7 +346,7 @@ export default class Telestrations extends Server {
   saveDraft(connection: Connection, strokes: unknown) {
     if (this.phase !== "playing") return;
     if (this.roundKind(this.round) !== "draw") return;
-    const player = this.players.get(connection.id);
+    const player = this.playerFor(connection);
     if (!player || this.submittedIds.has(player.id)) return;
     this.drafts.set(player.id, sanitizeStrokes(strokes));
   }
@@ -382,7 +419,7 @@ export default class Telestrations extends Server {
   // phase: toggling the optional lobby signal, or (one-way, can't undo)
   // confirming "play again" once the game is over.
   handleReady(connection: Connection) {
-    const player = this.players.get(connection.id);
+    const player = this.playerFor(connection);
     if (!player) return;
 
     if (this.phase === "lobby") {
@@ -400,11 +437,15 @@ export default class Telestrations extends Server {
   }
 
   resetToLobby(connection: Connection) {
-    const host = this.players.get(connection.id);
+    const host = this.playerFor(connection);
     if (!host?.isHost) return;
 
     if (this.phase === "results") {
-      const everyoneElseReady = [...this.players.values()].filter((p) => !p.isHost).every((p) => p.ready);
+      // Someone who disconnected during results and never came back
+      // shouldn't block the host from starting a new game.
+      const everyoneElseReady = [...this.players.values()]
+        .filter((p) => !p.isHost && p.connected)
+        .every((p) => p.ready);
       if (!everyoneElseReady) return;
     }
 
@@ -414,6 +455,11 @@ export default class Telestrations extends Server {
     this.round = 0;
     this.submittedIds = new Set();
     this.drafts = new Map();
+    // Anyone who never came back by the time the host resets doesn't
+    // linger in the next lobby.
+    for (const [id, p] of this.players) {
+      if (!p.connected) this.players.delete(id);
+    }
     for (const p of this.players.values()) {
       p.ready = false;
       p.submitted = false;
@@ -423,7 +469,7 @@ export default class Telestrations extends Server {
   }
 
   sendStateTo(connection: Connection) {
-    const player = this.players.get(connection.id);
+    const player = this.playerFor(connection);
     if (!player) return;
 
     if (this.phase === "playing") {

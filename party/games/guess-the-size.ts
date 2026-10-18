@@ -34,6 +34,11 @@ type GameObject = (typeof objects)[number];
 
 type Player = {
   id: string;
+  // The connection currently live for this player, or null while they're
+  // disconnected. Never used as the player's identity — connections come
+  // and go on reconnect, this.players is keyed by the stable id instead.
+  connectionId: string | null;
+  connected: boolean;
   name: string;
   isHost: boolean;
   guess: number | null;
@@ -87,6 +92,10 @@ function scoreGuess(guess: number, trueLength: number): number {
 
 export default class GuessTheSize extends Server {
   players = new Map<string, Player>();
+  // Maps a live connection id to the stable player id that owns it, so a
+  // reconnect (which always arrives as a brand new connection) can be
+  // reattached to the same player record instead of creating a new one.
+  connIndex = new Map<string, string>();
   phase: Phase = "lobby";
   round: Round | null = null;
   roundNumber = 0;
@@ -96,27 +105,64 @@ export default class GuessTheSize extends Server {
 
   onConnect(connection: Connection, ctx: ConnectionContext) {
     const url = new URL(ctx.request.url);
-    const isHost = url.searchParams.get("host") === "1" && !this.hasHost();
+    // The client mints and persists this in sessionStorage per room, so a
+    // page refresh reconnects as the SAME player instead of a new one. A
+    // connection with no pid (an old cached tab, a non-browser client)
+    // falls back to the connection id, same as the old unconditional
+    // behavior.
+    const pid = url.searchParams.get("pid") || connection.id;
     const requestedName = url.searchParams.get("name")?.trim().slice(0, 20);
 
-    this.players.set(connection.id, {
-      id: connection.id,
-      name: requestedName || `Player ${this.players.size + 1}`,
-      isHost,
-      guess: null,
-      ready: false,
-      totalScore: 0,
-    });
+    const existing = this.players.get(pid);
+    if (existing) {
+      existing.connectionId = connection.id;
+      existing.connected = true;
+    } else {
+      const isHost = url.searchParams.get("host") === "1" && !this.hasHost();
+      this.players.set(pid, {
+        id: pid,
+        connectionId: connection.id,
+        connected: true,
+        name: requestedName || `Player ${this.players.size + 1}`,
+        isHost,
+        guess: null,
+        ready: false,
+        totalScore: 0,
+      });
+    }
+    this.connIndex.set(connection.id, pid);
 
-    connection.send(JSON.stringify({ type: "you", id: connection.id }));
+    connection.send(JSON.stringify({ type: "you", id: pid }));
     this.sendStateTo(connection);
     this.broadcastPlayers();
   }
 
+  // Finds the player behind whichever connection sent a message — never
+  // keyed directly off connection.id, since that changes on every reconnect.
+  playerFor(connection: Connection): Player | undefined {
+    const pid = this.connIndex.get(connection.id);
+    return pid ? this.players.get(pid) : undefined;
+  }
+
   onClose(connection: Connection) {
-    this.players.delete(connection.id);
+    const pid = this.connIndex.get(connection.id);
+    this.connIndex.delete(connection.id);
+    if (!pid) return;
+    const player = this.players.get(pid);
+    // A reconnect can attach a new connection to this player before the
+    // old socket's own close event arrives — ignore a close that's no
+    // longer the current connection for this seat.
+    if (!player || player.connectionId !== connection.id) return;
+
+    if (this.phase === "lobby") {
+      this.players.delete(pid);
+    } else {
+      player.connectionId = null;
+      player.connected = false;
+    }
     this.broadcastPlayers();
     // Someone might have been the last player the group was waiting on.
+    this.checkAllGuessed();
     this.checkAllReady();
   }
 
@@ -141,22 +187,26 @@ export default class GuessTheSize extends Server {
     } else if (data.type === "guess" && typeof data.length_m === "number") {
       this.submitGuess(connection, data.length_m);
     } else if (data.type === "force-reveal") {
-      const player = this.players.get(connection.id);
+      const player = this.playerFor(connection);
       if (player?.isHost && this.phase === "guessing") this.reveal();
     } else if (data.type === "ready") {
       this.handleReady(connection);
     }
   }
 
+  // A disconnected host can't send anything, so excluding them lets a
+  // different player claim host via ?host=1 if the original never returns —
+  // while a matching reconnect (same pid) restores the original's own
+  // isHost flag untouched, since it's never cleared on disconnect.
   hasHost(): boolean {
-    return [...this.players.values()].some((p) => p.isHost);
+    return [...this.players.values()].some((p) => p.isHost && p.connected);
   }
 
   // Only the host can tune the format, and only before anything's started —
   // once the tournament is running, mid-game changes would desync scores
   // that are already averaged against the old round count.
   updateSettings(connection: Connection, maxRounds?: number, roundDurationMs?: number | null) {
-    const player = this.players.get(connection.id);
+    const player = this.playerFor(connection);
     if (!player?.isHost) return;
     if (this.phase !== "lobby") return;
 
@@ -175,7 +225,7 @@ export default class GuessTheSize extends Server {
   // can do this, and only from the lobby — mid-game round advancement and the
   // eventual rematch are driven by everyone readying up, not a host action.
   startGame(connection: Connection) {
-    const player = this.players.get(connection.id);
+    const player = this.playerFor(connection);
     if (!player?.isHost) return;
     if (this.phase !== "lobby") return;
 
@@ -232,13 +282,23 @@ export default class GuessTheSize extends Server {
 
   submitGuess(connection: Connection, length_m: number) {
     if (this.phase !== "guessing") return;
-    const player = this.players.get(connection.id);
+    const player = this.playerFor(connection);
     if (!player) return;
 
     player.guess = Math.max(0.001, length_m);
     this.broadcastPlayers();
+    this.checkAllGuessed();
+  }
 
-    const allGuessed = [...this.players.values()].every((p) => p.guess !== null);
+  // A disconnected player no longer blocks the round — their seat still
+  // owes a guess if they reconnect in time, but the group isn't stuck
+  // waiting on someone who isn't there. Also run from onClose, since
+  // whoever just left might have been the last one the round was waiting on.
+  checkAllGuessed() {
+    if (this.phase !== "guessing") return;
+    const connectedPlayers = [...this.players.values()].filter((p) => p.connected);
+    if (connectedPlayers.length === 0) return;
+    const allGuessed = connectedPlayers.every((p) => p.guess !== null);
     if (allGuessed) this.reveal();
   }
 
@@ -280,7 +340,7 @@ export default class GuessTheSize extends Server {
   // lobby, readying up for the next round after a reveal, or voting for a
   // rematch once final results are in.
   handleReady(connection: Connection) {
-    const player = this.players.get(connection.id);
+    const player = this.playerFor(connection);
     if (!player) return;
 
     if (this.phase === "lobby") {
@@ -299,16 +359,25 @@ export default class GuessTheSize extends Server {
   }
 
   // Called whenever a player readies up or disconnects — either can be the
-  // event that completes a unanimous ready check.
+  // event that completes a unanimous ready check. Only currently-connected
+  // players need to be ready, so someone who left permanently doesn't
+  // stall the group forever — if they reconnect before this fires, their
+  // own ready counts normally.
   checkAllReady() {
-    if (this.players.size === 0) return;
-    const allReady = [...this.players.values()].every((p) => p.ready);
+    const connectedPlayers = [...this.players.values()].filter((p) => p.connected);
+    if (connectedPlayers.length === 0) return;
+    const allReady = connectedPlayers.every((p) => p.ready);
     if (!allReady) return;
 
     if (this.phase === "reveal") {
       if (this.roundNumber >= this.maxRounds) this.finishGame();
       else this.beginRound();
     } else if (this.phase === "final") {
+      // Anyone who never came back by the time the group votes for a
+      // rematch doesn't get carried into the new tournament.
+      for (const [id, p] of this.players) {
+        if (!p.connected) this.players.delete(id);
+      }
       for (const p of this.players.values()) {
         p.totalScore = 0;
         p.ready = false;
@@ -396,6 +465,7 @@ export default class GuessTheSize extends Server {
           id: p.id,
           name: p.name,
           isHost: p.isHost,
+          connected: p.connected,
           hasGuessed: p.guess !== null,
           ready: p.ready,
         })),

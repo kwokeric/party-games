@@ -5,6 +5,25 @@ const room = params.get("room");
 const isHostUrl = params.get("host") === "1";
 const playerName = params.get("name") ?? "";
 
+// Minted once per room and kept in sessionStorage, so refreshing this tab
+// reconnects as the SAME player (the server re-attaches this id to the new
+// connection, restoring the right seat in the chain rotation) instead of
+// creating a new one with no seat at all. A brand-new tab has no copy of
+// this room's storage, so it still joins as a new player, same as before.
+let pid = null;
+if (room) {
+  const pidKey = `pg:pid:${room}`;
+  try {
+    pid = sessionStorage.getItem(pidKey);
+    if (!pid) {
+      pid = crypto.randomUUID();
+      sessionStorage.setItem(pidKey, pid);
+    }
+  } catch {
+    pid = crypto.randomUUID();
+  }
+}
+
 const el = (id) => document.getElementById(id);
 
 const lobbyView = el("lobby-view");
@@ -524,6 +543,7 @@ if (!room) {
   const connectParams = new URLSearchParams();
   if (isHostUrl) connectParams.set("host", "1");
   if (playerName) connectParams.set("name", playerName);
+  if (pid) connectParams.set("pid", pid);
   const query = connectParams.toString();
   socket = new WebSocket(
     `${protocol}//${location.host}/parties/telestrations/${room}${query ? `?${query}` : ""}`

@@ -48,6 +48,10 @@ type GuessRound = 1 | 2;
 
 type Player = {
   id: string;
+  // The connection currently live for this player, or null while they're
+  // disconnected. Never used as the player's identity — connections come
+  // and go on reconnect, this.players is keyed by the stable id instead.
+  connectionId: string | null;
   name: string;
   isHost: boolean;
   connected: boolean;
@@ -113,6 +117,11 @@ function isValidCell(value: unknown): value is Cell {
 
 export default class HuesAndClues extends Server {
   players = new Map<string, Player>();
+  // Maps a live connection id to the stable player id that owns it, so a
+  // reconnect (which always arrives as a brand new connection) can be
+  // reattached to the same seat in playerOrder/guessOrder instead of being
+  // orphaned.
+  connIndex = new Map<string, string>();
   phase: Phase = "lobby";
 
   guessDurationMs: number | null = DEFAULT_GUESS_DURATION_MS;
@@ -142,12 +151,24 @@ export default class HuesAndClues extends Server {
 
   onConnect(connection: Connection, ctx: ConnectionContext) {
     const url = new URL(ctx.request.url);
-    const isHost = url.searchParams.get("host") === "1" && !this.hasHost();
+    // The client mints and persists this in sessionStorage per room, so a
+    // page refresh reconnects as the SAME player instead of a new one —
+    // critically, as the SAME seat in playerOrder/guessOrder, so whose turn
+    // it is carries over correctly. A connection with no pid (an old cached
+    // tab, a non-browser client) falls back to the connection id, same as
+    // the old unconditional behavior.
+    const pid = url.searchParams.get("pid") || connection.id;
     const requestedName = url.searchParams.get("name")?.trim().slice(0, 20);
 
-    if (!this.players.has(connection.id)) {
-      this.players.set(connection.id, {
-        id: connection.id,
+    const existing = this.players.get(pid);
+    if (existing) {
+      existing.connectionId = connection.id;
+      existing.connected = true;
+    } else {
+      const isHost = url.searchParams.get("host") === "1" && !this.hasHost();
+      this.players.set(pid, {
+        id: pid,
+        connectionId: connection.id,
         name: requestedName || `Player ${this.players.size + 1}`,
         isHost,
         connected: true,
@@ -155,28 +176,44 @@ export default class HuesAndClues extends Server {
         score: 0,
       });
     }
+    this.connIndex.set(connection.id, pid);
 
-    connection.send(JSON.stringify({ type: "you", id: connection.id }));
+    connection.send(JSON.stringify({ type: "you", id: pid }));
     this.sendStateTo(connection);
     this.broadcastPlayers();
   }
 
+  // Finds the player behind whichever connection sent a message — never
+  // keyed directly off connection.id, since that changes on every reconnect.
+  playerFor(connection: Connection): Player | undefined {
+    const pid = this.connIndex.get(connection.id);
+    return pid ? this.players.get(pid) : undefined;
+  }
+
   onClose(connection: Connection) {
-    const player = this.players.get(connection.id);
-    if (!player) return;
+    const pid = this.connIndex.get(connection.id);
+    this.connIndex.delete(connection.id);
+    if (!pid) return;
+    const player = this.players.get(pid);
+    // A reconnect can attach a new connection to this player before the
+    // old socket's own close event arrives — ignore a close that's no
+    // longer the current connection for this seat.
+    if (!player || player.connectionId !== connection.id) return;
 
     // Once playerOrder is frozen, turn rotation is keyed off these ids
     // forever — deleting the record (like a fresh lobby would) would
-    // permanently corrupt whose turn is next. Mark it disconnected instead,
-    // and drop isHost so a reloading host can reclaim the role through the
-    // normal onConnect check rather than being locked out. A disconnect
-    // mid-guess needs no special handling beyond this — if it's currently
-    // their turn, the per-turn alarm skips them like any other stall.
+    // permanently corrupt whose turn is next. Mark it disconnected instead.
+    // isHost is deliberately left untouched: a matching reconnect (same
+    // pid) should come back as host if they left as host — hasHost()
+    // below is what lets a DIFFERENT player claim the role if the
+    // original host never returns. A disconnect mid-guess needs no
+    // special handling beyond this — if it's currently their turn, the
+    // per-turn alarm skips them like any other stall.
     if (this.phase === "lobby") {
-      this.players.delete(connection.id);
+      this.players.delete(pid);
     } else {
+      player.connectionId = null;
       player.connected = false;
-      player.isHost = false;
     }
     this.broadcastPlayers();
   }
@@ -214,8 +251,12 @@ export default class HuesAndClues extends Server {
     }
   }
 
+  // A disconnected host can't send anything, so excluding them lets a
+  // different player claim host via ?host=1 if the original never returns —
+  // while a matching reconnect (same pid) restores the original's own
+  // isHost flag untouched, since it's never cleared on disconnect.
   hasHost(): boolean {
-    return [...this.players.values()].some((p) => p.isHost);
+    return [...this.players.values()].some((p) => p.isHost && p.connected);
   }
 
   // Only the host, and only from the lobby — mirrors Match the Color's
@@ -223,7 +264,7 @@ export default class HuesAndClues extends Server {
   // flight. `null` (no limit) is always accepted as-is; a real duration is
   // clamped into the allowed range.
   updateSettings(connection: Connection, guessDurationMs?: number | null) {
-    const player = this.players.get(connection.id);
+    const player = this.playerFor(connection);
     if (!player?.isHost) return;
     if (this.phase !== "lobby") return;
 
@@ -238,7 +279,7 @@ export default class HuesAndClues extends Server {
   // Only the host, only from the lobby, and only once every other player
   // has readied up — mirrors Secret Hitler's dealRoles gate.
   startGame(connection: Connection) {
-    const host = this.players.get(connection.id);
+    const host = this.playerFor(connection);
     if (!host?.isHost) return;
     if (this.phase !== "lobby") return;
     if (this.players.size < MIN_PLAYERS || this.players.size > MAX_PLAYERS) return;
@@ -275,7 +316,8 @@ export default class HuesAndClues extends Server {
     await this.ctx.storage.setAlarm(this.roundEndsAt);
 
     for (const p of this.players.values()) {
-      const conn = this.getConnection(p.id);
+      if (!p.connectionId) continue;
+      const conn = this.getConnection(p.connectionId);
       if (conn) this.sendTurnStateTo(conn, p.id);
     }
     this.broadcastPlayers();
@@ -300,7 +342,7 @@ export default class HuesAndClues extends Server {
 
   pickCard(connection: Connection, index: number) {
     if (this.phase !== "turn") return;
-    if (connection.id !== this.clueGiverId()) return;
+    if (this.playerFor(connection)?.id !== this.clueGiverId()) return;
     if (this.targetCell) return; // already picked this turn
     const cell = this.cardOptions[index];
     if (!cell) return;
@@ -309,7 +351,7 @@ export default class HuesAndClues extends Server {
 
   submitClue(connection: Connection, text: unknown) {
     if (this.phase !== "turn") return;
-    if (connection.id !== this.clueGiverId()) return;
+    if (this.playerFor(connection)?.id !== this.clueGiverId()) return;
     if (!this.targetCell) return; // must pick a card first
     this.clue1 = sanitizeClue(text, 1);
     this.beginGuessing(1);
@@ -317,7 +359,7 @@ export default class HuesAndClues extends Server {
 
   submitClue2(connection: Connection, text: unknown) {
     if (this.phase !== "clue2") return;
-    if (connection.id !== this.clueGiverId()) return;
+    if (this.playerFor(connection)?.id !== this.clueGiverId()) return;
     this.clue2 = sanitizeClue(text, 2);
     this.beginGuessing(2);
   }
@@ -360,7 +402,8 @@ export default class HuesAndClues extends Server {
     await this.ctx.storage.setAlarm(this.roundEndsAt);
 
     for (const p of this.players.values()) {
-      const conn = this.getConnection(p.id);
+      if (!p.connectionId) continue;
+      const conn = this.getConnection(p.connectionId);
       if (conn) conn.send(JSON.stringify(this.clue2Payload(p.id)));
     }
     this.broadcastPlayers();
@@ -416,16 +459,17 @@ export default class HuesAndClues extends Server {
   // but never take someone else's).
   submitGuess(connection: Connection, cell: Cell) {
     if (this.phase !== "guessing") return;
-    if (connection.id !== this.guessOrder[this.guessTurnIndex]) return;
+    const playerId = this.playerFor(connection)?.id;
+    if (!playerId || playerId !== this.guessOrder[this.guessTurnIndex]) return;
     if (!isValidCell(cell)) return;
 
     const key = cellKey(cell);
     const owner = this.occupiedCells.get(key);
-    if (owner && owner !== connection.id) return;
+    if (owner && owner !== playerId) return;
 
-    this.occupiedCells.set(key, connection.id);
+    this.occupiedCells.set(key, playerId);
     const map = this.guessRound === 1 ? this.guesses1 : this.guesses2;
-    map.set(connection.id, cell);
+    map.set(playerId, cell);
 
     this.guessTurnIndex += 1;
     this.startGuesserTurn();
@@ -508,7 +552,7 @@ export default class HuesAndClues extends Server {
   // (can't undo) outside the lobby, and symmetric (no host exemption)
   // outside it, mirroring Match the Color's round-reveal/rematch flow.
   handleReady(connection: Connection) {
-    const player = this.players.get(connection.id);
+    const player = this.playerFor(connection);
     if (!player) return;
 
     if (this.phase === "lobby") {
@@ -526,9 +570,13 @@ export default class HuesAndClues extends Server {
     }
   }
 
+  // Only currently-connected players need to confirm "continue" — someone
+  // who disconnected and never came back doesn't stall the rest of the
+  // table forever.
   checkAllReadyToContinue() {
-    if (this.players.size === 0) return;
-    const allReady = [...this.players.values()].every((p) => p.ready);
+    const connectedPlayers = [...this.players.values()].filter((p) => p.connected);
+    if (connectedPlayers.length === 0) return;
+    const allReady = connectedPlayers.every((p) => p.ready);
     if (!allReady) return;
 
     if (this.phase === "reveal") {
@@ -570,6 +618,11 @@ export default class HuesAndClues extends Server {
     this.guesses1 = new Map();
     this.guesses2 = new Map();
     this.occupiedCells = new Map();
+    // Anyone who never came back by the time the table resets doesn't
+    // linger in the next lobby.
+    for (const [id, p] of this.players) {
+      if (!p.connected) this.players.delete(id);
+    }
     for (const p of this.players.values()) {
       p.ready = false;
       p.score = 0;
@@ -579,7 +632,7 @@ export default class HuesAndClues extends Server {
   }
 
   sendStateTo(connection: Connection) {
-    const player = this.players.get(connection.id);
+    const player = this.playerFor(connection);
     if (!player) return;
 
     if (this.phase === "turn") {

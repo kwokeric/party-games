@@ -28,6 +28,11 @@ const ROLE_TABLE: Record<number, { liberal: number; fascist: number; hitlerKnows
 
 type Player = {
   id: string;
+  // The connection currently live for this player, or null while they're
+  // disconnected. Never used as the player's identity — connections come
+  // and go on reconnect, this.players is keyed by the stable id instead.
+  connectionId: string | null;
+  connected: boolean;
   name: string;
   isHost: boolean;
   ready: boolean;
@@ -45,29 +50,70 @@ function shuffle<T>(items: T[]): T[] {
 
 export default class SecretHitler extends Server {
   players = new Map<string, Player>();
+  // Maps a live connection id to the stable player id that owns it, so a
+  // reconnect (which always arrives as a brand new connection) can be
+  // reattached to the same player record instead of creating a new one.
+  connIndex = new Map<string, string>();
   phase: Phase = "lobby";
   hitlerKnowsTeam = false;
 
   onConnect(connection: Connection, ctx: ConnectionContext) {
     const url = new URL(ctx.request.url);
-    const isHost = url.searchParams.get("host") === "1" && !this.hasHost();
+    // The client mints and persists this in sessionStorage per room, so a
+    // page refresh reconnects as the SAME player instead of a new one — and
+    // crucially, re-fetches their already-dealt role instead of landing
+    // back in the lobby with no role at all. A connection with no pid (an
+    // old cached tab, a non-browser client) falls back to the connection
+    // id, same as the old unconditional behavior.
+    const pid = url.searchParams.get("pid") || connection.id;
     const requestedName = url.searchParams.get("name")?.trim().slice(0, 20);
 
-    this.players.set(connection.id, {
-      id: connection.id,
-      name: requestedName || `Player ${this.players.size + 1}`,
-      isHost,
-      ready: false,
-      role: null,
-    });
+    const existing = this.players.get(pid);
+    if (existing) {
+      existing.connectionId = connection.id;
+      existing.connected = true;
+    } else {
+      const isHost = url.searchParams.get("host") === "1" && !this.hasHost();
+      this.players.set(pid, {
+        id: pid,
+        connectionId: connection.id,
+        connected: true,
+        name: requestedName || `Player ${this.players.size + 1}`,
+        isHost,
+        ready: false,
+        role: null,
+      });
+    }
+    this.connIndex.set(connection.id, pid);
 
-    connection.send(JSON.stringify({ type: "you", id: connection.id }));
+    connection.send(JSON.stringify({ type: "you", id: pid }));
     this.sendStateTo(connection);
     this.broadcastPlayers();
   }
 
+  // Finds the player behind whichever connection sent a message — never
+  // keyed directly off connection.id, since that changes on every reconnect.
+  playerFor(connection: Connection): Player | undefined {
+    const pid = this.connIndex.get(connection.id);
+    return pid ? this.players.get(pid) : undefined;
+  }
+
   onClose(connection: Connection) {
-    this.players.delete(connection.id);
+    const pid = this.connIndex.get(connection.id);
+    this.connIndex.delete(connection.id);
+    if (!pid) return;
+    const player = this.players.get(pid);
+    // A reconnect can attach a new connection to this player before the
+    // old socket's own close event arrives — ignore a close that's no
+    // longer the current connection for this seat.
+    if (!player || player.connectionId !== connection.id) return;
+
+    if (this.phase === "lobby") {
+      this.players.delete(pid);
+    } else {
+      player.connectionId = null;
+      player.connected = false;
+    }
     this.broadcastPlayers();
     this.checkAllReady();
   }
@@ -110,15 +156,19 @@ export default class SecretHitler extends Server {
     );
   }
 
+  // A disconnected host can't send anything, so excluding them lets a
+  // different player claim host via ?host=1 if the original never returns —
+  // while a matching reconnect (same pid) restores the original's own
+  // isHost flag untouched, since it's never cleared on disconnect.
   hasHost(): boolean {
-    return [...this.players.values()].some((p) => p.isHost);
+    return [...this.players.values()].some((p) => p.isHost && p.connected);
   }
 
   // Only the host deals, only from the lobby, and only with a supported
   // headcount — mirrors the other games' "only the host, only from the
   // lobby" gate on starting.
   dealRoles(connection: Connection) {
-    const host = this.players.get(connection.id);
+    const host = this.playerFor(connection);
     if (!host?.isHost) return;
     if (this.phase !== "lobby") return;
 
@@ -143,7 +193,8 @@ export default class SecretHitler extends Server {
     this.phase = "reveal";
 
     for (const p of this.players.values()) {
-      const conn = this.getConnection(p.id);
+      if (!p.connectionId) continue;
+      const conn = this.getConnection(p.connectionId);
       if (conn) this.sendRoleTo(conn, p);
     }
     this.broadcastPlayers();
@@ -172,7 +223,7 @@ export default class SecretHitler extends Server {
   // confirmed they've seen their role, the table moves on to playing it out
   // in person.
   handleReady(connection: Connection) {
-    const player = this.players.get(connection.id);
+    const player = this.playerFor(connection);
     if (!player) return;
 
     if (this.phase === "lobby") {
@@ -190,10 +241,15 @@ export default class SecretHitler extends Server {
     }
   }
 
+  // Only currently-connected players need to confirm they've seen their
+  // role — someone who disconnected mid-reveal doesn't stall the table
+  // forever, and a reconnect (same pid) gets their role replayed via
+  // sendStateTo and can still ready up normally.
   checkAllReady() {
     if (this.phase !== "reveal") return;
-    if (this.players.size === 0) return;
-    const allReady = [...this.players.values()].every((p) => p.ready);
+    const connectedPlayers = [...this.players.values()].filter((p) => p.connected);
+    if (connectedPlayers.length === 0) return;
+    const allReady = connectedPlayers.every((p) => p.ready);
     if (!allReady) return;
 
     this.phase = "table";
@@ -205,10 +261,15 @@ export default class SecretHitler extends Server {
   // deal again — there's no "game over" state yet since nominations/voting/
   // legislating aren't built, so this is how a table wraps up a round.
   resetToLobby(connection: Connection) {
-    const host = this.players.get(connection.id);
+    const host = this.playerFor(connection);
     if (!host?.isHost) return;
 
     this.phase = "lobby";
+    // Anyone who never came back by the time the table resets doesn't
+    // linger in the next lobby.
+    for (const [id, p] of this.players) {
+      if (!p.connected) this.players.delete(id);
+    }
     for (const p of this.players.values()) {
       p.role = null;
       p.ready = false;
@@ -218,7 +279,7 @@ export default class SecretHitler extends Server {
   }
 
   sendStateTo(connection: Connection) {
-    const player = this.players.get(connection.id);
+    const player = this.playerFor(connection);
     if (!player) return;
 
     if (this.phase === "reveal" && player.role) {
@@ -239,6 +300,7 @@ export default class SecretHitler extends Server {
           id: p.id,
           name: p.name,
           isHost: p.isHost,
+          connected: p.connected,
           ready: p.ready,
         })),
       })
