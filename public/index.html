@@ -26,16 +26,19 @@
         </div>
 
         <section class="join-section">
-          <h2>Join a room</h2>
-          <div class="join-row">
+          <div class="name-card">
+            <label class="name-card-label" for="join-name">Your name</label>
             <input
               id="join-name"
               class="home-input"
               type="text"
-              placeholder="Your name"
+              placeholder="Enter your name"
               autocomplete="off"
               maxlength="20"
             />
+          </div>
+          <h2 class="option-heading"><span>Join with a code</span></h2>
+          <div class="join-row">
             <input
               id="join-code"
               class="home-input"
@@ -44,16 +47,15 @@
               maxlength="4"
               autocomplete="off"
               autocapitalize="characters"
+              aria-label="Room code"
             />
+            <button id="join-btn" class="home-btn join-btn" type="button">Join</button>
           </div>
-          <button id="join-btn" class="home-btn join-btn" type="button">Join a room</button>
           <p id="join-error" class="error"></p>
         </section>
 
-        <hr class="section-divider" />
-
         <section class="games-section">
-          <h2>Games</h2>
+          <h2 class="option-heading"><span>Or host a game</span></h2>
           <div id="games" class="game-grid"></div>
         </section>
       </div>
