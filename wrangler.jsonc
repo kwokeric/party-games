@@ -13,7 +13,8 @@
       { "name": "MatchTheColor", "class_name": "MatchTheColor" },
       { "name": "SecretHitler", "class_name": "SecretHitler" },
       { "name": "Telestrations", "class_name": "Telestrations" },
-      { "name": "HuesAndClues", "class_name": "HuesAndClues" }
+      { "name": "HuesAndClues", "class_name": "HuesAndClues" },
+      { "name": "Imposter", "class_name": "Imposter" }
     ]
   },
   "migrations": [
@@ -36,6 +37,10 @@
     {
       "tag": "v5",
       "new_sqlite_classes": ["HuesAndClues"]
+    },
+    {
+      "tag": "v6",
+      "new_sqlite_classes": ["Imposter"]
     }
   ]
 }

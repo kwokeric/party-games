@@ -1,0 +1,195 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Imposter</title>
+    <link rel="icon" href="/favicon.ico" sizes="any" />
+    <link rel="stylesheet" href="/normalize.css" />
+    <link rel="stylesheet" href="/styles.css" />
+    <link rel="stylesheet" href="/shared/app-shell.css" />
+    <link rel="stylesheet" href="./lobby.css" />
+    <link rel="stylesheet" href="./game.css" />
+  </head>
+  <body>
+    <main class="page">
+      <section id="lobby-view" class="view lobby-view">
+        <div class="app-topbar">
+          <span class="app-topbar-dot"></span>
+          <span class="app-topbar-word">PARTY GAMES</span>
+        </div>
+        <div class="app-shell">
+          <div class="app-pagehead">
+            <div class="app-pagehead-left">
+              <button class="app-back-btn js-back" type="button" aria-label="Back to home">
+                <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="#111" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><line x1="19" y1="12" x2="5" y2="12"></line><polyline points="12 19 5 12 12 5"></polyline></svg>
+              </button>
+              <div class="app-pagehead-titles">
+                <h1>Imposter</h1>
+                <p id="lobby-subtitle">Waiting for players to join</p>
+              </div>
+            </div>
+            <button id="copy-code-btn" class="app-code-chip lobby-code-chip" type="button" aria-label="Copy room code">
+              <span class="js-room-code">-</span>
+              <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="9" y="9" width="13" height="13" rx="2"></rect><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"></path></svg>
+            </button>
+          </div>
+
+          <div class="lobby-panel lobby-intro-card">
+            <div class="lobby-intro-tabs" id="lobby-intro-tabs">
+              <button type="button" class="is-active" data-pane="preview">Preview</button>
+              <button type="button" data-pane="howto">How to play</button>
+            </div>
+            <div class="lobby-intro-panes">
+              <div class="lobby-intro-pane is-active" data-pane="preview">
+                <h3>Preview</h3>
+                <div class="lobby-preview-stage">
+                  <div class="imp-preview-card is-word is-left"><small>The word</small><b>PIZZA</b></div>
+                  <div class="imp-preview-card is-word is-imposter"><small>You're the</small><b>IMPOSTER</b></div>
+                  <div class="imp-preview-card is-word is-right"><small>The word</small><b>PIZZA</b></div>
+                </div>
+              </div>
+              <div class="lobby-intro-pane" data-pane="howto">
+                <h3>How to play</h3>
+                <ul class="lobby-howto-list">
+                  <li>Everyone gets the same secret word except the imposter, who only gets a loosely related hint.</li>
+                  <li>Go around the circle in person. Each player says one word related to the secret word.</li>
+                  <li>Then everyone votes on who the imposter is. The imposter wins by staying hidden, or by guessing the word once caught.</li>
+                </ul>
+              </div>
+            </div>
+          </div>
+
+          <div id="lobby-settings-panel" class="lobby-panel" hidden>
+            <h3>Round settings</h3>
+            <div class="imp-set-row">
+              <div>
+                <div class="imp-set-label">Imposters</div>
+                <div class="imp-set-sub" id="imposter-count-sub"></div>
+              </div>
+              <div class="lobby-stepper">
+                <button id="imposter-minus" class="lobby-stepper-btn" type="button" aria-label="Fewer imposters">−</button>
+                <span id="imposter-count" class="lobby-stepper-val">1</span>
+                <button id="imposter-plus" class="lobby-stepper-btn" type="button" aria-label="More imposters">+</button>
+              </div>
+            </div>
+            <div class="imp-set-row">
+              <div>
+                <div class="imp-set-label">Imposter gets a hint</div>
+                <div class="imp-set-sub">A loosely related word, like "Italy" for Pizza</div>
+              </div>
+              <button id="hint-toggle" class="imp-toggle" type="button" role="switch" aria-label="Imposter gets a hint"></button>
+            </div>
+            <div class="imp-set-row">
+              <div>
+                <div class="imp-set-label">Show category</div>
+                <div class="imp-set-sub">Everyone, imposter included, sees the category</div>
+              </div>
+              <button id="category-toggle" class="imp-toggle" type="button" role="switch" aria-label="Show category"></button>
+            </div>
+            <div class="imp-cats-head">
+              <div class="imp-set-label">Categories</div>
+              <button id="categories-all-btn" class="imp-link-btn" type="button">Select all</button>
+            </div>
+            <div id="category-chips" class="imp-chips"></div>
+          </div>
+
+          <p id="lobby-settings-summary" class="lobby-settings-summary" hidden></p>
+
+          <div class="lobby-panel lobby-players-panel">
+            <h3 id="players-heading">Players</h3>
+            <ul id="lobby-player-list" class="lobby-player-list"></ul>
+            <button id="start-btn" class="lobby-action-btn" type="button" hidden>Start round</button>
+            <button id="ready-btn" class="lobby-action-btn" type="button" hidden>Ready up</button>
+            <p id="lobby-hint" class="lobby-hint"></p>
+          </div>
+        </div>
+      </section>
+
+      <section id="reveal-view" class="view imp-dark-view" hidden>
+        <div class="imp-banner">
+          <button class="guess-icon-btn js-back" type="button" aria-label="Back to home">
+            <svg width="12" height="18" viewBox="0 0 24 24" fill="none" stroke="#ffffff" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="15 5 8 12 15 19"></polyline></svg>
+          </button>
+          <div class="imp-banner-title">Imposter</div>
+          <div class="guess-room-pill js-room-code">-</div>
+        </div>
+
+        <div class="imp-body">
+          <div id="word-card" class="imp-card">
+            <div class="imp-card-face imp-card-front">
+              <div class="imp-card-lock">🔒</div>
+              <p>Tap to see your word</p>
+              <small>Tap again to hide it</small>
+            </div>
+            <div id="word-card-back" class="imp-card-face imp-card-back"></div>
+          </div>
+
+          <div class="imp-first-up">
+            <span id="first-up-avatar" class="imp-avatar is-blue">?</span>
+            <p><b id="first-up-name"></b><span>Then go clockwise around the circle</span></p>
+          </div>
+
+          <div class="imp-actions">
+            <button id="seen-btn" class="lobby-action-btn" type="button" disabled>Got it</button>
+          </div>
+
+          <div id="seen-strip" class="imp-ready-strip"></div>
+        </div>
+      </section>
+
+      <section id="voting-view" class="view imp-dark-view" hidden>
+        <div class="imp-banner">
+          <button class="guess-icon-btn js-back" type="button" aria-label="Back to home">
+            <svg width="12" height="18" viewBox="0 0 24 24" fill="none" stroke="#ffffff" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="15 5 8 12 15 19"></polyline></svg>
+          </button>
+          <div class="imp-banner-title">Imposter</div>
+          <div class="guess-room-pill js-room-code">-</div>
+        </div>
+
+        <div class="imp-body">
+          <h2 class="imp-vote-title">Who's the imposter?</h2>
+          <p id="vote-sub" class="imp-vote-sub">Tap a player to vote for them</p>
+          <button id="peek-btn" class="imp-peek-btn" type="button">Show my word</button>
+          <ul id="vote-list" class="imp-vote-list"></ul>
+          <div class="imp-actions">
+            <button id="vote-btn" class="lobby-action-btn" type="button" disabled>Lock in vote</button>
+          </div>
+          <div id="voted-strip" class="imp-ready-strip"></div>
+          <p id="vote-wait" class="imp-wait"></p>
+        </div>
+      </section>
+
+      <section id="results-view" class="view imp-dark-view" hidden>
+        <div class="imp-banner">
+          <button class="guess-icon-btn js-back" type="button" aria-label="Back to home">
+            <svg width="12" height="18" viewBox="0 0 24 24" fill="none" stroke="#ffffff" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="15 5 8 12 15 19"></polyline></svg>
+          </button>
+          <div class="imp-banner-title">Imposter</div>
+          <div class="guess-room-pill js-room-code">-</div>
+        </div>
+
+        <div class="imp-body">
+          <div class="imp-verdict">
+            <div id="outcome" class="imp-outcome"></div>
+            <p id="outcome-detail" class="imp-outcome-detail"></p>
+            <div id="imposter-kicker" class="imp-kicker">The imposter was</div>
+            <div id="imposter-reveal" class="imp-suspects"></div>
+            <div class="imp-facts">
+              <div class="imp-fact is-word"><small>The word</small><b id="result-word"></b></div>
+              <div id="result-hint-fact" class="imp-fact is-hint"><small>Their hint</small><b id="result-hint"></b></div>
+            </div>
+          </div>
+          <ul id="tally-list" class="imp-tally"></ul>
+          <p id="last-chance" class="imp-last-chance"></p>
+          <div class="imp-actions">
+            <button id="play-again-btn" class="lobby-action-btn" type="button" hidden>Play again</button>
+            <button id="lobby-btn" class="lobby-action-btn is-ghost" type="button" hidden>Back to lobby</button>
+          </div>
+          <p id="results-wait" class="imp-wait"></p>
+        </div>
+      </section>
+    </main>
+    <script type="module" src="./client.js"></script>
+  </body>
+</html>

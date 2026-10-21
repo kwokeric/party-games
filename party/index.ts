@@ -5,8 +5,9 @@ import MatchTheColor from "./games/match-the-color";
 import SecretHitler from "./games/secret-hitler";
 import Telestrations from "./games/telestrations";
 import HuesAndClues from "./games/hues-and-clues";
+import Imposter from "./games/imposter";
 
-export { Lobby, GuessTheSize, MatchTheColor, SecretHitler, Telestrations, HuesAndClues };
+export { Lobby, GuessTheSize, MatchTheColor, SecretHitler, Telestrations, HuesAndClues, Imposter };
 
 // Requests for files under public/ are served directly as static assets
 // (configured via wrangler.jsonc `assets`) and never reach this handler.

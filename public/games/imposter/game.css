@@ -1,0 +1,670 @@
+/* Reveal, voting and results — the dark, phone-first views. Mirrors Secret
+   Hitler's role.css (same banner, flip card and ready strip), so the two
+   hidden-role games read as one family. */
+
+.imp-dark-view {
+  margin: -2rem calc(50% - 50vw) 0;
+  min-height: 100vh;
+  min-height: 100dvh;
+  background: #14161c;
+  display: flex;
+  flex-direction: column;
+}
+
+.imp-banner {
+  background: #0b3b57;
+  padding: 16px 20px;
+  box-sizing: border-box;
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+
+.imp-banner-title {
+  font-family: "Fredoka", system-ui, sans-serif;
+  font-weight: 600;
+  font-size: 17px;
+  color: #ffffff;
+  flex: 1;
+}
+
+/* Bare icon, no button chrome — without this the back button falls through
+   to the global `button{background:#e63946}` default in styles.css. */
+.guess-icon-btn {
+  border: none;
+  background: none;
+  padding: 0;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+}
+
+.guess-room-pill {
+  background: rgba(255, 255, 255, 0.16);
+  font-family: "Fredoka", system-ui, sans-serif;
+  font-weight: 600;
+  font-size: 13px;
+  letter-spacing: 1.5px;
+  color: #ffffff;
+  padding: 5px 10px;
+  border-radius: 999px;
+  flex-shrink: 0;
+}
+
+.imp-body {
+  max-width: 460px;
+  width: 100%;
+  margin: 0 auto;
+  padding: 24px 20px 32px;
+  box-sizing: border-box;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  flex: 1;
+}
+
+.imp-actions {
+  width: 100%;
+  max-width: 320px;
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+
+.imp-wait {
+  margin: 12px 0 0;
+  font-size: 12.5px;
+  color: rgba(255, 255, 255, 0.5);
+  text-align: center;
+}
+
+.imp-wait:empty {
+  display: none;
+}
+
+.imp-avatar {
+  width: 36px;
+  height: 36px;
+  border-radius: 999px;
+  background: rgba(255, 255, 255, 0.15);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+  font-family: "Fredoka", system-ui, sans-serif;
+  font-size: 14px;
+  font-weight: 600;
+  color: #ffffff;
+}
+
+.imp-avatar.is-blue {
+  background: var(--blue);
+}
+
+.imp-avatar.is-coral {
+  background: var(--coral);
+}
+
+/* --- Flip card ----------------------------------------------------------- */
+
+/* Same two-faced flip as Secret Hitler's role card: tapping turns it over
+   rather than swapping content, and tapping again hides it. */
+.imp-card {
+  position: relative;
+  width: 100%;
+  max-width: 320px;
+  aspect-ratio: 3 / 4;
+  perspective: 1200px;
+  cursor: pointer;
+  margin-bottom: 18px;
+}
+
+.imp-card-face {
+  position: absolute;
+  inset: 0;
+  border-radius: 18px;
+  backface-visibility: hidden;
+  transition: transform 0.5s cubic-bezier(0.2, 0.8, 0.3, 1);
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  padding: 24px;
+  box-sizing: border-box;
+  text-align: center;
+}
+
+.imp-card-front {
+  background: linear-gradient(160deg, #2a2f3a, #1a1d24);
+  border: 1px solid rgba(255, 255, 255, 0.08);
+  color: rgba(255, 255, 255, 0.75);
+}
+
+.imp-card-lock {
+  font-size: 34px;
+  margin-bottom: 10px;
+  opacity: 0.7;
+}
+
+.imp-card-front p {
+  margin: 0;
+  font-family: "Fredoka", system-ui, sans-serif;
+  font-size: 15px;
+}
+
+.imp-card-front small {
+  margin-top: 6px;
+  font-size: 12px;
+  color: rgba(255, 255, 255, 0.4);
+}
+
+.imp-card-back {
+  transform: rotateY(180deg);
+  color: #ffffff;
+}
+
+.imp-card.is-revealed .imp-card-front {
+  transform: rotateY(-180deg);
+}
+
+.imp-card.is-revealed .imp-card-back {
+  transform: rotateY(0deg);
+}
+
+/* Word and imposter cards share one color on purpose — in a dark room the
+   glow off a phone would otherwise give the imposter away. */
+.imp-card-back {
+  background: linear-gradient(160deg, #0d8fd6, #065a86);
+}
+
+.imp-kicker {
+  margin-bottom: 8px;
+  font-family: "Fredoka", system-ui, sans-serif;
+  font-size: 11.5px;
+  font-weight: 600;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+  opacity: 0.75;
+}
+
+/* Stretched to the card's full inner width so fitText() in client.js can
+   detect a single word overflowing it, and shrink the font until it fits —
+   words never break mid-word (multi-word answers still wrap at spaces). */
+.imp-big-word {
+  align-self: stretch;
+  margin-bottom: 12px;
+  font-family: "Fredoka", system-ui, sans-serif;
+  font-size: 34px;
+  font-weight: 700;
+  line-height: 1.1;
+  letter-spacing: 0.02em;
+  text-transform: uppercase;
+}
+
+.imp-cat-chip {
+  background: rgba(0, 0, 0, 0.25);
+  border-radius: 999px;
+  padding: 5px 12px;
+  font-family: "Fredoka", system-ui, sans-serif;
+  font-size: 12.5px;
+  font-weight: 600;
+}
+
+.imp-card-desc {
+  margin: 14px 0 0;
+  font-size: 13.5px;
+  line-height: 1.5;
+  color: rgba(255, 255, 255, 0.85);
+}
+
+.imp-role-icon {
+  width: 56px;
+  height: 56px;
+  border-radius: 999px;
+  background: rgba(255, 255, 255, 0.16);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  margin-bottom: 12px;
+}
+
+.imp-role-title {
+  margin-bottom: 14px;
+  font-family: "Fredoka", system-ui, sans-serif;
+  font-size: 26px;
+  font-weight: 700;
+  letter-spacing: 0.03em;
+  text-transform: uppercase;
+}
+
+.imp-hint-box {
+  margin-bottom: 10px;
+  padding: 10px 18px;
+  border-radius: 12px;
+  background: rgba(0, 0, 0, 0.25);
+}
+
+.imp-hint-box small {
+  display: block;
+  font-family: "Fredoka", system-ui, sans-serif;
+  font-size: 10.5px;
+  font-weight: 600;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+  opacity: 0.7;
+}
+
+.imp-hint-box b {
+  font-family: "Fredoka", system-ui, sans-serif;
+  font-size: 22px;
+  font-weight: 700;
+}
+
+.imp-first-up {
+  width: 100%;
+  max-width: 320px;
+  box-sizing: border-box;
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  margin-bottom: 14px;
+  padding: 10px 12px;
+  border-radius: 12px;
+  background: rgba(255, 255, 255, 0.06);
+}
+
+.imp-first-up p {
+  margin: 0;
+  font-size: 12px;
+  line-height: 1.4;
+  color: rgba(255, 255, 255, 0.45);
+}
+
+.imp-first-up b {
+  display: block;
+  font-family: "Fredoka", system-ui, sans-serif;
+  font-size: 14px;
+  font-weight: 600;
+  color: #ffffff;
+}
+
+/* --- Ready / voted strip ------------------------------------------------- */
+
+.imp-ready-strip {
+  width: 100%;
+  max-width: 320px;
+  display: flex;
+  flex-wrap: wrap;
+  gap: 14px;
+  justify-content: center;
+  margin-top: 18px;
+}
+
+.imp-ready-item {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 5px;
+  opacity: 0.4;
+}
+
+.imp-ready-item.is-ready {
+  opacity: 1;
+}
+
+.imp-ready-avatar {
+  position: relative;
+  width: 38px;
+  height: 38px;
+  border-radius: 999px;
+  background: rgba(255, 255, 255, 0.15);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-family: "Fredoka", system-ui, sans-serif;
+  font-size: 13px;
+  font-weight: 600;
+  color: #ffffff;
+}
+
+.imp-ready-item.is-ready .imp-ready-avatar {
+  background: var(--blue);
+}
+
+.imp-ready-item.is-me .imp-ready-avatar {
+  box-shadow: 0 0 0 2px #14161c, 0 0 0 4px #ffffff;
+}
+
+.imp-ready-badge {
+  position: absolute;
+  bottom: -2px;
+  right: -2px;
+  width: 15px;
+  height: 15px;
+  border-radius: 999px;
+  background: #3fb27f;
+  border: 2px solid #14161c;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.imp-ready-name {
+  max-width: 52px;
+  font-size: 10.5px;
+  color: rgba(255, 255, 255, 0.7);
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+/* --- Voting -------------------------------------------------------------- */
+
+.imp-vote-title {
+  margin: 4px 0 4px;
+  font-family: "Fredoka", system-ui, sans-serif;
+  font-size: 26px;
+  font-weight: 700;
+  color: #ffffff;
+  text-align: center;
+}
+
+.imp-vote-sub {
+  margin: 0 0 12px;
+  font-size: 13.5px;
+  color: rgba(255, 255, 255, 0.55);
+  text-align: center;
+}
+
+.imp-peek-btn {
+  margin-bottom: 16px;
+  padding: 6px 14px;
+  border: 1px solid rgba(255, 255, 255, 0.2);
+  border-radius: 999px;
+  background: transparent;
+  font-family: "Fredoka", system-ui, sans-serif;
+  font-size: 12.5px;
+  font-weight: 600;
+  color: rgba(255, 255, 255, 0.75);
+  cursor: pointer;
+}
+
+.imp-peek-btn.is-showing {
+  border-color: transparent;
+  background: rgba(255, 255, 255, 0.12);
+  color: #ffffff;
+}
+
+.imp-vote-list {
+  width: 100%;
+  max-width: 320px;
+  margin: 0 0 16px;
+  padding: 0;
+  list-style: none;
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.imp-vote-option {
+  width: 100%;
+  box-sizing: border-box;
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 9px 12px;
+  border: 2px solid transparent;
+  border-radius: 12px;
+  background: rgba(255, 255, 255, 0.06);
+  color: #ffffff;
+  text-align: left;
+  cursor: pointer;
+  transition: background 0.12s, border-color 0.12s;
+}
+
+.imp-vote-option:hover:not(:disabled) {
+  background: rgba(255, 255, 255, 0.1);
+}
+
+.imp-vote-option:disabled {
+  opacity: 0.35;
+  cursor: default;
+}
+
+.imp-vote-name {
+  flex: 1;
+  min-width: 0;
+  font-family: "Fredoka", system-ui, sans-serif;
+  font-size: 14px;
+  font-weight: 600;
+  letter-spacing: 0.5px;
+  text-transform: uppercase;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.imp-vote-check {
+  width: 20px;
+  height: 20px;
+  box-sizing: border-box;
+  flex-shrink: 0;
+  border: 2px solid rgba(255, 255, 255, 0.25);
+  border-radius: 999px;
+}
+
+.imp-vote-option.is-picked {
+  border-color: var(--coral);
+  background: rgba(213, 96, 98, 0.16);
+  opacity: 1;
+}
+
+.imp-vote-option.is-picked .imp-avatar {
+  background: var(--coral);
+}
+
+.imp-vote-option.is-picked .imp-vote-check {
+  border-color: var(--coral);
+  background: var(--coral)
+    url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='white' stroke-width='3.5' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpolyline points='5 12 10 17 19 7'/%3E%3C/svg%3E")
+    center / 12px no-repeat;
+}
+
+/* --- Results ------------------------------------------------------------- */
+
+.imp-verdict {
+  width: 100%;
+  max-width: 320px;
+  text-align: center;
+  color: #ffffff;
+}
+
+.imp-outcome {
+  display: inline-block;
+  margin: 4px 0 6px;
+  padding: 5px 12px;
+  border-radius: 999px;
+  font-family: "Fredoka", system-ui, sans-serif;
+  font-size: 12.5px;
+  font-weight: 700;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+}
+
+.imp-outcome.is-caught {
+  background: rgba(63, 178, 127, 0.18);
+  color: #5fd39e;
+}
+
+.imp-outcome.is-escaped {
+  background: rgba(213, 96, 98, 0.2);
+  color: #f08a8c;
+}
+
+.imp-outcome-detail {
+  margin: 0 0 16px;
+  font-size: 13px;
+  color: rgba(255, 255, 255, 0.55);
+}
+
+.imp-verdict .imp-kicker {
+  color: rgba(255, 255, 255, 0.55);
+  opacity: 1;
+}
+
+.imp-suspects {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: center;
+  gap: 18px;
+  margin: 6px 0 18px;
+}
+
+.imp-suspect {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 8px;
+}
+
+.imp-suspect .imp-avatar {
+  width: 72px;
+  height: 72px;
+  font-size: 26px;
+  background: linear-gradient(160deg, #d5484a, #7c1f21);
+  box-shadow: 0 8px 24px rgba(213, 72, 74, 0.35);
+}
+
+.imp-suspect b {
+  font-family: "Fredoka", system-ui, sans-serif;
+  font-size: 22px;
+  font-weight: 700;
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
+}
+
+.imp-facts {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 8px;
+  margin-bottom: 18px;
+}
+
+.imp-facts.is-single {
+  grid-template-columns: 1fr;
+}
+
+.imp-fact {
+  padding: 12px 8px;
+  border-radius: 12px;
+  background: rgba(255, 255, 255, 0.06);
+}
+
+.imp-fact small {
+  display: block;
+  margin-bottom: 4px;
+  font-family: "Fredoka", system-ui, sans-serif;
+  font-size: 10.5px;
+  font-weight: 600;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+  color: rgba(255, 255, 255, 0.45);
+}
+
+/* Block so it spans the cell — fitText() measures against that width. */
+.imp-fact b {
+  display: block;
+  font-family: "Fredoka", system-ui, sans-serif;
+  font-size: 19px;
+  font-weight: 700;
+}
+
+.imp-fact.is-word b {
+  color: #6cc3f5;
+}
+
+.imp-fact.is-hint b {
+  color: #f08a8c;
+}
+
+.imp-tally {
+  width: 100%;
+  max-width: 320px;
+  margin: 0 0 14px;
+  padding: 0;
+  list-style: none;
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+
+.imp-tally li {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.imp-tally .imp-avatar {
+  width: 26px;
+  height: 26px;
+  font-size: 11px;
+}
+
+.imp-tally li.is-imposter .imp-avatar {
+  background: var(--coral);
+}
+
+.imp-tally-name {
+  width: 76px;
+  font-family: "Fredoka", system-ui, sans-serif;
+  font-size: 12.5px;
+  font-weight: 600;
+  color: rgba(255, 255, 255, 0.8);
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.imp-tally-bar {
+  flex: 1;
+  height: 8px;
+  border-radius: 999px;
+  background: rgba(255, 255, 255, 0.08);
+  overflow: hidden;
+}
+
+.imp-tally-bar i {
+  display: block;
+  height: 100%;
+  border-radius: 999px;
+  background: rgba(255, 255, 255, 0.4);
+}
+
+.imp-tally li.is-imposter .imp-tally-bar i {
+  background: var(--coral);
+}
+
+.imp-tally-count {
+  width: 16px;
+  text-align: right;
+  font-family: "Fredoka", system-ui, sans-serif;
+  font-size: 13px;
+  font-weight: 700;
+  color: #ffffff;
+}
+
+.imp-last-chance {
+  width: 100%;
+  max-width: 320px;
+  box-sizing: border-box;
+  margin: 0 0 16px;
+  padding: 10px 12px;
+  border-radius: 12px;
+  background: rgba(255, 255, 255, 0.06);
+  font-size: 13px;
+  line-height: 1.45;
+  color: rgba(255, 255, 255, 0.75);
+  text-align: center;
+}

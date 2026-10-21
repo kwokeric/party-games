@@ -1,0 +1,474 @@
+@import url("https://fonts.googleapis.com/css2?family=Fredoka:wght@500;600;700&display=swap");
+
+/* .imp-dark-view sets an unconditional `display`, which — being equal
+   specificity to the UA default `[hidden]{display:none}` — would otherwise
+   win and keep a "hidden" section visible underneath whichever view is
+   actually showing. Same override every other game carries. */
+[hidden] {
+  display: none !important;
+}
+
+/* Global, not scoped to .lobby-view — .lobby-action-btn and friends get
+   reused on the reveal/voting/results views too (all siblings of
+   .lobby-view, not descendants), and var() silently resolves to nothing
+   outside the scope it's defined in. */
+:root {
+  --blue: #067bc2;
+  --light-blue: #84bcda;
+  --cream: #f0eee6;
+  --coral: #d56062;
+  --ink: rgba(0, 0, 0, 0.85);
+  --ink-soft: rgba(0, 0, 0, 0.6);
+  --ink-faint: rgba(0, 0, 0, 0.4);
+}
+
+.lobby-view {
+  margin: -2rem calc(50% - 50vw) 0;
+  background: var(--cream);
+  color: var(--ink);
+  font-family: system-ui, -apple-system, sans-serif;
+  padding-bottom: 32px;
+}
+
+.lobby-panel {
+  background: #ffffff;
+  border: 1px solid rgba(0, 0, 0, 0.08);
+  border-radius: 16px;
+  padding: 20px;
+  box-sizing: border-box;
+  margin-bottom: 24px;
+}
+
+/* Preview and "How to play" live in one card. On mobile, a pill tab
+   switches between the two (only one pane visible at a time); on desktop
+   there's room for both side by side, so the tabs disappear and both
+   panes just show at once. */
+.lobby-intro-tabs {
+  display: flex;
+  background: var(--cream);
+  border-radius: 999px;
+  padding: 4px;
+  gap: 2px;
+  margin-bottom: 16px;
+}
+
+.lobby-intro-tabs button {
+  flex: 1;
+  border: none;
+  background: transparent;
+  padding: 8px 0;
+  border-radius: 999px;
+  font-family: "Fredoka", system-ui, sans-serif;
+  font-size: 13px;
+  font-weight: 600;
+  color: var(--ink-soft);
+  cursor: pointer;
+}
+
+.lobby-intro-tabs button.is-active {
+  background: #ffffff;
+  color: var(--blue);
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.12);
+}
+
+.lobby-intro-pane {
+  display: none;
+}
+
+.lobby-intro-pane.is-active {
+  display: block;
+}
+
+@media (min-width: 721px) {
+  .lobby-intro-tabs {
+    display: none;
+  }
+
+  .lobby-intro-panes {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 24px;
+  }
+
+  .lobby-intro-pane {
+    display: block;
+  }
+}
+
+/* A static, non-interactive taste of the private word reveal — two word
+   cards with the imposter's card tucked between them. */
+.lobby-preview-stage {
+  position: relative;
+  height: 170px;
+  border-radius: 8px;
+  background: #14161c;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.lobby-panel h3 {
+  margin: 0 0 14px;
+  font-family: "Fredoka", system-ui, sans-serif;
+  font-size: 13px;
+  font-weight: 600;
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
+  color: var(--ink-faint);
+}
+
+.lobby-howto-list {
+  margin: 0;
+  padding-left: 18px;
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.lobby-howto-list li {
+  font-size: 13.5px;
+  line-height: 1.5;
+  color: var(--ink-soft);
+}
+
+.lobby-player-list {
+  list-style: none;
+  margin: 0 0 16px;
+  padding: 0;
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(180px, 1fr));
+  gap: 10px;
+}
+
+.lobby-player-row {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  background: var(--cream);
+  border-radius: 12px;
+  padding: 8px 12px;
+  box-sizing: border-box;
+}
+
+.lobby-avatar {
+  width: 36px;
+  height: 36px;
+  border-radius: 999px;
+  background: var(--light-blue);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-family: "Fredoka", system-ui, sans-serif;
+  font-weight: 600;
+  font-size: 13px;
+  color: rgba(0, 0, 0, 0.8);
+  flex-shrink: 0;
+}
+
+.lobby-player-name {
+  font-family: "Fredoka", system-ui, sans-serif;
+  font-size: 14px;
+  letter-spacing: 0.5px;
+  color: var(--ink);
+  flex: 1;
+  min-width: 0;
+  text-transform: uppercase;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.lobby-host-badge {
+  background: var(--coral);
+  color: #ffffff;
+  font-size: 10px;
+  font-weight: 700;
+  letter-spacing: 0.5px;
+  padding: 4px 10px;
+  border-radius: 999px;
+  flex-shrink: 0;
+}
+
+.lobby-ready-tag {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+  color: var(--blue);
+  font-size: 12px;
+  font-weight: 600;
+  flex-shrink: 0;
+}
+
+.lobby-waiting {
+  margin: 0;
+  font-size: 12.5px;
+  color: var(--ink-faint);
+  text-align: center;
+}
+
+.lobby-hint {
+  margin: 10px 0 0;
+  font-size: 12.5px;
+  color: var(--ink-faint);
+  text-align: center;
+}
+
+.lobby-action-btn {
+  width: 100%;
+  height: 50px;
+  box-sizing: border-box;
+  padding: 0;
+  border: none;
+  cursor: pointer;
+  border-radius: 13px;
+  background: var(--blue);
+  color: #ffffff;
+  font-family: "Fredoka", system-ui, sans-serif;
+  font-size: 16px;
+  font-weight: 600;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.lobby-action-btn.is-ready {
+  background: var(--light-blue);
+}
+
+.lobby-action-btn:disabled {
+  background: var(--light-blue);
+  cursor: default;
+  opacity: 0.6;
+}
+
+.lobby-settings-row {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+}
+
+.lobby-settings-label {
+  font-family: "Fredoka", system-ui, sans-serif;
+  font-size: 14px;
+  font-weight: 600;
+  color: var(--ink);
+}
+
+.lobby-stepper {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+  background: var(--cream);
+  border-radius: 999px;
+  padding: 4px;
+}
+
+.lobby-stepper-btn {
+  width: 30px;
+  height: 30px;
+  border: none;
+  border-radius: 999px;
+  background: #ffffff;
+  color: var(--blue);
+  font-size: 18px;
+  line-height: 1;
+  font-weight: 600;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.lobby-stepper-btn:disabled {
+  color: var(--ink-faint);
+  cursor: not-allowed;
+}
+
+.lobby-stepper-val {
+  min-width: 44px;
+  text-align: center;
+  font-family: "Fredoka", system-ui, sans-serif;
+  font-size: 14px;
+  font-weight: 600;
+  color: var(--ink);
+}
+
+.lobby-settings-summary {
+  margin: -8px 0 0;
+  font-size: 12.5px;
+  color: var(--ink-faint);
+  text-align: center;
+}
+
+/* Guests see the host's settings as one line between the intro card and
+   the player list, so it needs the same gap below as a panel would. */
+#lobby-settings-summary {
+  margin: -8px 0 24px;
+}
+
+.lobby-action-btn.is-ghost {
+  background: rgba(255, 255, 255, 0.1);
+}
+
+/* --- Preview cards ------------------------------------------------------ */
+
+.imp-preview-card {
+  width: 76px;
+  height: 100px;
+  border-radius: 10px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 4px;
+  box-shadow: 0 6px 14px rgba(0, 0, 0, 0.35);
+  font-family: "Fredoka", system-ui, sans-serif;
+  color: #ffffff;
+  text-align: center;
+}
+
+.imp-preview-card + .imp-preview-card {
+  margin-left: -14px;
+}
+
+.imp-preview-card small {
+  font-size: 8px;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+  opacity: 0.75;
+}
+
+.imp-preview-card b {
+  font-size: 13px;
+  font-weight: 700;
+  letter-spacing: 0.03em;
+}
+
+.imp-preview-card.is-word {
+  background: linear-gradient(160deg, #0d8fd6, #065a86);
+  z-index: 1;
+}
+
+.imp-preview-card.is-left {
+  transform: rotate(-9deg);
+}
+
+.imp-preview-card.is-right {
+  transform: rotate(9deg);
+}
+
+/* Same blue as the word cards — matching the real reveal, where the
+   imposter's card is deliberately indistinguishable at a glance. */
+.imp-preview-card.is-imposter {
+  transform: translateY(-6px);
+  z-index: 2;
+}
+
+/* --- Settings ------------------------------------------------------------ */
+
+.imp-set-row {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  padding: 10px 0;
+}
+
+.imp-set-row + .imp-set-row {
+  border-top: 1px solid rgba(0, 0, 0, 0.06);
+}
+
+.imp-set-label {
+  font-family: "Fredoka", system-ui, sans-serif;
+  font-size: 14px;
+  font-weight: 600;
+  color: var(--ink);
+}
+
+.imp-set-sub {
+  margin-top: 2px;
+  font-size: 12px;
+  line-height: 1.35;
+  color: var(--ink-faint);
+}
+
+/* Bare switch — without the explicit background/padding it falls through
+   to the global `button{background:#e63946}` default in styles.css. */
+.imp-toggle {
+  position: relative;
+  flex-shrink: 0;
+  width: 44px;
+  height: 26px;
+  padding: 0;
+  border: none;
+  border-radius: 999px;
+  background: rgba(0, 0, 0, 0.15);
+  cursor: pointer;
+  transition: background 0.15s;
+}
+
+.imp-toggle::after {
+  content: "";
+  position: absolute;
+  top: 3px;
+  left: 3px;
+  width: 20px;
+  height: 20px;
+  border-radius: 999px;
+  background: #ffffff;
+  box-shadow: 0 1px 2px rgba(0, 0, 0, 0.25);
+  transition: transform 0.15s;
+}
+
+.imp-toggle[aria-checked="true"] {
+  background: var(--blue);
+}
+
+.imp-toggle[aria-checked="true"]::after {
+  transform: translateX(18px);
+}
+
+.imp-cats-head {
+  display: flex;
+  align-items: baseline;
+  justify-content: space-between;
+  padding-top: 12px;
+  border-top: 1px solid rgba(0, 0, 0, 0.06);
+}
+
+.imp-link-btn {
+  padding: 0;
+  border: none;
+  background: none;
+  font-family: "Fredoka", system-ui, sans-serif;
+  font-size: 12.5px;
+  font-weight: 600;
+  color: var(--blue);
+  cursor: pointer;
+}
+
+.imp-chips {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px;
+  margin-top: 10px;
+}
+
+.imp-chip {
+  padding: 6px 12px;
+  border: 1.5px solid transparent;
+  border-radius: 999px;
+  background: var(--cream);
+  font-family: "Fredoka", system-ui, sans-serif;
+  font-size: 13px;
+  font-weight: 600;
+  color: var(--ink-soft);
+  cursor: pointer;
+}
+
+.imp-chip.is-selected {
+  border-color: var(--blue);
+  background: rgba(6, 123, 194, 0.1);
+  color: var(--blue);
+}

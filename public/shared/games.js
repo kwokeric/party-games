@@ -40,6 +40,14 @@ const PALETTE_ICON = `
   </svg>
 `;
 
+const MASK_ICON = `
+  <svg width="24" height="24" viewBox="0 0 24 24" fill="none">
+    <path d="M3 5.5C3 5.5 6.5 4 12 4s9 1.5 9 1.5V11c0 5-4 9-9 9s-9-4-9-9V5.5Z" stroke="#067bc2" stroke-width="1.5" stroke-linejoin="round"></path>
+    <path d="M7 10.5c.8-.9 2.2-.9 3 0M14 10.5c.8-.9 2.2-.9 3 0" stroke="#067bc2" stroke-width="1.5" stroke-linecap="round"></path>
+    <path d="M9 15.5c1.8 1 4.2 1 6 0" stroke="#067bc2" stroke-width="1.5" stroke-linecap="round"></path>
+  </svg>
+`;
+
 /** @type {{id: string, title: string, description: string, path: string, badge: string, icon: string}[]} */
 export const GAMES = [
   {
@@ -86,5 +94,14 @@ export const GAMES = [
     path: "/games/hues-and-clues/",
     badge: "3-8 Players",
     icon: PALETTE_ICON,
+  },
+  {
+    id: "imposter",
+    title: "Imposter",
+    description:
+      "Everyone gets the same secret word except the imposter. Go around giving one-word clues in person, then vote on who's faking it.",
+    path: "/games/imposter/",
+    badge: "3-12 Players",
+    icon: MASK_ICON,
   },
 ];
