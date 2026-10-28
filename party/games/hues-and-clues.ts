@@ -509,7 +509,18 @@ export default class HuesAndClues extends Server {
     const target = this.targetCell;
     const clueGiverId = this.clueGiverId();
 
-    const results: { id: string; name: string; col: number | null; row: number | null; distance: number | null; points: number }[] = [];
+    const results: {
+      id: string;
+      name: string;
+      col: number | null;
+      row: number | null;
+      distance: number | null;
+      points: number;
+      isClueGiver?: boolean;
+    }[] = [];
+    // The clue-giver earns 1 point per final guess landing within 1 cell
+    // of their target, rewarding clues that steer everyone close.
+    let clueGiverPoints = 0;
     for (const id of this.guessOrder) {
       const player = this.players.get(id);
       if (!player) continue;
@@ -524,7 +535,22 @@ export default class HuesAndClues extends Server {
       const distance = chebyshevDistance(finalGuess, target);
       const points = pointsForDistance(distance);
       player.score += points;
+      if (distance <= 1) clueGiverPoints += 1;
       results.push({ id, name: player.name, col: finalGuess.col, row: finalGuess.row, distance, points });
+    }
+
+    const clueGiver = this.players.get(clueGiverId ?? "");
+    if (clueGiver) {
+      clueGiver.score += clueGiverPoints;
+      results.push({
+        id: clueGiver.id,
+        name: clueGiver.name,
+        col: null,
+        row: null,
+        distance: null,
+        points: clueGiverPoints,
+        isClueGiver: true,
+      });
     }
 
     this.phase = "reveal";

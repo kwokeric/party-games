@@ -413,7 +413,10 @@ function renderMineGrid() {
 
 function renderGuessGrid() {
   const markers = pinsAsMarkers();
-  if (selectedGuessCell) markers.push({ col: selectedGuessCell.col, row: selectedGuessCell.row, type: "self" });
+  if (selectedGuessCell) {
+    const me = players.find((p) => p.id === myId);
+    markers.push({ col: selectedGuessCell.col, row: selectedGuessCell.row, type: "self", label: initialOf(me?.name), color: globalColorMap[myId] });
+  }
   buildGrid(guessGridEl, markers, true);
 }
 
@@ -604,7 +607,7 @@ function renderReveal(data) {
 
     const dist = document.createElement("span");
     dist.className = "results-dist";
-    dist.textContent = r.distance === null ? "No guess" : r.distance === 0 ? "Right on!" : r.distance === 1 ? "1 away" : `${r.distance} away`;
+    dist.textContent = r.isClueGiver ? "Clue-giver" : r.distance === null ? "No guess" : r.distance === 0 ? "Right on!" : r.distance === 1 ? "1 away" : `${r.distance} away`;
 
     const pts = document.createElement("span");
     pts.className = "results-pts";

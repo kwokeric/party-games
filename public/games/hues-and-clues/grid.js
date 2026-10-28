@@ -62,9 +62,19 @@ export function buildGrid(content, markers, tappable) {
         const inner = document.createElement("div");
         inner.className = `hc-pin-${marker.type}`;
         if (marker.type === "flag") inner.textContent = "★";
-        if (marker.type === "player") {
+        // Every player-placed pin (solid, ghost, or your own pending pick)
+        // carries the placer's initial and color, so it's always clear
+        // whose piece is whose.
+        if (marker.type === "player" || marker.type === "self") {
           inner.textContent = marker.label ?? "";
           if (marker.color) inner.style.background = marker.color;
+        }
+        if (marker.type === "ghost") {
+          inner.textContent = marker.label ?? "";
+          if (marker.color) {
+            inner.style.borderColor = marker.color;
+            inner.style.color = marker.color;
+          }
         }
         pin.appendChild(inner);
         cell.appendChild(pin);
