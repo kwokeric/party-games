@@ -1,258 +1,514 @@
-@import url("https://fonts.googleapis.com/css2?family=Fredoka:wght@500;600;700&display=swap");
+@import url("https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:opsz,wght@12..96,500;12..96,700;12..96,800&family=Inter:wght@400;500;600;700&display=swap");
 
 :root {
-  --blue: #067bc2;
-  --light-blue: #84bcda;
-  --cream: #f0eee6;
-  --coral: #d56062;
-  --ink: rgba(0, 0, 0, 0.85);
-  --ink-soft: rgba(0, 0, 0, 0.55);
-  --ink-faint: rgba(0, 0, 0, 0.4);
+  --accent: #1f6feb;
+  --accent-dark: #164eaa;
+  --accent-soft: rgba(31, 111, 235, 0.12);
+  --page: #f7f6f3;
+  --surface: #ffffff;
+  --line: #eceae5;
+  --field: #faf9f7;
+  --field-line: #e4e1da;
+  --ink: #1f1d1a;
+  --ink-soft: #5c5850;
+  --error: #c0362c;
+  --display: "Bricolage Grotesque", system-ui, sans-serif;
 }
 
 body {
   margin: 0;
-  background: var(--cream);
+  background: var(--page);
   color: var(--ink);
-  font-family: system-ui, -apple-system, sans-serif;
+  font-family: Inter, system-ui, -apple-system, sans-serif;
 }
 
 a {
-  color: var(--blue);
+  color: var(--ink);
 }
 a:hover {
-  color: rgba(6, 123, 194, 0.75);
+  color: #000000;
 }
 
 .home-page {
-  padding-bottom: 40px;
-}
-
-/* The join form is a couple of short inputs — it stays a comfortable,
-   narrow reading width even though the page shell itself is 1000px, same
-   as the games grid below it gets to use in full. */
-.join-section {
-  max-width: 480px;
+  max-width: 1160px;
   margin: 0 auto;
-  padding: 0;
+  padding: 24px 24px 80px;
+  box-sizing: border-box;
   display: flex;
   flex-direction: column;
-  gap: 10px;
-  box-sizing: border-box;
+  gap: 40px;
 }
 
-.join-row {
+.home-page main {
   display: flex;
-  gap: 10px;
+  flex-direction: column;
+  gap: 40px;
 }
 
-.home-input {
-  height: 50px;
+/* ---- header ---- */
+
+.home-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 16px;
+}
+
+.home-logo {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  text-decoration: none;
+  font-family: var(--display);
+  font-size: 22px;
+  font-weight: 800;
+  letter-spacing: -0.03em;
+}
+
+.home-browse-link {
+  font-size: 14px;
+  font-weight: 600;
+  padding: 10px 0;
+}
+
+/* ---- hero: headline + join form ---- */
+
+.hero {
+  position: relative;
+  overflow: hidden;
+  background: var(--surface);
+  border: 1px solid var(--line);
+  border-radius: 32px;
+  padding: clamp(28px, 5vw, 56px);
+  display: flex;
+  flex-direction: column;
+  gap: 32px;
+}
+
+/* Purely decorative shapes tucked into the top-right corner. */
+.hero-blob {
+  position: absolute;
+  pointer-events: none;
+}
+
+.hero-blob-circle {
+  right: -40px;
+  top: -40px;
+  width: 180px;
+  height: 180px;
+  border-radius: 999px;
+  background: var(--accent-soft);
+}
+
+.hero-blob-square {
+  right: 150px;
+  top: 96px;
+  width: 64px;
+  height: 64px;
+  border-radius: 20px;
+  background: #d8eef0;
+  transform: rotate(18deg);
+}
+
+.hero-copy {
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+  max-width: 720px;
+}
+
+.hero-copy h1 {
+  margin: 0;
+  font-family: var(--display);
+  font-size: clamp(42px, 6.5vw, 80px);
+  line-height: 0.92;
+  font-weight: 800;
+  letter-spacing: -0.05em;
+}
+
+.hero-accent {
+  color: var(--accent);
+}
+
+.hero-copy p {
+  margin: 0;
+  font-size: 17px;
+  line-height: 1.5;
+  color: var(--ink-soft);
+}
+
+.join-form {
+  position: relative;
+  display: flex;
+  flex-wrap: wrap;
+  gap: 16px;
+  align-items: flex-end;
+}
+
+.join-field {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  margin: 0;
+  padding: 0;
+  border: none;
+  min-width: 0;
+}
+
+.join-name-field {
+  flex: 1 1 260px;
+}
+
+.join-code-field {
+  flex: 0 0 auto;
+}
+
+.join-label {
+  font-size: 13px;
+  font-weight: 600;
+  padding: 0;
+  margin-bottom: 6px;
+}
+
+/* A <label>'s own gap already spaces it; only the fieldset's <legend>
+   needs the margin. */
+.join-name-field .join-label {
+  margin-bottom: 0;
+}
+
+.join-input,
+.code-box {
+  height: 64px;
   box-sizing: border-box;
-  border-radius: 14px;
-  border: 2px solid var(--light-blue);
-  background: #ffffff;
-  font-size: 15px;
+  border-radius: 16px;
+  border: 2px solid var(--field-line);
+  background: var(--field);
   color: var(--ink);
 }
 
-.home-input::placeholder {
-  color: rgba(0, 0, 0, 0.35);
-}
-
-/* The name gets its own dark card, the only one on the page, so it reads
-   as the first thing to fill in whether you join or host — not as part of
-   the join form. */
-.name-card {
-  background: #0b3b57;
-  border-radius: 20px;
-  padding: 16px;
-  display: flex;
-  flex-direction: column;
-  gap: 10px;
-  margin-bottom: 8px;
-}
-
-.name-card-label {
-  font-family: "Fredoka", system-ui, sans-serif;
-  font-size: 13px;
-  font-weight: 600;
-  letter-spacing: 0.06em;
-  text-transform: uppercase;
-  color: rgba(255, 255, 255, 0.72);
-}
-
-#join-name {
-  width: 100%;
-  height: 52px;
-  padding: 0 14px;
-  border-color: transparent;
-  font-family: "Fredoka", system-ui, sans-serif;
-  font-size: 18px;
-  letter-spacing: 1px;
-  text-transform: uppercase;
-}
-
-#join-name:focus {
+.join-input:focus,
+.code-box:focus {
   outline: none;
-  border-color: var(--light-blue);
+  border-color: var(--accent);
+  background: var(--surface);
 }
 
-#join-code {
-  flex: 1;
-  min-width: 0;
-  text-align: center;
-  font-family: "Fredoka", system-ui, sans-serif;
-  font-size: 18px;
-  letter-spacing: 4px;
-  color: var(--blue);
+.join-input {
+  width: 100%;
+  padding: 0 18px;
+  font: inherit;
+  font-size: 17px;
   text-transform: uppercase;
 }
 
-.home-btn {
-  border: none;
-  cursor: pointer;
-  font-family: "Fredoka", system-ui, sans-serif;
-  border-radius: 14px;
-  height: 50px;
-  font-size: 16px;
-  font-weight: 600;
+.join-input::placeholder {
+  color: #a3a09a;
+  text-transform: none;
 }
 
-.home-btn:disabled {
+.code-boxes {
+  display: grid;
+  grid-template-columns: repeat(4, 56px);
+  gap: 8px;
+}
+
+.code-box {
+  width: 100%;
+  padding: 0;
+  text-align: center;
+  font-family: var(--display);
+  font-size: 28px;
+  font-weight: 800;
+  text-transform: uppercase;
+}
+
+.code-box.is-filled {
+  background: var(--surface);
+}
+
+.join-btn {
+  flex: 0 0 auto;
+  height: 64px;
+  padding: 0 32px;
+  border: none;
+  border-radius: 16px;
+  background: var(--accent);
+  color: #ffffff;
+  font-family: var(--display);
+  font-size: 19px;
+  font-weight: 700;
+  cursor: pointer;
+  box-shadow: 0 4px 0 var(--accent-dark);
+}
+
+.join-btn:active {
+  transform: translateY(2px);
+  box-shadow: 0 2px 0 var(--accent-dark);
+}
+
+.join-btn:disabled {
   opacity: 0.6;
   cursor: default;
 }
 
-.join-btn {
-  flex-shrink: 0;
-  padding: 0 28px;
-  background: var(--blue);
-  color: #ffffff;
+.join-error {
+  position: relative;
+  margin: -16px 0 0;
+  min-height: 20px;
+  font-size: 14px;
+  color: var(--error);
 }
 
-/* "Join with a code" and "Or host a game" share this pill-on-a-line style
-   so they read as the two equal options that follow the name. */
-.option-heading {
-  margin: 0;
-  display: flex;
-  align-items: center;
-  gap: 10px;
-  font-family: "Fredoka", system-ui, sans-serif;
-  font-size: 12px;
-  font-weight: 600;
-  letter-spacing: 0.1em;
-  text-transform: uppercase;
-  color: var(--ink-soft);
+.join-error:empty {
+  display: none;
 }
 
-.option-heading::before,
-.option-heading::after {
-  content: "";
-  flex: 1;
-  height: 1px;
-  background: rgba(0, 0, 0, 0.12);
-}
-
-.option-heading span {
-  padding: 4px 12px;
-  border-radius: 999px;
-  background: #ffffff;
-  border: 1px solid rgba(0, 0, 0, 0.12);
-}
+/* ---- game cards ---- */
 
 .games-section {
   display: flex;
   flex-direction: column;
-  gap: 16px;
+  gap: 20px;
+  scroll-margin-top: 24px;
 }
 
-/* Same width as the join heading above it, so the pair lines up on
-   desktop too. */
-.games-section .option-heading {
-  width: 100%;
-  max-width: 480px;
-  margin: 0 auto;
+.games-section h2 {
+  margin: 0;
+  font-family: var(--display);
+  font-size: 32px;
+  font-weight: 800;
+  letter-spacing: -0.03em;
 }
 
-/* auto-fill (not auto-fit) so a lone card takes one 400px-ish column
-   instead of stretching to fill the whole row. At that width every
-   description fits in three lines, which .game-card p reserves; equal-
-   height rows (grid-auto-rows) keep the cards the same size even where a
-   narrow phone wraps one to a fourth line. Phones collapse to one column. */
 .game-grid {
   display: grid;
-  grid-template-columns: repeat(auto-fill, minmax(320px, 400px));
-  grid-auto-rows: 1fr;
-  justify-content: center;
+  grid-template-columns: repeat(auto-fill, minmax(340px, 1fr));
   gap: 16px;
 }
 
 .game-card {
-  position: relative;
-  background: #ffffff;
-  border-radius: 22px;
+  background: var(--surface);
+  border: 1px solid var(--line);
+  border-radius: 26px;
   padding: 20px;
-  box-shadow: 0 10px 26px rgba(6, 123, 194, 0.14);
   display: flex;
-  flex-direction: column;
-  gap: 10px;
-  box-sizing: border-box;
+  gap: 16px;
+  align-items: center;
 }
 
-.game-badge {
-  position: absolute;
-  top: 16px;
-  right: 16px;
-  background: var(--coral);
-  color: #ffffff;
-  font-size: 11px;
-  font-weight: 700;
-  letter-spacing: 0.5px;
-  padding: 6px 12px;
-  border-radius: 999px;
-}
-
-.game-icon {
-  width: 48px;
-  height: 48px;
-  border-radius: 14px;
-  background: var(--light-blue);
+/* Tilted pastel tile behind each game's icon; tint and tilt are set per
+   game in home.js. */
+.game-tile {
+  flex: 0 0 64px;
+  height: 64px;
+  border-radius: 20px;
   display: flex;
   align-items: center;
   justify-content: center;
 }
 
-.game-card h3 {
-  margin: 0;
-  font-family: "Fredoka", system-ui, sans-serif;
-  font-weight: 600;
-  font-size: 20px;
-  color: var(--ink);
+.game-tile svg {
+  width: 32px;
+  height: 32px;
 }
 
-/* Reserves three lines even for shorter descriptions. Never clamped — a
-   longer one just grows its row, and grid-auto-rows keeps the rest even. */
-.game-card p {
+/* The registry's icons are drawn in the old brand blue; CSS beats SVG
+   presentation attributes, so recolor them to ink here. */
+.game-tile svg [stroke]:not([stroke="none"]) {
+  stroke: var(--ink);
+}
+.game-tile svg [fill]:not([fill="none"]),
+.game-tile svg[fill]:not([fill="none"]) {
+  fill: var(--ink);
+}
+
+.game-info {
+  flex: 1;
+  min-width: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+
+.game-info h3 {
   margin: 0;
-  min-height: calc(3 * 1.4em);
-  font-size: 14px;
-  line-height: 1.4;
+  font-family: var(--display);
+  font-size: 21px;
+  font-weight: 800;
+  letter-spacing: -0.03em;
+}
+
+.game-players {
+  font-size: 12px;
+  font-weight: 600;
+  color: var(--accent);
+}
+
+.game-info p {
+  margin: 2px 0 0;
+  font-size: 13.5px;
+  line-height: 1.45;
   color: var(--ink-soft);
 }
 
-/* Pinned to the bottom of the card so buttons line up across a row. */
 .host-btn {
-  margin-top: auto;
-  width: 100%;
-  background: var(--blue);
-  color: #ffffff;
+  flex: 0 0 52px;
+  width: 52px;
+  height: 52px;
+  border-radius: 18px;
+  border: 2px solid var(--ink);
+  background: var(--surface);
+  color: var(--ink);
+  cursor: pointer;
+  box-shadow: 0 3px 0 var(--ink);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 0;
 }
 
-.error {
-  color: var(--coral);
-  font-size: 13px;
-  line-height: 1.35;
-  min-height: 34px;
-  margin: 0;
+.host-btn:hover {
+  background: var(--accent-soft);
+}
+
+.host-btn:active {
+  transform: translateY(2px);
+  box-shadow: 0 1px 0 var(--ink);
+}
+
+.host-btn:disabled {
+  cursor: default;
+  opacity: 0.6;
+}
+
+/* While a room is being created the arrow becomes a spinner. */
+.host-btn .host-spinner {
+  display: none;
+  width: 18px;
+  height: 18px;
+  border-radius: 999px;
+  border: 2.5px solid currentColor;
+  border-right-color: transparent;
+  animation: host-spin 0.7s linear infinite;
+}
+
+.host-btn.is-loading .host-arrow {
+  display: none;
+}
+
+.host-btn.is-loading .host-spinner {
+  display: block;
+}
+
+@keyframes host-spin {
+  to {
+    transform: rotate(360deg);
+  }
+}
+
+/* ---- phones ---- */
+
+@media (max-width: 640px) {
+  .home-page {
+    padding: 16px 16px 48px;
+    gap: 24px;
+  }
+
+  .home-page main {
+    gap: 24px;
+  }
+
+  .home-logo {
+    font-size: 20px;
+  }
+
+  .hero {
+    border-radius: 28px;
+    padding: 28px 20px 24px;
+    gap: 24px;
+  }
+
+  .hero-blob-circle {
+    right: -50px;
+    top: -50px;
+    width: 140px;
+    height: 140px;
+  }
+
+  .hero-blob-square {
+    right: 22px;
+    top: 92px;
+    width: 40px;
+    height: 40px;
+    border-radius: 13px;
+  }
+
+  .hero-copy h1 {
+    font-size: 44px;
+  }
+
+  .hero-copy p {
+    font-size: 16px;
+  }
+
+  .join-form {
+    flex-direction: column;
+    align-items: stretch;
+  }
+
+  .join-name-field,
+  .join-code-field {
+    flex: none;
+  }
+
+  .join-input {
+    height: 56px;
+    font-size: 16px;
+  }
+
+  .code-boxes {
+    grid-template-columns: repeat(4, minmax(0, 1fr));
+  }
+
+  .join-btn {
+    height: 58px;
+  }
+
+  .games-section h2 {
+    font-size: 28px;
+  }
+
+  .game-grid {
+    grid-template-columns: minmax(0, 1fr);
+    gap: 14px;
+  }
+
+  .game-card {
+    border-radius: 24px;
+    padding: 16px;
+    gap: 14px;
+  }
+
+  .game-tile {
+    flex-basis: 56px;
+    height: 56px;
+    border-radius: 18px;
+  }
+
+  .game-tile svg {
+    width: 28px;
+    height: 28px;
+  }
+
+  .game-info h3 {
+    font-size: 19px;
+  }
+
+  .host-btn {
+    flex-basis: 48px;
+    width: 48px;
+    height: 48px;
+    border-radius: 16px;
+  }
 }

@@ -6,60 +6,67 @@
     <title>Party Games</title>
     <link rel="icon" href="/favicon.ico" sizes="any" />
     <link rel="stylesheet" href="/normalize.css" />
-    <link rel="stylesheet" href="/shared/app-shell.css" />
     <link rel="stylesheet" href="/home.css" />
   </head>
   <body>
-    <div class="app-topbar">
-      <span class="app-topbar-dot"></span>
-      <span class="app-topbar-word">PARTY GAMES</span>
+    <div class="home-page">
+      <header class="home-header">
+        <a href="/" class="home-logo">
+          <svg width="34" height="34" viewBox="0 0 34 34" aria-hidden="true">
+            <rect x="3" y="3" width="28" height="28" rx="9" style="fill: var(--accent)" transform="rotate(-8 17 17)"></rect>
+            <circle cx="12.5" cy="15" r="2.4" fill="#ffffff"></circle>
+            <circle cx="21.5" cy="15" r="2.4" fill="#ffffff"></circle>
+            <path d="M12 21c2.8 2.2 7.2 2.2 10 0" stroke="#ffffff" stroke-width="2.2" fill="none" stroke-linecap="round"></path>
+          </svg>
+          <span>Party Games</span>
+        </a>
+        <a href="#games" class="home-browse-link">Browse games ↓</a>
+      </header>
+
+      <main>
+        <section class="hero">
+          <div class="hero-blob hero-blob-circle" aria-hidden="true"></div>
+          <div class="hero-blob hero-blob-square" aria-hidden="true"></div>
+
+          <div class="hero-copy">
+            <h1>Grab your phones.<br /><span class="hero-accent">It's game time.</span></h1>
+            <p>Enter the room code or host a room</p>
+          </div>
+
+          <form class="join-form" id="join-form" novalidate>
+            <label class="join-field join-name-field">
+              <span class="join-label">Your name</span>
+              <input
+                id="join-name"
+                class="join-input"
+                type="text"
+                placeholder="Enter your name"
+                autocomplete="off"
+                maxlength="20"
+              />
+            </label>
+
+            <fieldset class="join-field join-code-field">
+              <legend class="join-label">Room code</legend>
+              <div class="code-boxes" id="code-boxes">
+                <input class="code-box" type="text" inputmode="text" autocomplete="off" autocapitalize="characters" aria-label="Code letter 1" />
+                <input class="code-box" type="text" inputmode="text" autocomplete="off" autocapitalize="characters" aria-label="Code letter 2" />
+                <input class="code-box" type="text" inputmode="text" autocomplete="off" autocapitalize="characters" aria-label="Code letter 3" />
+                <input class="code-box" type="text" inputmode="text" autocomplete="off" autocapitalize="characters" aria-label="Code letter 4" />
+              </div>
+            </fieldset>
+
+            <button id="join-btn" class="join-btn" type="submit">Join game</button>
+          </form>
+          <p id="join-error" class="join-error" role="alert"></p>
+        </section>
+
+        <section id="games" class="games-section">
+          <h2>Or host one</h2>
+          <div id="games-grid" class="game-grid"></div>
+        </section>
+      </main>
     </div>
-    <main class="home-page">
-      <div class="app-shell">
-        <div class="app-pagehead">
-          <div class="app-pagehead-left">
-            <div class="app-pagehead-titles">
-              <h1>Party Games</h1>
-              <p>Pick a game and start playing with friends</p>
-            </div>
-          </div>
-        </div>
-
-        <section class="join-section">
-          <div class="name-card">
-            <label class="name-card-label" for="join-name">Your name</label>
-            <input
-              id="join-name"
-              class="home-input"
-              type="text"
-              placeholder="Enter your name"
-              autocomplete="off"
-              maxlength="20"
-            />
-          </div>
-          <h2 class="option-heading"><span>Join with a code</span></h2>
-          <div class="join-row">
-            <input
-              id="join-code"
-              class="home-input"
-              type="text"
-              placeholder="CODE"
-              maxlength="4"
-              autocomplete="off"
-              autocapitalize="characters"
-              aria-label="Room code"
-            />
-            <button id="join-btn" class="home-btn join-btn" type="button">Join</button>
-          </div>
-          <p id="join-error" class="error"></p>
-        </section>
-
-        <section class="games-section">
-          <h2 class="option-heading"><span>Or host a game</span></h2>
-          <div id="games" class="game-grid"></div>
-        </section>
-      </div>
-    </main>
     <script type="module" src="/home.js"></script>
   </body>
 </html>
