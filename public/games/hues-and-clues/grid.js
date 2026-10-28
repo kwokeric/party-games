@@ -4,15 +4,24 @@
 // same coordinate via cellColor(), so the grid always matches across
 // devices without transmitting any pixel data.
 
-export const COLS = 18;
-export const ROWS = 14;
+export const COLS = 26;
+export const ROWS = 16;
 const CELL = 26; // px, must match the .hc-cell size in game.css
 const COL_LETTERS = "ABCDEFGHIJKLMNOPQRSTUVWXYZ";
 
+// A color wheel stretched over the rectangle: hue goes around the center
+// (red at the top, then clockwise through the rainbow), and lightness falls
+// off with distance from the center — pale in the middle, deep at the edges.
+// Coordinates are normalized per axis so the wheel fills the whole board.
+// Saturation is kept moderate so the board reads as natural, real-world
+// colors (leaves, brick, sky) rather than neon.
 export function cellColor(col, row) {
-  const hue = (col / COLS) * 345;
-  const light = 84 - (row / (ROWS - 1)) * 60;
-  return `hsl(${hue.toFixed(0)}, 62%, ${light.toFixed(0)}%)`;
+  const nx = (col - (COLS - 1) / 2) / ((COLS - 1) / 2);
+  const ny = (row - (ROWS - 1) / 2) / ((ROWS - 1) / 2);
+  const hue = ((Math.atan2(ny, nx) * 180) / Math.PI + 90 + 360) % 360;
+  const dist = Math.min(1, Math.hypot(nx, ny) / Math.SQRT2);
+  const light = 86 - dist * 60;
+  return `hsl(${hue.toFixed(0)}, 58%, ${light.toFixed(0)}%)`;
 }
 
 export function chebyshevDistance(a, b) {

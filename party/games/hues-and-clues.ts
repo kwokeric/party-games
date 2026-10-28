@@ -23,8 +23,8 @@ const MAX_PLAYERS = 8;
 
 // Must match grid.js's COLS/ROWS exactly — this is the shared coordinate
 // space every client renders the same grid from.
-const COLS = 18;
-const ROWS = 14;
+const COLS = 26;
+const ROWS = 16;
 const CARD_OPTIONS_COUNT = 4;
 
 const TURN_DURATION_MS = 60_000; // time to pick a card + give the first clue
@@ -74,19 +74,42 @@ function randomCell(): Cell {
   return { col: Math.floor(Math.random() * COLS), row: Math.floor(Math.random() * ROWS) };
 }
 
-function sameCell(a: Cell, b: Cell): boolean {
-  return a.col === b.col && a.row === b.row;
-}
-
 function cellKey(cell: Cell): string {
   return `${cell.col},${cell.row}`;
 }
 
+// Same hue math as grid.js's cellColor — hue is the angle around the
+// board's center (0° = red at the top, increasing clockwise).
+function hueOf(cell: Cell): number {
+  const nx = (cell.col - (COLS - 1) / 2) / ((COLS - 1) / 2);
+  const ny = (cell.row - (ROWS - 1) / 2) / ((ROWS - 1) / 2);
+  return ((Math.atan2(ny, nx) * 180) / Math.PI + 90 + 360) % 360;
+}
+
+// One card per equal slice of the color wheel (starting at a random
+// angle), keeping clear of each slice's edges, so the clue-giver never
+// gets two cards from the same color family (e.g. two reds).
+const CARD_HUE_MARGIN = 15;
+
 function pickCardOptions(): Cell[] {
+  const sliceSize = 360 / CARD_OPTIONS_COUNT;
+  const offset = Math.random() * 360;
   const options: Cell[] = [];
-  while (options.length < CARD_OPTIONS_COUNT) {
-    const candidate = randomCell();
-    if (!options.some((c) => sameCell(c, candidate))) options.push(candidate);
+  for (let i = 0; i < CARD_OPTIONS_COUNT; i++) {
+    const start = offset + i * sliceSize + CARD_HUE_MARGIN;
+    const width = sliceSize - 2 * CARD_HUE_MARGIN;
+    let candidate = randomCell();
+    for (let attempt = 0; attempt < 500; attempt++) {
+      const intoSlice = (hueOf(candidate) - start + 720) % 360;
+      if (intoSlice <= width) break;
+      candidate = randomCell();
+    }
+    options.push(candidate);
+  }
+  // Shuffle so the cards don't always run around the wheel in order.
+  for (let i = options.length - 1; i > 0; i--) {
+    const j = Math.floor(Math.random() * (i + 1));
+    [options[i], options[j]] = [options[j], options[i]];
   }
   return options;
 }

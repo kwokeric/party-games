@@ -208,14 +208,14 @@ durationPopover.appendChild(noLimitOpt);
 // Lobby preview: a static slice of the real board (same cellColor as the
 // game) showing the target star, two players' final pins and one ghosted
 // first guess — what a round looks like mid-reveal.
-const PREVIEW_COLS = [3, 13];
-const PREVIEW_ROWS = [3, 8];
+const PREVIEW_COLS = [15, 25];
+const PREVIEW_ROWS = [7, 12];
 const previewMarkers = [
-  { col: 7, row: 6, type: "flag" },
-  { col: 8, row: 6, type: "player", label: "A", color: PLAYER_PALETTE[0] },
-  { col: 6, row: 5, type: "player", label: "B", color: PLAYER_PALETTE[1] },
-  { col: 10, row: 4, type: "ghost", label: "C", color: PLAYER_PALETTE[2] },
-  { col: 9, row: 7, type: "player", label: "C", color: PLAYER_PALETTE[2] },
+  { col: 20, row: 10, type: "flag" },
+  { col: 21, row: 10, type: "player", label: "A", color: PLAYER_PALETTE[0] },
+  { col: 19, row: 9, type: "player", label: "B", color: PLAYER_PALETTE[1] },
+  { col: 23, row: 8, type: "ghost", label: "C", color: PLAYER_PALETTE[2] },
+  { col: 22, row: 11, type: "player", label: "C", color: PLAYER_PALETTE[2] },
 ];
 const lobbyPreviewGrid = el("lobby-preview-grid");
 lobbyPreviewGrid.style.gridTemplateColumns = `repeat(${PREVIEW_COLS[1] - PREVIEW_COLS[0] + 1}, 26px)`;
