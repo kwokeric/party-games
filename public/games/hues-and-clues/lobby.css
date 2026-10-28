@@ -44,6 +44,104 @@
   color: var(--ink-faint);
 }
 
+.lobby-intro-tabs {
+  display: flex;
+  background: var(--cream);
+  border-radius: 999px;
+  padding: 4px;
+  gap: 2px;
+  margin-bottom: 16px;
+}
+
+.lobby-intro-tabs button {
+  flex: 1;
+  border: none;
+  background: transparent;
+  padding: 8px 0;
+  border-radius: 999px;
+  font-family: "Fredoka", system-ui, sans-serif;
+  font-size: 13px;
+  font-weight: 600;
+  color: var(--ink-soft);
+  cursor: pointer;
+}
+
+.lobby-intro-tabs button.is-active {
+  background: #ffffff;
+  color: var(--blue);
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.12);
+}
+
+/* Both panes share one grid cell on mobile, with the inactive one only
+   made invisible (not removed), so the card is always as tall as the
+   taller pane and switching tabs never shifts the layout below it. */
+.lobby-intro-panes {
+  display: grid;
+}
+
+.lobby-intro-pane {
+  grid-area: 1 / 1;
+  visibility: hidden;
+}
+
+.lobby-intro-pane.is-active {
+  visibility: visible;
+}
+
+@media (min-width: 721px) {
+  .lobby-intro-tabs {
+    display: none;
+  }
+
+  .lobby-intro-panes {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 24px;
+  }
+
+  .lobby-intro-pane {
+    grid-area: auto;
+    visibility: visible;
+  }
+}
+
+/* A static, non-interactive taste of the guessing screen: a zoomed-in
+   slice of the real board with the target and a few players' pins. */
+.lobby-preview-stage {
+  position: relative;
+  height: 170px;
+  border-radius: 8px;
+  overflow: hidden;
+  background: var(--cream);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.lobby-preview-grid {
+  flex: none;
+}
+
+.lobby-preview-clue {
+  position: absolute;
+  top: 8px;
+  left: 8px;
+  padding: 4px 10px;
+  border-radius: 999px;
+  background: rgba(255, 255, 255, 0.92);
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.15);
+  font-size: 11px;
+  color: var(--ink-soft);
+}
+
+.lobby-preview-clue strong {
+  font-family: "Fredoka", system-ui, sans-serif;
+  font-weight: 700;
+  color: var(--blue);
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+}
+
 .lobby-howto-list {
   margin: 0;
   padding-left: 18px;

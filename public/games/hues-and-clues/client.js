@@ -205,6 +205,61 @@ noLimitOpt.dataset.ms = "";
 noLimitOpt.textContent = "No limit";
 durationPopover.appendChild(noLimitOpt);
 
+// Lobby preview: a static slice of the real board (same cellColor as the
+// game) showing the target star, two players' final pins and one ghosted
+// first guess — what a round looks like mid-reveal.
+const PREVIEW_COLS = [3, 13];
+const PREVIEW_ROWS = [3, 8];
+const previewMarkers = [
+  { col: 7, row: 6, type: "flag" },
+  { col: 8, row: 6, type: "player", label: "A", color: PLAYER_PALETTE[0] },
+  { col: 6, row: 5, type: "player", label: "B", color: PLAYER_PALETTE[1] },
+  { col: 10, row: 4, type: "ghost", label: "C", color: PLAYER_PALETTE[2] },
+  { col: 9, row: 7, type: "player", label: "C", color: PLAYER_PALETTE[2] },
+];
+const lobbyPreviewGrid = el("lobby-preview-grid");
+lobbyPreviewGrid.style.gridTemplateColumns = `repeat(${PREVIEW_COLS[1] - PREVIEW_COLS[0] + 1}, 26px)`;
+for (let r = PREVIEW_ROWS[0]; r <= PREVIEW_ROWS[1]; r++) {
+  for (let c = PREVIEW_COLS[0]; c <= PREVIEW_COLS[1]; c++) {
+    const cell = document.createElement("div");
+    cell.className = "hc-cell";
+    cell.style.background = cellColor(c, r);
+    const marker = previewMarkers.find((m) => m.col === c && m.row === r);
+    if (marker) {
+      const pin = document.createElement("div");
+      pin.className = "hc-pin";
+      const inner = document.createElement("div");
+      inner.className = `hc-pin-${marker.type}`;
+      if (marker.type === "flag") inner.textContent = "★";
+      if (marker.type === "player") {
+        inner.textContent = marker.label;
+        inner.style.background = marker.color;
+      }
+      if (marker.type === "ghost") {
+        inner.textContent = marker.label;
+        inner.style.borderColor = marker.color;
+        inner.style.color = marker.color;
+      }
+      pin.appendChild(inner);
+      cell.appendChild(pin);
+    }
+    lobbyPreviewGrid.appendChild(cell);
+  }
+}
+
+// Mobile: Preview / How to play tabs live in one card (desktop shows both
+// panes at once and hides the tabs — see the min-width:721px rule in
+// lobby.css — so this listener is a no-op there, which is fine).
+const lobbyIntroTabs = el("lobby-intro-tabs");
+lobbyIntroTabs.addEventListener("click", (event) => {
+  const btn = event.target.closest("button[data-pane]");
+  if (!btn) return;
+  for (const b of lobbyIntroTabs.querySelectorAll("button")) b.classList.toggle("is-active", b === btn);
+  for (const pane of document.querySelectorAll(".lobby-intro-pane")) {
+    pane.classList.toggle("is-active", pane.dataset.pane === btn.dataset.pane);
+  }
+});
+
 function closeDurationDropdown() {
   durationChip.classList.remove("is-open");
   durationChip.setAttribute("aria-expanded", "false");

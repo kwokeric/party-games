@@ -66,12 +66,20 @@
   box-shadow: 0 1px 3px rgba(0, 0, 0, 0.12);
 }
 
+/* Both panes share one grid cell on mobile, with the inactive one only
+   made invisible (not removed), so the card is always as tall as the
+   taller pane and switching tabs never shifts the layout below it. */
+.lobby-intro-panes {
+  display: grid;
+}
+
 .lobby-intro-pane {
-  display: none;
+  grid-area: 1 / 1;
+  visibility: hidden;
 }
 
 .lobby-intro-pane.is-active {
-  display: block;
+  visibility: visible;
 }
 
 .lobby-intro-pane h3 {
@@ -90,7 +98,8 @@
   }
 
   .lobby-intro-pane {
-    display: block;
+    grid-area: auto;
+    visibility: visible;
   }
 }
 
