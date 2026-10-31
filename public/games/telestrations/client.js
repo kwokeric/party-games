@@ -1,5 +1,6 @@
 import { attachDrawingCanvas, renderStrokes } from "./drawing.js";
 import { setupLobby, renderLobbyPlayers } from "/shared/lobby.js";
+import { avatarEl as playAvatarEl } from "/shared/play.js";
 
 const params = new URLSearchParams(location.search);
 const room = params.get("room");
@@ -58,15 +59,21 @@ const playingConnectionTextEl = el("playing-connection-text");
 const playingStatusTextEl = el("playing-status-text");
 const countdownRing = el("countdown-ring");
 const countdownNum = el("countdown-num");
-const playingKindLabelEl = el("playing-kind-label");
+const playingStepLabelEl = el("playing-step-label");
 const playingPromptCardEl = el("playing-prompt-card");
+const playingPromptLabelEl = el("playing-prompt-label");
+const playingPromptTextEl = el("playing-prompt-text");
 const playingPromptCanvasWrapEl = el("playing-prompt-canvas-wrap");
+const playingPromptAvatarEl = el("playing-prompt-avatar");
+const playingPromptAuthorEl = el("playing-prompt-author");
 const playingPromptCanvasEl = el("playing-prompt-canvas");
 const playingDrawWrapEl = el("playing-draw-wrap");
 const playingDrawCanvasEl = el("playing-draw-canvas");
 const playingUndoBtn = el("playing-undo-btn");
 const playingClearBtn = el("playing-clear-btn");
+const playingGuessCardEl = el("playing-guess-card");
 const playingInputEl = el("playing-input");
+const playingNoteEl = el("playing-note");
 const playingSubmitBtn = el("playing-submit-btn");
 
 const resultsBackBtn = el("results-back-btn");
@@ -75,6 +82,8 @@ const chainEntryListEl = el("chain-entry-list");
 const chainPrevBtn = el("chain-prev-btn");
 const chainNextBtn = el("chain-next-btn");
 const chainPagerLabelEl = el("chain-pager-label");
+const resultsNoteEl = el("results-note");
+const resultsReadyCountEl = el("results-ready-count");
 const resultsReadyStatusEl = el("results-ready-status");
 const playAgainBtn = el("play-again-btn");
 
@@ -109,6 +118,12 @@ function showView(view) {
 
 function isHost() {
   return players.find((p) => p.id === myId)?.isHost ?? false;
+}
+
+// A player's avatar tile, colored by their place in the player list so it
+// matches the lobby.
+function avatarEl(id, name) {
+  return playAvatarEl(name, players.findIndex((p) => p.id === id));
 }
 
 function formatDuration(ms) {
@@ -224,7 +239,9 @@ function renderPlayers() {
 
   if (phase === "playing") {
     const submittedCount = players.filter((p) => p.submitted).length;
-    playingStatusTextEl.textContent = `${submittedCount} of ${players.length} submitted`;
+    const countEl = document.createElement("b");
+    countEl.textContent = `${submittedCount} of ${players.length}`;
+    playingStatusTextEl.replaceChildren(countEl, " done");
   }
 }
 
@@ -253,7 +270,8 @@ function submitCurrentEntry(force) {
   alreadySubmitted = true;
   playingInputEl.disabled = true;
   playingSubmitBtn.disabled = true;
-  playingSubmitBtn.textContent = "Waiting for others…";
+  playingSubmitBtn.textContent = "Waiting…";
+  playingNoteEl.hidden = false;
   if (drawingApi) {
     drawingApi.destroy();
     drawingApi = null;
@@ -276,6 +294,7 @@ function tickCountdown() {
   countdownNum.textContent = String(remainingS);
   const pct = roundDurationMs ? Math.max(0, Math.min(100, (remainingMs / roundDurationMs) * 100)) : 100;
   countdownRing.style.setProperty("--pct", String(pct));
+  countdownRing.classList.toggle("urgent", remainingS <= 10);
   if (remainingMs <= 0) {
     stopCountdown();
     submitCurrentEntry(true);
@@ -290,7 +309,7 @@ function renderPromptCanvas(strokes) {
   renderStrokes(playingPromptCanvasEl.getContext("2d"), strokes, playingPromptCanvasEl.width, playingPromptCanvasEl.height);
 }
 
-function startPlaying(round, totalRounds, kind, prevEntry, durationMs, endsAt) {
+function startPlaying(round, totalRounds, kind, prevEntry, prevAuthorId, durationMs, endsAt) {
   phase = "playing";
   currentKind = kind;
   alreadySubmitted = false;
@@ -298,8 +317,7 @@ function startPlaying(round, totalRounds, kind, prevEntry, durationMs, endsAt) {
   roundEndsAt = endsAt;
   showView("playing");
 
-  playingKindLabelEl.textContent =
-    kind === "draw" ? `Round ${round} of ${totalRounds} — Draw this` : `Round ${round} of ${totalRounds} — Guess what this drawing shows`;
+  playingStepLabelEl.textContent = `Round ${round} of ${totalRounds} · ${kind === "draw" ? "Draw" : "Guess"}`;
 
   // What you're responding to: a text prompt (always true on draw rounds)
   // or a drawing to interpret (always true on guess rounds).
@@ -307,8 +325,12 @@ function startPlaying(round, totalRounds, kind, prevEntry, durationMs, endsAt) {
   playingPromptCardEl.hidden = !showingText;
   playingPromptCanvasWrapEl.hidden = showingText;
   if (showingText) {
-    playingPromptCardEl.textContent = prevEntry.text;
+    // Round 1 draws the dealt prompt; later draw rounds draw someone's guess.
+    playingPromptLabelEl.textContent = round === 1 ? "Draw this" : `Draw ${nameOf(prevAuthorId)}'s guess`;
+    playingPromptTextEl.textContent = prevEntry.text;
   } else {
+    playingPromptAvatarEl.replaceChildren(avatarEl(prevAuthorId, nameOf(prevAuthorId)));
+    playingPromptAuthorEl.textContent = nameOf(prevAuthorId);
     renderPromptCanvas(prevEntry.strokes);
   }
 
@@ -319,7 +341,7 @@ function startPlaying(round, totalRounds, kind, prevEntry, durationMs, endsAt) {
   }
   const isDraw = kind === "draw";
   playingDrawWrapEl.hidden = !isDraw;
-  playingInputEl.hidden = isDraw;
+  playingGuessCardEl.hidden = isDraw;
   if (isDraw) {
     drawingApi = attachDrawingCanvas(playingDrawCanvasEl, {
       // Keeps the server's copy of "what has this player drawn so far"
@@ -334,20 +356,24 @@ function startPlaying(round, totalRounds, kind, prevEntry, durationMs, endsAt) {
     });
   } else {
     playingInputEl.value = "";
-    playingInputEl.placeholder = "Your guess…";
     playingInputEl.disabled = false;
   }
 
-  playingSubmitBtn.textContent = "Submit";
+  playingNoteEl.hidden = true;
+  playingSubmitBtn.textContent = isDraw ? "Done drawing" : "Send guess";
   updateSubmitEnabled();
   stopCountdown();
   tickCountdown();
   countdownTimer = setInterval(tickCountdown, 250);
 }
 
-function entryWhoLabel(entry, idx) {
-  if (idx === 0) return "The prompt";
-  return idx % 2 === 1 ? `${entry.authorName} drew` : `${entry.authorName} guessed`;
+function nameOf(id) {
+  return players.find((p) => p.id === id)?.name ?? "Someone";
+}
+
+function entryVerb(idx) {
+  if (idx === 0) return "started with";
+  return idx % 2 === 1 ? "drew" : "guessed";
 }
 
 // Sizing/rendering a canvas needs it already attached to the document (an
@@ -378,27 +404,32 @@ function renderChainPage() {
 
   entries.forEach((entry, idx) => {
     const li = document.createElement("li");
-    li.className = "reveal-chain-entry";
+    li.className = "play-card tele-entry" + (idx === 0 ? " is-prompt" : "");
     chainEntryListEl.appendChild(li); // attach first so canvas sizing below can measure it
 
-    const label = document.createElement("span");
-    label.className = "reveal-entry-label";
-    label.textContent = entryWhoLabel(entry, idx);
-    li.appendChild(label);
+    const who = document.createElement("div");
+    who.className = "tele-who";
+    const name = document.createElement("b");
+    name.textContent = entry.authorName;
+    const line = document.createElement("span");
+    line.append(name, ` ${entryVerb(idx)}`);
+    who.append(avatarEl(entry.authorId, entry.authorName), line);
+    li.appendChild(who);
 
     if (entry.type === "drawing") {
-      const canvas = createEntryCanvas("reveal-entry-canvas");
+      const canvas = createEntryCanvas("tele-canvas");
       li.appendChild(canvas);
       sizeAndRenderCanvas(canvas, entry.strokes);
     } else {
       const text = document.createElement("p");
-      text.className = "reveal-entry-text";
+      text.className = "tele-entry-text";
       text.textContent = entry.text;
       li.appendChild(text);
     }
   });
 
-  chainPagerLabelEl.textContent = `Chain ${currentChainIndex + 1} of ${allChains.length}`;
+  const owner = entries[0]?.authorName;
+  chainPagerLabelEl.textContent = `${owner ? `${owner}'s chain · ` : ""}${currentChainIndex + 1} of ${allChains.length}`;
   chainPrevBtn.disabled = currentChainIndex <= 0;
   chainNextBtn.disabled = currentChainIndex >= allChains.length - 1;
 }
@@ -411,18 +442,22 @@ function updateResultsReadyUI() {
   const amHost = isHost();
   const others = players.filter((p) => !p.isHost);
   const readyCount = others.filter((p) => p.ready).length;
+  const hostName = players.find((p) => p.isHost)?.name ?? "the host";
 
   if (amHost) {
     const everyoneElseReady = others.length === 0 || others.every((p) => p.ready);
     playAgainBtn.disabled = !everyoneElseReady;
     playAgainBtn.textContent = "Play again";
-    resultsReadyStatusEl.textContent = everyoneElseReady ? "" : `${readyCount} of ${others.length} players ready`;
+    resultsReadyCountEl.textContent = `${readyCount} of ${others.length} ready`;
+    resultsReadyStatusEl.textContent = everyoneElseReady ? "Everyone's in" : "for another game";
   } else {
     const me = players.find((p) => p.id === myId);
     playAgainBtn.disabled = Boolean(me?.ready);
-    playAgainBtn.textContent = me?.ready ? "Waiting for others…" : "Play again";
-    resultsReadyStatusEl.textContent = me?.ready ? "Waiting for the host to start a new game…" : "";
+    playAgainBtn.textContent = me?.ready ? "Waiting…" : "Play again";
+    resultsReadyCountEl.textContent = me?.ready ? "Ready" : `${readyCount} of ${others.length} ready`;
+    resultsReadyStatusEl.textContent = me?.ready ? `Waiting for ${hostName} to start…` : "for another game";
   }
+  resultsNoteEl.hidden = others.length === 0;
 }
 
 function renderResults(chains) {
@@ -440,16 +475,19 @@ playingUndoBtn.addEventListener("click", () => drawingApi?.undo());
 playingClearBtn.addEventListener("click", () => drawingApi?.clear());
 playingInputEl.addEventListener("input", updateSubmitEnabled);
 
-chainPrevBtn.addEventListener("click", () => {
-  if (currentChainIndex <= 0) return;
-  currentChainIndex -= 1;
+// Paging starts the new chain from its first step.
+function showChain(index) {
+  currentChainIndex = index;
   renderChainPage();
+  window.scrollTo({ top: 0 });
+}
+
+chainPrevBtn.addEventListener("click", () => {
+  if (currentChainIndex > 0) showChain(currentChainIndex - 1);
 });
 
 chainNextBtn.addEventListener("click", () => {
-  if (currentChainIndex >= allChains.length - 1) return;
-  currentChainIndex += 1;
-  renderChainPage();
+  if (currentChainIndex < allChains.length - 1) showChain(currentChainIndex + 1);
 });
 
 playAgainBtn.addEventListener("click", () => {
@@ -549,7 +587,7 @@ if (!room) {
         if (phase === "lobby") showView("lobby");
         break;
       case "round-start":
-        startPlaying(data.round, data.totalRounds, data.kind, data.prevEntry, data.durationMs, data.endsAt);
+        startPlaying(data.round, data.totalRounds, data.kind, data.prevEntry, data.prevAuthorId, data.durationMs, data.endsAt);
         break;
       case "results":
         renderResults(data.chains);

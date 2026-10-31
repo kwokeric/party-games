@@ -10,6 +10,7 @@
     <link rel="stylesheet" href="./game.css" />
     <link rel="stylesheet" href="./lobby.css" />
     <link rel="stylesheet" href="/shared/lobby.css" />
+    <link rel="stylesheet" href="/shared/play.css" />
     <link rel="stylesheet" href="./playing.css" />
     <link rel="stylesheet" href="./results.css" />
   </head>
@@ -127,75 +128,104 @@
         </div>
       </section>
 
-      <section id="playing-view" class="view playing-view" hidden>
-        <div class="guess-banner">
-          <button id="playing-back-btn" class="guess-icon-btn" type="button" aria-label="Back to home">
-            <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="#ffffff" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><line x1="19" y1="12" x2="5" y2="12"></line><polyline points="12 19 5 12 12 5"></polyline></svg>
-          </button>
-          <div class="guess-banner-title">Telestrations</div>
-          <div class="guess-room-pill" id="playing-room-code">-</div>
-        </div>
-
-        <div class="guess-status-card">
-          <div class="countdown-bar" id="countdown-ring">
-            <div class="countdown-bar-fill"></div>
-          </div>
-          <div class="countdown-status-row">
-            <span class="countdown-num" id="countdown-num">60</span>
-            <span class="guess-status-text" id="playing-status-text"></span>
-            <span class="guess-connection">
-              <span id="playing-connection-dot" class="guess-dot"></span>
-              <span id="playing-connection-text">Connecting…</span>
-            </span>
-          </div>
-        </div>
-
-        <div class="playing-body">
-          <p class="playing-kind-label" id="playing-kind-label"></p>
-
-          <div class="playing-prompt-card" id="playing-prompt-card" hidden></div>
-          <div class="playing-prompt-canvas-wrap" id="playing-prompt-canvas-wrap" hidden>
-            <canvas id="playing-prompt-canvas"></canvas>
-          </div>
-
-          <div class="playing-draw-wrap" id="playing-draw-wrap" hidden>
-            <canvas id="playing-draw-canvas"></canvas>
-            <div class="playing-draw-toolbar">
-              <button id="playing-undo-btn" class="playing-tool-btn" type="button">Undo</button>
-              <button id="playing-clear-btn" class="playing-tool-btn" type="button">Clear</button>
+      <section id="playing-view" class="view play-view" hidden>
+        <div class="play-shell">
+          <header class="play-topbar">
+            <button id="playing-back-btn" class="play-back-btn" type="button" aria-label="Back to home">
+              <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M19 12H5M11 18l-6-6 6-6"></path></svg>
+            </button>
+            <div class="play-title">
+              <h1>Telestrations</h1>
+              <p id="playing-step-label"></p>
             </div>
-          </div>
+            <span class="play-code" id="playing-room-code">-</span>
+          </header>
 
-          <input id="playing-input" class="playing-input" type="text" maxlength="140" placeholder="" hidden />
-          <button id="playing-submit-btn" class="guess-submit-btn" type="button">Submit</button>
+          <section class="play-card tele-status">
+            <span class="tele-countdown-num" id="countdown-num">60</span>
+            <div class="tele-countdown-bar" id="countdown-ring"><span></span></div>
+            <span class="tele-status-text" id="playing-status-text"></span>
+            <span class="play-connection" title="Connection">
+              <span id="playing-connection-dot" class="guess-dot"></span>
+              <span id="playing-connection-text" class="tele-connection-text">Connecting…</span>
+            </span>
+          </section>
+
+          <section class="play-card tele-prompt" id="playing-prompt-card" hidden>
+            <span class="play-label" id="playing-prompt-label">Draw this</span>
+            <h2 id="playing-prompt-text"></h2>
+          </section>
+
+          <section class="play-card tele-canvas-card" id="playing-prompt-canvas-wrap" hidden>
+            <div class="tele-who">
+              <span id="playing-prompt-avatar"></span>
+              <span><b id="playing-prompt-author"></b> drew this</span>
+            </div>
+            <canvas id="playing-prompt-canvas" class="tele-canvas"></canvas>
+          </section>
+
+          <section class="play-card tele-canvas-card" id="playing-draw-wrap" hidden>
+            <canvas id="playing-draw-canvas" class="tele-canvas is-drawable"></canvas>
+            <div class="tele-toolbar">
+              <button id="playing-undo-btn" class="tele-tool-btn" type="button">
+                <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M9 14 4 9l5-5"></path><path d="M4 9h11a5 5 0 0 1 0 10h-4"></path></svg>
+                Undo
+              </button>
+              <button id="playing-clear-btn" class="tele-tool-btn" type="button">Clear</button>
+            </div>
+          </section>
+
+          <section class="play-card tele-guess-card" id="playing-guess-card" hidden>
+            <h2>What is it?</h2>
+            <input id="playing-input" class="tele-input" type="text" maxlength="140" placeholder="Your guess…" aria-label="Your guess" />
+          </section>
+        </div>
+
+        <div class="play-cta">
+          <div class="play-cta-inner">
+            <p id="playing-note" class="play-cta-note" hidden>
+              <strong>Sent</strong>
+              <span>Waiting for everyone else…</span>
+            </p>
+            <button id="playing-submit-btn" class="play-btn" type="button">Done drawing</button>
+          </div>
         </div>
       </section>
 
-      <section id="results-view" class="view results-view" hidden>
-        <div class="guess-banner">
-          <button id="results-back-btn" class="guess-icon-btn" type="button" aria-label="Back to home">
-            <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="#ffffff" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><line x1="19" y1="12" x2="5" y2="12"></line><polyline points="12 19 5 12 12 5"></polyline></svg>
-          </button>
-          <div class="guess-banner-title">Telestrations</div>
-          <div class="guess-room-pill" id="results-room-code">-</div>
-        </div>
-
-        <div class="reveal-body">
-          <h2 class="results-heading">Every chain</h2>
-          <ol id="chain-entry-list" class="reveal-chain-list"></ol>
-
-          <div class="chain-pager">
-            <button id="chain-prev-btn" class="chain-pager-btn" type="button" aria-label="Previous chain">
-              <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#ffffff" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="15 18 9 12 15 6"></polyline></svg>
+      <section id="results-view" class="view play-view" hidden>
+        <div class="play-shell">
+          <header class="play-topbar">
+            <button id="results-back-btn" class="play-back-btn" type="button" aria-label="Back to home">
+              <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M19 12H5M11 18l-6-6 6-6"></path></svg>
             </button>
-            <span id="chain-pager-label" class="chain-pager-label">Chain 1 of 1</span>
-            <button id="chain-next-btn" class="chain-pager-btn" type="button" aria-label="Next chain">
-              <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#ffffff" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="9 18 15 12 9 6"></polyline></svg>
+            <div class="play-title">
+              <h1>Telestrations</h1>
+              <p>Every chain</p>
+            </div>
+            <span class="play-code" id="results-room-code">-</span>
+          </header>
+
+          <div class="tele-pager">
+            <button id="chain-prev-btn" class="tele-pager-btn" type="button" aria-label="Previous chain">
+              <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><polyline points="15 18 9 12 15 6"></polyline></svg>
+            </button>
+            <span id="chain-pager-label" class="tele-pager-label">Chain 1 of 1</span>
+            <button id="chain-next-btn" class="tele-pager-btn" type="button" aria-label="Next chain">
+              <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><polyline points="9 18 15 12 9 6"></polyline></svg>
             </button>
           </div>
 
-          <p id="results-ready-status" class="lobby-waiting results-ready-status"></p>
-          <button id="play-again-btn" class="lobby-action-btn" type="button">Play again</button>
+          <ol id="chain-entry-list" class="tele-chain"></ol>
+        </div>
+
+        <div class="play-cta">
+          <div class="play-cta-inner">
+            <p id="results-note" class="play-cta-note" hidden>
+              <strong id="results-ready-count"></strong>
+              <span id="results-ready-status"></span>
+            </p>
+            <button id="play-again-btn" class="play-btn" type="button">Play again</button>
+          </div>
         </div>
       </section>
     </main>

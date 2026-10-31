@@ -1,94 +1,177 @@
-.playing-view {
-  margin: -2rem calc(50% - 50vw) 0;
-  padding-bottom: 32px;
+/* Draw and guess screens. The page chrome (header, cards, pinned button)
+   comes from /shared/play.css. */
+
+.play-view .tele-status {
+  flex-direction: row;
+  align-items: center;
+  gap: 10px;
+  padding: 12px 14px;
 }
 
-.playing-body {
-  max-width: 1000px;
-  margin: 0 auto;
-  padding: 0 20px;
-  box-sizing: border-box;
+.play-view .tele-countdown-num {
+  flex: none;
+  min-width: 30px;
+  font-family: var(--pv-display);
+  font-size: 20px;
+  font-weight: 800;
+  font-variant-numeric: tabular-nums;
+}
+
+.play-view .tele-countdown-bar {
+  --pct: 100;
+  flex: 1;
+  height: 10px;
+  border-radius: 999px;
+  background: var(--pv-accent-soft);
+  overflow: hidden;
+}
+
+.play-view .tele-countdown-bar span {
+  display: block;
+  width: calc(var(--pct) * 1%);
+  height: 100%;
+  border-radius: 999px;
+  background: var(--pv-accent);
+  transition: width 0.25s linear, background 0.2s;
+}
+
+.play-view .tele-countdown-bar.urgent span {
+  background: var(--pv-danger);
+}
+
+.play-view .tele-status-text {
+  flex: none;
+  font-size: 12px;
+  font-weight: 600;
+  color: var(--pv-ink-soft);
+}
+
+.play-view .tele-status-text b {
+  color: var(--pv-ready);
+}
+
+/* The status card is tight on narrow screens: keep the dot, drop the word. */
+@media (max-width: 480px) {
+  .play-view .tele-connection-text {
+    display: none;
+  }
+}
+
+.play-view .tele-prompt {
+  gap: 2px;
+  background: #fff8ec;
+  border-color: #f3ddb3;
+}
+
+.play-view .tele-prompt h2 {
+  margin: 0;
+  font-family: var(--pv-display);
+  font-size: 30px;
+  font-weight: 800;
+  letter-spacing: -0.035em;
+  line-height: 1.1;
+  overflow-wrap: break-word;
+}
+
+.play-view .tele-canvas-card {
+  padding: 10px;
+}
+
+.play-view .tele-who {
   display: flex;
-  flex-direction: column;
+  align-items: center;
+  gap: 8px;
+  padding: 2px 4px 0;
+  font-size: 13px;
+  color: var(--pv-ink-soft);
 }
 
-.playing-kind-label {
-  margin: 20px 0 0;
-  font-family: "Fredoka", system-ui, sans-serif;
-  font-size: 15px;
-  font-weight: 600;
-  color: rgba(0, 0, 0, 0.85);
+.play-view .tele-who .play-avatar {
+  width: 24px;
+  height: 24px;
+  border-radius: 8px;
+  font-size: 11px;
 }
 
-.playing-prompt-card {
-  margin-top: 12px;
-  background: #ffffff;
-  border: 1px solid rgba(0, 0, 0, 0.08);
-  border-radius: 14px;
-  padding: 18px;
-  font-size: 18px;
-  font-weight: 600;
-  color: #067bc2;
-  text-align: center;
-}
-
-.playing-input {
-  margin-top: 16px;
-  width: 100%;
-  height: 48px;
-  box-sizing: border-box;
-  border: 1px solid rgba(0, 0, 0, 0.12);
-  border-radius: 14px;
-  padding: 0 14px;
-  font-family: system-ui, sans-serif;
-  font-size: 15px;
-}
-
-.playing-input:disabled {
-  background: rgba(0, 0, 0, 0.04);
-  color: rgba(0, 0, 0, 0.4);
-}
-
-.playing-prompt-canvas-wrap {
-  margin-top: 12px;
+.play-view .tele-who b {
+  color: var(--pv-ink);
 }
 
 /* 4:3 to match drawing.js's NORM_WIDTH/NORM_HEIGHT (1000x750), so a stroke
    recorded on one player's canvas replays at the same proportions here. */
-#playing-prompt-canvas,
-#playing-draw-canvas {
+.play-view .tele-canvas {
+  display: block;
   width: 100%;
   aspect-ratio: 4 / 3;
-  display: block;
+  box-sizing: border-box;
+  border-radius: 16px;
+  background: var(--pv-field);
+}
+
+/* The drawing being guessed doesn't need the full column on wide screens,
+   which keeps the guess box in view. */
+#playing-prompt-canvas {
+  max-width: 520px;
+  align-self: center;
+}
+
+.play-view .tele-canvas.is-drawable {
   background: #ffffff;
-  border: 1px solid rgba(0, 0, 0, 0.1);
-  border-radius: 14px;
-}
-
-.playing-draw-wrap {
-  margin-top: 12px;
-}
-
-#playing-draw-canvas {
+  border: 2px dashed var(--pv-line);
   touch-action: none;
   cursor: crosshair;
 }
 
-.playing-draw-toolbar {
+.play-view .tele-toolbar {
   display: flex;
+  justify-content: flex-end;
   gap: 8px;
-  margin-top: 10px;
 }
 
-.playing-tool-btn {
-  flex: 1;
+.play-view .tele-tool-btn {
   height: 38px;
-  border: none;
+  padding: 0 14px;
+  border-radius: 12px;
+  border: 1px solid var(--pv-line);
+  background: #ffffff;
+  color: var(--pv-ink);
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  font: inherit;
+  font-size: 13px;
+  font-weight: 700;
   cursor: pointer;
-  border-radius: 10px;
-  background: rgba(0, 0, 0, 0.06);
-  color: rgba(0, 0, 0, 0.7);
-  font-family: "Fredoka", system-ui, sans-serif;
-  font-size: 13.5px;
-  font-weight: 600;
+}
+
+.play-view .tele-guess-card h2 {
+  margin: 0;
+  font-family: var(--pv-display);
+  font-size: 24px;
+  font-weight: 800;
+  letter-spacing: -0.03em;
+}
+
+.play-view .tele-input {
+  width: 100%;
+  height: 54px;
+  box-sizing: border-box;
+  padding: 0 16px;
+  border-radius: 16px;
+  border: 2px solid var(--pv-field-line);
+  background: #ffffff;
+  color: var(--pv-ink);
+  font-family: var(--pv-display);
+  font-size: 20px;
+  font-weight: 700;
+  outline: none;
+}
+
+.play-view .tele-input:focus {
+  border-color: var(--pv-accent);
+}
+
+.play-view .tele-input:disabled {
+  background: var(--pv-field);
+  color: var(--pv-ink-soft);
 }

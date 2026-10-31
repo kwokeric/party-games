@@ -301,6 +301,9 @@ export default class Telestrations extends Server {
     const chain = this.chains[chainIndex];
     const prevEntry: Entry = chain.entries[this.round - 1] ?? { type: "text", text: "" };
     const totalRounds = this.playerOrder.length - 1;
+    // Who made the entry being responded to (the chain's owner for the
+    // starting prompt), so the screen can say "MAYA drew this".
+    const prevAuthorId = this.playerOrder[(chainIndex + this.round - 1) % this.playerOrder.length];
 
     connection.send(
       JSON.stringify({
@@ -309,6 +312,7 @@ export default class Telestrations extends Server {
         totalRounds,
         kind: this.roundKind(this.round),
         prevEntry,
+        prevAuthorId,
         durationMs: this.roundDurationMs,
         endsAt: this.roundEndsAt,
       })
@@ -394,7 +398,7 @@ export default class Telestrations extends Server {
     const n = this.playerOrder.length;
     return chain.entries.map((entry, idx) => {
       const authorId = this.playerOrder[(chainIndex + idx) % n];
-      return { ...entry, authorName: this.players.get(authorId)?.name ?? "?" };
+      return { ...entry, authorId, authorName: this.players.get(authorId)?.name ?? "?" };
     });
   }
 
