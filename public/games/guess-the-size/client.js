@@ -1,4 +1,5 @@
-import { setupLobby, renderLobbyPlayers, playerColor, playerTilt } from "/shared/lobby.js";
+import { setupLobby, renderLobbyPlayers } from "/shared/lobby.js";
+import { avatarEl as playAvatarEl, rankEl, renderPodium } from "/shared/play.js";
 
 const params = new URLSearchParams(location.search);
 const room = params.get("room");
@@ -176,22 +177,9 @@ function renderRoundTrack(container, roundNumber, maxRounds) {
 }
 
 // A player's avatar tile, colored by their place in the player list so it
-// matches the lobby. Players who've left fall back to a neutral gray.
+// matches the lobby.
 function avatarEl(id, name) {
-  const index = players.findIndex((p) => p.id === id);
-  const span = document.createElement("span");
-  span.className = "play-avatar";
-  span.textContent = name.trim().charAt(0) || "?";
-  span.style.background = index >= 0 ? playerColor(index) : "#9a958c";
-  if (index >= 0) span.style.setProperty("--tilt", playerTilt(index));
-  return span;
-}
-
-function rankEl(place) {
-  const span = document.createElement("span");
-  span.className = `play-rank r${place}`;
-  span.textContent = String(place);
-  return span;
+  return playAvatarEl(name, players.findIndex((p) => p.id === id));
 }
 
 function isHost() {
@@ -639,33 +627,6 @@ function resultRow(player, index, extra, score) {
   return li;
 }
 
-// Top three on steps, laid out 2nd, 1st, 3rd so the winner is centered.
-// With fewer than three players the missing steps are simply left out.
-function renderPodium(standings) {
-  finalPodiumEl.innerHTML = "";
-  for (const place of [2, 1, 3]) {
-    const s = standings[place - 1];
-    if (!s) continue;
-    const slot = document.createElement("div");
-    slot.className = `gts-podium-slot place-${place}`;
-
-    const name = document.createElement("span");
-    name.className = "gts-podium-name";
-    name.textContent = s.name;
-
-    const step = document.createElement("div");
-    step.className = "gts-podium-step";
-    const rank = document.createElement("b");
-    rank.textContent = String(place);
-    const avg = document.createElement("span");
-    avg.textContent = `${s.avgScore.toFixed(1)} avg`;
-    step.append(rank, avg);
-
-    slot.append(avatarEl(s.id, s.name), name, step);
-    finalPodiumEl.appendChild(slot);
-  }
-}
-
 function showFinal(maxRounds, standings) {
   phase = "final";
   showView("final");
@@ -675,7 +636,11 @@ function showFinal(maxRounds, standings) {
   const winner = standings[0];
   finalWinnerNameEl.textContent = winner?.name ?? "-";
   finalWinnerScoreEl.textContent = winner ? winner.avgScore.toFixed(1) : "-";
-  renderPodium(standings);
+  renderPodium(
+    finalPodiumEl,
+    standings.map((st) => ({ ...st, score: `${st.avgScore.toFixed(1)} avg` })),
+    (entry) => avatarEl(entry.id, entry.name)
+  );
 
   finalStandingsListEl.innerHTML = "";
   standings.forEach((s, index) => {

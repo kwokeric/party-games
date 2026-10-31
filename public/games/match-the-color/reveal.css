@@ -1,103 +1,32 @@
-.reveal-view {
-  margin: -2rem calc(50% - 50vw) 0;
-  padding-bottom: 32px;
-  /* See .playing-view — 100dvh keeps this from being sized under the
-     mobile browser's own toolbar chrome. */
-  min-height: 100vh;
-  min-height: 100dvh;
-  display: flex;
-  flex-direction: column;
+/* Reveal screen: everyone's chameleon on the target, then the scores. */
+
+.play-view .mtc-reveal-card {
+  padding: 12px;
 }
 
-/* This header shape (round label + connection on one row, progress track
-   below) is shared verbatim with the playing view, so the two look almost
-   identical — the only difference is the trailing .round-substatus text
-   ("locked in" vs "ready"). */
-.reveal-status-card {
-  flex-direction: column;
-  align-items: stretch;
-  gap: 8px;
-}
-
-.reveal-status-top {
+.mtc-reveal-top {
   display: flex;
   align-items: center;
-  gap: 8px;
+  gap: 10px;
 }
 
-.reveal-round-label {
-  font-family: "Fredoka", system-ui, sans-serif;
-  font-weight: 600;
-  font-size: 14.5px;
-  color: rgba(0, 0, 0, 0.85);
+.mtc-reveal-top .round-track {
   flex: 1;
-}
-
-.round-substatus {
-  font-weight: 400;
-  color: rgba(0, 0, 0, 0.5);
-}
-
-.round-track {
-  display: flex;
-  gap: 4px;
-}
-
-.round-track span {
-  height: 5px;
-  flex: 1;
-  border-radius: 999px;
-  background: rgba(6, 123, 194, 0.14);
-}
-
-.round-track span.done {
-  background: #067bc2;
-}
-
-.reveal-body {
-  width: 100%;
-  max-width: 520px;
-  margin: 0 auto;
-  padding: 0 20px;
-  box-sizing: border-box;
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  flex: 1;
-  min-height: 0;
-}
-
-/* See the matching rule in playing.css — same bug, same fix: margin-top:
-   auto on the CTA is fine when the view fills a phone screen, but strands
-   the button on a tall desktop viewport instead. */
-@media (min-width: 720px) {
-  .reveal-body {
-    max-width: 640px;
-    padding-top: 12px;
-  }
-
-  .reveal-stage {
-    height: 300px;
-  }
-
-  .reveal-cta-area {
-    margin-top: 28px;
-  }
-
-  .guess-status-card {
-    max-width: calc(640px - 40px);
-  }
 }
 
 .reveal-stage {
   position: relative;
-  width: 100%;
   height: 220px;
-  margin-top: 16px;
-  border-radius: 12px;
+  border-radius: 16px;
   overflow: hidden;
   background: var(--target-color, #e0648a);
   box-shadow: inset 0 0 0 1px rgba(0, 0, 0, 0.06);
+}
+
+@media (min-width: 720px) {
+  .reveal-stage {
+    height: 260px;
+  }
 }
 
 .reveal-stage .ground {
@@ -120,10 +49,10 @@
   display: flex;
   justify-content: center;
   align-items: flex-end;
-  gap: 28px;
-  padding: 0 16px;
-  flex-wrap: wrap;
+  gap: 20px;
   row-gap: 20px;
+  padding: 0 12px;
+  flex-wrap: wrap;
 }
 
 .lineup-slot {
@@ -145,177 +74,56 @@
 }
 
 .lineup-tag {
-  margin-top: 6px;
-  font-family: "Fredoka", system-ui, sans-serif;
-  font-size: 10.5px;
-  font-weight: 600;
-  color: rgba(0, 0, 0, 0.55);
-  background: rgba(255, 255, 255, 0.72);
+  margin-top: 4px;
   padding: 2px 8px;
   border-radius: 999px;
+  background: rgba(255, 255, 255, 0.9);
+  font-size: 11px;
+  font-weight: 700;
+  color: var(--pv-ink);
   white-space: nowrap;
 }
 
 .lineup-slot.is-you .lineup-tag {
-  color: #067bc2;
-  background: #ffffff;
+  background: var(--pv-accent);
+  color: #ffffff;
 }
 
 .lineup-slot.is-winner .lineup-tag::before {
   content: "\1F451\00A0";
 }
 
-.reveal-summary {
-  width: 100%;
-  margin: 14px 0 0;
-  font-size: 14px;
-  line-height: 1.5;
-  color: rgba(0, 0, 0, 0.65);
-}
-
-.reveal-summary strong {
-  color: rgba(0, 0, 0, 0.85);
-}
-
-.reveal-results-section {
-  width: 100%;
-  margin-top: 18px;
-  display: flex;
-  flex-direction: column;
-  gap: 8px;
-}
-
-.reveal-results-heading {
-  font-family: "Fredoka", system-ui, sans-serif;
-  font-size: 16px;
-  font-weight: 600;
-  color: rgba(0, 0, 0, 0.85);
-}
-
-.reveal-results-card {
-  width: 100%;
-  background: #ffffff;
-  border-radius: 16px;
-  padding: 0 16px;
-  box-sizing: border-box;
-  box-shadow: 0 8px 20px rgba(6, 123, 194, 0.12);
-}
-
-.roster-col-heads {
-  display: flex;
-  align-items: center;
-  gap: 10px;
-  padding: 10px 0 6px;
-  font-size: 10px;
-  font-weight: 600;
-  letter-spacing: 0.04em;
-  text-transform: uppercase;
-  color: rgba(0, 0, 0, 0.32);
-}
-
-.roster-col-sp {
-  flex: 1;
-}
-
-.roster-col.score-col {
-  width: 46px;
-  text-align: right;
-}
-
-.roster-col.ready-col {
-  width: 21px;
-}
-
-.reveal-results-list {
-  list-style: none;
+.mtc-summary {
   margin: 0;
-  padding: 0;
+  font-size: 14px;
+  text-align: center;
+  color: var(--pv-ink-soft);
 }
 
-.reveal-result-row {
+.mtc-summary b {
+  color: var(--pv-accent);
+}
+
+/* The color each player locked in, next to their score. */
+.mtc-swatch {
+  flex: none;
+  width: 22px;
+  height: 22px;
+  border-radius: 7px;
+  box-shadow: inset 0 0 0 1px rgba(0, 0, 0, 0.08);
+}
+
+/* Per-round history on the final standings: one bar per round. */
+.mtc-history {
+  flex: none;
   display: flex;
-  align-items: center;
-  gap: 10px;
-  padding: 10px 0;
-  border-bottom: 1px solid rgba(0, 0, 0, 0.06);
+  align-items: flex-end;
+  gap: 2px;
+  height: 22px;
 }
 
-.reveal-result-row:last-child {
-  border-bottom: none;
-}
-
-.reveal-avatar {
-  width: 32px;
-  height: 32px;
-  border-radius: 999px;
-  background: #84bcda;
-  color: rgba(0, 0, 0, 0.8);
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  font-family: "Fredoka", system-ui, sans-serif;
-  font-weight: 600;
-  font-size: 12px;
-  flex-shrink: 0;
-}
-
-.reveal-result-name {
-  font-size: 14.5px;
-  color: rgba(0, 0, 0, 0.8);
-  flex: 1;
-  min-width: 0;
-  white-space: nowrap;
-  overflow: hidden;
-  text-overflow: ellipsis;
-}
-
-.reveal-result-row.is-you .reveal-result-name {
-  font-weight: 600;
-}
-
-.reveal-result-name .you-tag {
-  font-weight: 400;
-  color: rgba(0, 0, 0, 0.4);
-  font-size: 12.5px;
-}
-
-.reveal-result-score {
-  width: 46px;
-  text-align: right;
-  font-family: "Fredoka", system-ui, sans-serif;
-  font-weight: 700;
-  font-size: 14.5px;
-  color: rgba(0, 0, 0, 0.6);
-  font-variant-numeric: tabular-nums;
-  flex-shrink: 0;
-}
-
-.reveal-result-score.top {
-  color: #067bc2;
-}
-
-.reveal-cta-area {
-  width: 100%;
-  margin-top: auto;
-  padding-top: 20px;
-  padding-bottom: max(12px, env(safe-area-inset-bottom));
-}
-
-.guess-submit-btn {
-  width: 100%;
-  height: 52px;
-  margin-top: 16px;
-  border: none;
-  cursor: pointer;
-  border-radius: 15px;
-  background: #067bc2;
-  color: #ffffff;
-  font-family: "Fredoka", system-ui, sans-serif;
-  font-size: 16px;
-  font-weight: 600;
-}
-
-.guess-submit-btn:disabled {
-  background: #84bcda;
-  cursor: default;
+.mtc-history span {
+  width: 5px;
+  border-radius: 2px;
+  min-height: 2px;
 }

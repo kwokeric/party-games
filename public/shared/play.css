@@ -344,6 +344,129 @@
   color: var(--pv-ink);
 }
 
+/* --- Winner podium (final screens) ---------------------------------------- */
+
+/* Slots are laid out 2nd, 1st, 3rd so the winner stands in the middle
+   (see renderPodium in /shared/play.js). */
+.play-view .play-podium-card {
+  gap: 14px;
+  background: linear-gradient(160deg, #fff8ec, #ffffff 55%);
+}
+
+.play-view .play-winner {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  text-align: center;
+}
+
+.play-view .play-winner .play-label {
+  color: #b7791f;
+}
+
+.play-view .play-winner h2 {
+  margin: 2px 0 0;
+  font-family: var(--pv-display);
+  font-size: 34px;
+  font-weight: 800;
+  letter-spacing: -0.035em;
+  line-height: 1;
+  overflow-wrap: anywhere;
+}
+
+.play-view .play-winner p {
+  margin: 4px 0 0;
+  font-size: 13px;
+  color: var(--pv-ink-soft);
+}
+
+.play-view .play-winner b {
+  color: var(--pv-ink);
+}
+
+.play-view .play-podium {
+  display: flex;
+  align-items: flex-end;
+  justify-content: center;
+  gap: 8px;
+}
+
+.play-view .play-podium-slot {
+  flex: 1;
+  max-width: 140px;
+  min-width: 0;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 6px;
+}
+
+.play-view .play-podium-slot .play-avatar {
+  width: 44px;
+  height: 44px;
+  border-radius: 14px;
+  border: 3px solid #ffffff;
+  font-size: 19px;
+  box-shadow: 0 2px 6px rgba(0, 0, 0, 0.08);
+}
+
+.play-view .play-podium-slot.place-1 .play-avatar {
+  width: 54px;
+  height: 54px;
+  border-radius: 17px;
+  font-size: 23px;
+}
+
+.play-view .play-podium-name {
+  max-width: 100%;
+  font-size: 13px;
+  font-weight: 700;
+  text-align: center;
+  overflow-wrap: anywhere;
+}
+
+.play-view .play-podium-step {
+  width: 100%;
+  box-sizing: border-box;
+  padding-top: 10px;
+  border-radius: 16px 16px 0 0;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+}
+
+.play-view .play-podium-step b {
+  font-family: var(--pv-display);
+  font-size: 30px;
+  font-weight: 800;
+  line-height: 1;
+}
+
+.play-view .play-podium-step span {
+  font-size: 12px;
+  font-weight: 600;
+  color: var(--pv-ink-soft);
+}
+
+.play-view .place-1 .play-podium-step {
+  height: 130px;
+  background: #f6c445;
+}
+
+.play-view .place-2 .play-podium-step {
+  height: 96px;
+  background: #e4e1da;
+}
+
+.play-view .place-3 .play-podium-step {
+  height: 72px;
+  background: #ecc9a8;
+}
+
+.play-view .place-1 .play-podium-step span {
+  color: var(--pv-ink);
+}
+
 /* --- Pinned action bar -------------------------------------------------- */
 
 .play-view .play-cta {
@@ -357,6 +480,24 @@
   border-top: 1px solid var(--pv-line);
   box-shadow: 0 -6px 16px rgba(0, 0, 0, 0.05);
   backdrop-filter: blur(8px);
+}
+
+/* On wider screens the page is short enough that a pinned bar would sit far
+   below the content, so the action follows the last card instead (same
+   breakpoint as the lobby's start bar). */
+@media (min-width: 721px) {
+  .play-view .play-shell {
+    padding-bottom: 6px;
+  }
+
+  .play-view .play-cta {
+    position: static;
+    padding: 6px 12px 40px;
+    background: none;
+    border-top: none;
+    box-shadow: none;
+    backdrop-filter: none;
+  }
 }
 
 .play-view .play-cta-inner {

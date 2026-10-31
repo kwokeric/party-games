@@ -1,102 +1,51 @@
-.playing-view {
-  margin: -2rem calc(50% - 50vw) 0;
-  padding-bottom: 32px;
-  /* 100vh on mobile browsers is measured with the address/toolbar chrome
-     collapsed, so content sized to it can end up hidden behind that chrome
-     when it's showing. 100dvh tracks the chrome instead; vh stays as the
-     fallback for browsers that don't support dvh yet. */
-  min-height: 100vh;
-  min-height: 100dvh;
-  display: flex;
-  flex-direction: column;
-}
+/* Playing screen. The page chrome (header, cards, pinned button, timer
+   ring, round track) comes from /shared/play.css. */
 
-.guess-banner {
-  background: #067bc2;
-  padding: 16px 20px;
-  box-sizing: border-box;
-  display: flex;
+.play-view .mtc-status {
+  flex-direction: row;
   align-items: center;
   gap: 12px;
+  padding: 12px 14px;
 }
 
-.guess-icon-btn {
-  border: none;
-  cursor: pointer;
-  width: 32px;
-  height: 32px;
-  border-radius: 999px;
-  background: rgba(255, 255, 255, 0.2);
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  flex-shrink: 0;
-  padding: 0;
-}
-
-.guess-banner-title {
-  font-family: "Fredoka", system-ui, sans-serif;
-  font-weight: 600;
-  font-size: 17px;
-  color: #ffffff;
+.mtc-status-main {
   flex: 1;
+  min-width: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
 }
 
-.guess-room-pill {
-  background: rgba(255, 255, 255, 0.16);
-  font-family: "Fredoka", system-ui, sans-serif;
-  font-weight: 600;
+.mtc-status-row {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 8px;
+}
+
+.mtc-status-text {
   font-size: 13px;
-  letter-spacing: 1.5px;
-  color: #ffffff;
-  padding: 5px 10px;
-  border-radius: 999px;
+  font-weight: 600;
 }
 
-.guess-status-card {
-  width: calc(100% - 40px);
-  max-width: calc(520px - 40px);
-  min-height: 50px;
-  margin: 0 auto;
-  background: #ffffff;
-  border-radius: 0 0 16px 16px;
-  padding: 10px 14px;
-  box-sizing: border-box;
-  box-shadow: 0 8px 16px rgba(6, 123, 194, 0.1);
-  display: flex;
-  align-items: center;
-  gap: 10px;
+.mtc-status-text b {
+  color: var(--pv-ready);
 }
 
-/* The countdown sits below the sliders now, as its own centered element in
-   the playing body's flow (that body is a centered flex column, so no extra
-   wrapper is needed to center this). */
-.countdown-ring {
-  --pct: 100;
-  --ring-color: #067bc2;
-  width: 85px;
-  height: 85px;
-  margin-top: 16px;
+.guess-dot {
+  width: 7px;
+  height: 7px;
   border-radius: 999px;
+  background: #9aa0ab;
   flex-shrink: 0;
-  background: conic-gradient(var(--ring-color) calc(var(--pct) * 1%), rgba(0, 0, 0, 0.1) 0);
-  display: flex;
-  align-items: center;
-  justify-content: center;
 }
 
-.countdown-ring-inner {
-  width: 69px;
-  height: 69px;
-  border-radius: 999px;
-  background: #ffffff;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  font-family: "Fredoka", system-ui, sans-serif;
-  font-weight: 700;
-  font-size: 30px;
-  color: var(--ring-color);
+.guess-dot.connected {
+  background: var(--pv-ready);
+}
+
+.guess-dot.disconnected {
+  background: var(--pv-danger);
 }
 
 /* The last 5 seconds get a heartbeat: one quick pulse per second, retriggered
@@ -117,100 +66,35 @@
   }
 }
 
-.guess-connection {
-  display: flex;
-  align-items: center;
-  gap: 5px;
-  font-size: 12px;
-  color: rgba(0, 0, 0, 0.5);
-}
-
-.guess-dot {
-  width: 7px;
-  height: 7px;
-  border-radius: 999px;
-  background: #9aa0ab;
-  flex-shrink: 0;
-}
-
-.guess-dot.connected {
-  background: #3fb27f;
-}
-
-.guess-dot.disconnected {
-  background: #d56062;
-}
-
-.playing-body {
-  width: 100%;
-  max-width: 520px;
-  margin: 0 auto;
-  padding: 0 20px;
-  box-sizing: border-box;
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  flex: 1;
-  min-height: 0;
-}
-
-/* On mobile the CTA is pinned to the bottom of the viewport with
-   margin-top: auto, since the view fills the screen and there's no other
-   anchor. On desktop the view is much taller than its content, so that same
-   rule strands the button far below everything else — here it just follows
-   the countdown ring in normal flow instead, and the whole column gets more
-   room to breathe. */
-@media (min-width: 720px) {
-  .playing-body {
-    max-width: 640px;
-    padding-top: 12px;
-  }
-
-  .playing-stage {
-    height: 300px;
-  }
-
-  .playing-cta-area {
-    margin-top: 28px;
-  }
-
-  .guess-status-card {
-    max-width: calc(640px - 40px);
-  }
-}
-
-.playing-cta-area {
-  width: 100%;
-  margin-top: auto;
-  padding-top: 20px;
-  /* Extra breathing room below the button itself, beyond the view's own
-     padding-bottom, plus the iOS home-indicator safe area — otherwise the
-     button can end up sitting flush against the edge of the browser chrome
-     on mobile. */
-  padding-bottom: max(12px, env(safe-area-inset-bottom));
-}
-
-.guess-instruction {
-  width: 100%;
-  margin: 16px 0 0;
-  font-size: 15px;
-  line-height: 1.4;
-  color: rgba(0, 0, 0, 0.7);
-}
-
-.guess-instruction strong {
-  color: rgba(0, 0, 0, 0.85);
+.play-view .mtc-stage-card {
+  padding: 10px;
 }
 
 .playing-stage {
   position: relative;
-  width: 100%;
-  height: 220px;
-  margin-top: 16px;
-  border-radius: 12px;
+  height: 230px;
+  border-radius: 16px;
   overflow: hidden;
   background: var(--target-color, #e0648a);
   box-shadow: inset 0 0 0 1px rgba(0, 0, 0, 0.06);
+}
+
+@media (min-width: 720px) {
+  .playing-stage {
+    height: 280px;
+  }
+}
+
+.mtc-stage-tag {
+  position: absolute;
+  top: 10px;
+  left: 10px;
+  padding: 4px 10px;
+  border-radius: 999px;
+  background: rgba(255, 255, 255, 0.9);
+  font-size: 12px;
+  font-weight: 600;
+  color: var(--pv-ink-soft);
 }
 
 .stage-texture {
@@ -297,36 +181,26 @@
   }
 }
 
-.sliders {
-  width: 100%;
-  background: #ffffff;
-  border-radius: 16px;
-  padding: 16px 16px 18px;
-  box-shadow: 0 8px 16px rgba(6, 123, 194, 0.1);
-  display: flex;
-  flex-direction: column;
+.play-view .sliders {
   gap: 14px;
-  margin-top: 14px;
-  box-sizing: border-box;
 }
 
 .slider-row {
   display: flex;
   flex-direction: column;
-  gap: 5px;
+  gap: 6px;
 }
 
 .slider-head {
   display: flex;
   justify-content: space-between;
-  font-family: "Fredoka", system-ui, sans-serif;
-  font-size: 12px;
+  font-size: 13px;
   font-weight: 600;
-  color: rgba(0, 0, 0, 0.6);
 }
 
 .slider-head .val {
-  color: rgba(0, 0, 0, 0.85);
+  font-family: var(--pv-display);
+  font-weight: 800;
   font-variant-numeric: tabular-nums;
 }
 
@@ -334,7 +208,8 @@
   -webkit-appearance: none;
   appearance: none;
   width: 100%;
-  height: 12px;
+  height: 14px;
+  margin: 0;
   border-radius: 999px;
   outline: none;
   cursor: pointer;
@@ -342,26 +217,27 @@
 
 .sliders input[type="range"]::-webkit-slider-thumb {
   -webkit-appearance: none;
-  width: 24px;
-  height: 24px;
+  width: 26px;
+  height: 26px;
   border-radius: 50%;
   background: #ffffff;
-  border: 3px solid rgba(0, 0, 0, 0.85);
-  box-shadow: 0 2px 6px rgba(0, 0, 0, 0.25);
+  border: 3px solid var(--pv-ink);
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.2);
   cursor: grab;
 }
 
 .sliders input[type="range"]:disabled::-webkit-slider-thumb {
-  border-color: rgba(0, 0, 0, 0.4);
+  border-color: rgba(0, 0, 0, 0.35);
 }
 
 .sliders input[type="range"]::-moz-range-thumb {
-  width: 24px;
-  height: 24px;
+  width: 26px;
+  height: 26px;
+  box-sizing: border-box;
   border-radius: 50%;
   background: #ffffff;
-  border: 3px solid rgba(0, 0, 0, 0.85);
-  box-shadow: 0 2px 6px rgba(0, 0, 0, 0.25);
+  border: 3px solid var(--pv-ink);
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.2);
   cursor: grab;
 }
 
@@ -375,23 +251,4 @@
 
 #bri-slider {
   background: linear-gradient(to right, #000000, var(--hue-sat, #00ff00));
-}
-
-.lock-btn {
-  width: 100%;
-  height: 52px;
-  margin-top: 16px;
-  border: none;
-  cursor: pointer;
-  border-radius: 15px;
-  background: #067bc2;
-  color: #ffffff;
-  font-family: "Fredoka", system-ui, sans-serif;
-  font-size: 16px;
-  font-weight: 600;
-}
-
-.lock-btn:disabled {
-  background: #84bcda;
-  cursor: default;
 }

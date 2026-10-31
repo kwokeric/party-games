@@ -1,4 +1,5 @@
 import { setupLobby, renderLobbyPlayers } from "/shared/lobby.js";
+import { avatarEl as playAvatarEl, rankEl, renderPodium } from "/shared/play.js";
 
 const params = new URLSearchParams(location.search);
 const room = params.get("room");
@@ -68,6 +69,7 @@ const hueVal = el("hue-val");
 const satVal = el("sat-val");
 const briVal = el("bri-val");
 const lockBtn = el("lock-btn");
+const lockNote = el("lock-note");
 
 const revealBackBtn = el("reveal-back-btn");
 const revealRoomCodeEl = el("reveal-room-code");
@@ -79,6 +81,7 @@ const revealRoundTrackEl = el("reveal-round-track");
 const revealStageEl = el("reveal-stage");
 const revealLineupEl = el("reveal-lineup");
 const revealSummary = el("reveal-summary");
+const revealNextLabelEl = el("reveal-next-label");
 const resultsList = el("results-list");
 const revealReadyBtn = el("reveal-ready-btn");
 
@@ -86,10 +89,10 @@ const finalBackBtn = el("final-back-btn");
 const finalRoomCodeEl = el("final-room-code");
 const finalWinnerNameEl = el("final-winner-name");
 const finalStatusSubEl = el("final-status-sub");
+const finalWinnerScoreEl = el("final-winner-score");
 const finalPodiumEl = el("final-podium");
-const podiumSlots = { 1: el("podium-1"), 2: el("podium-2"), 3: el("podium-3") };
-const finalTableHead = el("final-table-head");
-const finalTableBody = el("final-table-body");
+const finalStandingsListEl = el("final-standings-list");
+const finalLeaveBtn = el("final-leave-btn");
 const finalPlayAgainBtn = el("final-play-again-btn");
 
 lobbyRoomCodeEl.textContent = room ?? "(none)";
@@ -141,12 +144,12 @@ function showView(view) {
 const READY_CHECK_SVG =
   '<svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="3.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"></polyline></svg>';
 
-// Ready dots live inside per-row elements (results-list, final-table-body)
+// Ready dots live inside per-row elements (results-list, final-standings-list)
 // tagged with data-player-id, so a "players" update can flip them live without
 // rebuilding the whole list (which would also wipe the match/score columns).
 function updateReadyDots() {
   for (const p of players) {
-    for (const list of [resultsList, finalTableBody]) {
+    for (const list of [resultsList, finalStandingsListEl]) {
       const dot = list.querySelector(`[data-player-id="${p.id}"] .status-dot`);
       if (dot) dot.classList.toggle("on", Boolean(p.ready));
     }
@@ -160,6 +163,12 @@ function renderRoundTrack(container, roundNumber, maxRounds) {
     if (i <= roundNumber) span.classList.add("done");
     container.appendChild(span);
   }
+}
+
+// A player's avatar tile, colored by their place in the player list so it
+// matches the lobby.
+function avatarEl(id, name) {
+  return playAvatarEl(name, players.findIndex((p) => p.id === id));
 }
 
 function isHost() {
@@ -186,23 +195,24 @@ function renderPlayers() {
 
   if (phase === "playing") {
     const lockedCount = players.filter((p) => p.locked).length;
-    const roundLabel = playingMaxRounds ? `Round ${playingRoundNumber} of ${playingMaxRounds}` : "";
-    playingRoundLabelEl.textContent = roundLabel;
-    playingLockedLabelEl.textContent = `${roundLabel ? " · " : ""}${lockedCount} of ${players.length} locked in`;
+    playingRoundLabelEl.textContent = playingMaxRounds ? `Round ${playingRoundNumber} of ${playingMaxRounds}` : "";
+    const lockedCountEl = document.createElement("b");
+    lockedCountEl.textContent = `${lockedCount} of ${players.length}`;
+    playingLockedLabelEl.replaceChildren(lockedCountEl, " locked in");
   }
 
   if (phase === "reveal") {
     const me = players.find((p) => p.id === myId);
     revealReadyBtn.disabled = Boolean(me?.ready);
-    revealReadyBtn.textContent = me?.ready ? "Waiting for others…" : "Ready";
+    revealReadyBtn.textContent = me?.ready ? "Waiting…" : "Ready";
     const readyCount = players.filter((p) => p.ready).length;
-    revealReadyLabelEl.textContent = ` · ${readyCount} of ${players.length} ready`;
+    revealReadyLabelEl.textContent = `${readyCount} of ${players.length} ready`;
   }
 
   if (phase === "final") {
     const me = players.find((p) => p.id === myId);
     finalPlayAgainBtn.disabled = Boolean(me?.ready);
-    finalPlayAgainBtn.textContent = me?.ready ? "Waiting for others…" : "Play again";
+    finalPlayAgainBtn.textContent = me?.ready ? "Waiting…" : "Play again";
   }
 
   updateReadyDots();
@@ -390,7 +400,7 @@ function tickCountdown() {
   const urgent = remainingMs > 0 && remainingS <= 5;
   countdownNum.textContent = String(remainingS);
   countdownRing.style.setProperty("--pct", String(Math.round((remainingMs / roundDurationMs) * 100)));
-  countdownRing.style.setProperty("--ring-color", urgent ? "#d56062" : "#067bc2");
+  countdownRing.style.setProperty("--ring-color", urgent ? "#c0392b" : "#1f6feb");
 
   if (urgent) {
     // Retrigger the pulse only when the displayed second actually changes,
@@ -435,6 +445,7 @@ function startPlaying(roundNumber, maxRounds, newTarget, durationMs, endsAt) {
 
   lockBtn.disabled = false;
   lockBtn.textContent = "Lock it in";
+  lockNote.hidden = true;
 
   showView("playing");
   stopCountdown();
@@ -453,7 +464,8 @@ function showReveal(roundNumber, maxRounds, revealedTarget, results) {
   target = revealedTarget;
 
   revealStageEl.style.setProperty("--target-color", rgbCss(hsbToRgb(target.h, target.s, target.b)));
-  revealRoundLabelEl.textContent = `Round ${roundNumber} of ${maxRounds}`;
+  revealRoundLabelEl.textContent = `Round ${roundNumber} of ${maxRounds} · Results`;
+  revealNextLabelEl.textContent = roundNumber < maxRounds ? `Next: round ${roundNumber + 1}` : "Final results next";
   renderRoundTrack(revealRoundTrackEl, roundNumber, maxRounds);
 
   const topScore = results.length ? results[0].score : 0;
@@ -473,118 +485,97 @@ function showReveal(roundNumber, maxRounds, revealedTarget, results) {
     revealLineupEl.appendChild(slot);
   });
 
-  const mine = results.find((r) => r.id === myId);
-  if (mine) {
-    revealSummary.innerHTML = `You scored <strong style="color: #067bc2;">${mine.score}%</strong> matching ${target.name}`;
+  const mineIndex = results.findIndex((r) => r.id === myId);
+  if (mineIndex >= 0) {
+    const scoreEl = document.createElement("b");
+    scoreEl.textContent = `${results[mineIndex].score}%`;
+    revealSummary.replaceChildren("Your match ", scoreEl, ` · ${ordinal(mineIndex + 1)} this round`);
   } else {
     revealSummary.textContent = `Target: ${target.name}`;
   }
 
   resultsList.innerHTML = "";
   results.forEach((r, index) => {
-    const li = document.createElement("li");
-    li.className = "reveal-result-row" + (r.id === myId ? " is-you" : "");
-    li.dataset.playerId = r.id;
-
-    const avatar = document.createElement("span");
-    avatar.className = "reveal-avatar";
-    avatar.textContent = r.name.trim().charAt(0) || "?";
-
-    const nameEl = document.createElement("span");
-    nameEl.className = "reveal-result-name";
-    nameEl.textContent = r.name;
-    if (r.id === myId) {
-      const tag = document.createElement("span");
-      tag.className = "you-tag";
-      tag.textContent = " (you)";
-      nameEl.appendChild(tag);
-    }
-
-    const scoreEl = document.createElement("span");
-    scoreEl.className = index === 0 ? "reveal-result-score top" : "reveal-result-score";
-    scoreEl.textContent = `${r.score}%`;
-
-    const readyDot = document.createElement("span");
-    readyDot.className = "status-dot";
-    readyDot.innerHTML = READY_CHECK_SVG;
-
-    li.append(avatar, nameEl, scoreEl, readyDot);
-    resultsList.appendChild(li);
+    const swatch = document.createElement("span");
+    swatch.className = "mtc-swatch";
+    swatch.style.background = rgbCss(hsbToRgb(r.h, r.s, r.b));
+    resultsList.appendChild(resultRow(r, index, swatch, `${r.score}%`));
   });
 
   showView("reveal");
   renderPlayers();
 }
 
-function renderPodium(standings) {
-  const showPodium = standings.length >= 3;
-  finalPodiumEl.hidden = !showPodium;
-  if (!showPodium) return;
-
-  [1, 2, 3].forEach((rank) => {
-    const s = standings[rank - 1];
-    const slot = podiumSlots[rank];
-    slot.querySelector(".podium-avatar").textContent = s.name.trim().charAt(0) || "?";
-    slot.querySelector(".podium-name").textContent = s.name + (s.id === myId ? " (you)" : "");
-    slot.querySelector(".podium-score").textContent = `${s.avgScore.toFixed(1)} avg`;
-  });
+function ordinal(n) {
+  const suffix = n % 100 >= 11 && n % 100 <= 13 ? "th" : ["th", "st", "nd", "rd"][n % 10] ?? "th";
+  return `${n}${suffix}`;
 }
 
-function renderFinalTable(maxRounds, standings) {
-  finalTableHead.innerHTML = "";
-  const headCells = ["Player", ...Array.from({ length: maxRounds }, (_, i) => `R${i + 1}`), "Avg", ""];
-  headCells.forEach((label) => {
-    const th = document.createElement("th");
-    th.textContent = label;
-    finalTableHead.appendChild(th);
-  });
+// One ranked row in the results / final standings: rank, avatar, name, any
+// extra column, the score, then a ready dot that updateReadyDots() flips.
+function resultRow(player, index, extra, score) {
+  const li = document.createElement("li");
+  li.className = "play-row" + (player.id === myId ? " is-you" : "");
+  li.dataset.playerId = player.id;
 
-  finalTableBody.innerHTML = "";
-  standings.forEach((s) => {
-    const tr = document.createElement("tr");
-    tr.className = s.id === myId ? "is-you" : "";
-    tr.dataset.playerId = s.id;
+  const nameEl = document.createElement("span");
+  nameEl.className = "play-row-name";
+  nameEl.textContent = player.name;
+  if (player.id === myId) {
+    const tag = document.createElement("span");
+    tag.className = "you-tag";
+    tag.textContent = " (you)";
+    nameEl.appendChild(tag);
+  }
 
-    const nameTd = document.createElement("td");
-    nameTd.className = "final-table-name";
-    nameTd.textContent = s.name + (s.id === myId ? " (you)" : "");
-    tr.appendChild(nameTd);
+  const scoreEl = document.createElement("span");
+  scoreEl.className = index === 0 ? "play-score top" : "play-score";
+  scoreEl.textContent = score;
 
-    for (let i = 0; i < maxRounds; i++) {
-      const td = document.createElement("td");
-      const score = s.roundScores[i];
-      td.textContent = score != null ? String(score) : "–";
-      tr.appendChild(td);
-    }
+  const readyDot = document.createElement("span");
+  readyDot.className = "status-dot";
+  readyDot.innerHTML = READY_CHECK_SVG;
 
-    const avgTd = document.createElement("td");
-    avgTd.className = "final-table-avg";
-    avgTd.textContent = s.avgScore.toFixed(1);
-    tr.appendChild(avgTd);
+  li.append(rankEl(index + 1), avatarEl(player.id, player.name), nameEl);
+  if (extra) li.append(extra);
+  li.append(scoreEl, readyDot);
+  return li;
+}
 
-    const readyTd = document.createElement("td");
-    readyTd.className = "final-table-ready";
-    const readyDot = document.createElement("span");
-    readyDot.className = "status-dot";
-    readyDot.innerHTML = READY_CHECK_SVG;
-    readyTd.appendChild(readyDot);
-    tr.appendChild(readyTd);
-
-    finalTableBody.appendChild(tr);
-  });
+// One small bar per round (taller = closer match), in the player's color.
+function historyEl(standing) {
+  const color = avatarEl(standing.id, standing.name).style.background;
+  const wrap = document.createElement("span");
+  wrap.className = "mtc-history";
+  wrap.setAttribute("aria-hidden", "true");
+  for (const score of standing.roundScores) {
+    const bar = document.createElement("span");
+    bar.style.height = `${Math.round(((score ?? 0) / 100) * 22)}px`;
+    bar.style.background = color;
+    wrap.appendChild(bar);
+  }
+  return wrap;
 }
 
 function showFinal(maxRounds, standings) {
   phase = "final";
   showView("final");
 
-  finalStatusSubEl.textContent = `${maxRounds} round${maxRounds === 1 ? "" : "s"} played`;
+  finalStatusSubEl.textContent = `Game over · ${maxRounds} round${maxRounds === 1 ? "" : "s"}`;
 
   const winner = standings[0];
   finalWinnerNameEl.textContent = winner?.name ?? "-";
+  finalWinnerScoreEl.textContent = winner ? `${winner.avgScore.toFixed(1)}%` : "-";
+  renderPodium(
+    finalPodiumEl,
+    standings.map((st) => ({ ...st, score: `${st.avgScore.toFixed(1)}%` })),
+    (entry) => avatarEl(entry.id, entry.name)
+  );
 
-  renderPodium(standings);
-  renderFinalTable(maxRounds, standings);
+  finalStandingsListEl.innerHTML = "";
+  standings.forEach((st, index) => {
+    finalStandingsListEl.appendChild(resultRow(st, index, historyEl(st), st.avgScore.toFixed(1)));
+  });
 
   renderPlayers();
 }
@@ -594,7 +585,8 @@ lockBtn.addEventListener("click", () => {
   locked = true;
   [hueSlider, satSlider, briSlider].forEach((sliderEl) => (sliderEl.disabled = true));
   lockBtn.disabled = true;
-  lockBtn.textContent = "Waiting for others…";
+  lockBtn.textContent = "Locked in";
+  lockNote.hidden = false;
   walkerEl.classList.add("is-stopped");
   socket?.send(JSON.stringify({ type: "lock" }));
 });
@@ -621,6 +613,9 @@ revealBackBtn.addEventListener("click", () => {
   location.href = "/";
 });
 finalBackBtn.addEventListener("click", () => {
+  location.href = "/";
+});
+finalLeaveBtn.addEventListener("click", () => {
   location.href = "/";
 });
 copyCodeBtn.addEventListener("click", async () => {

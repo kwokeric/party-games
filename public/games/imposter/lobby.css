@@ -1,17 +1,12 @@
 @import url("https://fonts.googleapis.com/css2?family=Fredoka:wght@500;600;700&display=swap");
 
-/* .imp-dark-view sets an unconditional `display`, which — being equal
-   specificity to the UA default `[hidden]{display:none}` — would otherwise
-   win and keep a "hidden" section visible underneath whichever view is
-   actually showing. Same override every other game carries. */
+/* Cards and notes set an unconditional `display` (e.g. .play-card is flex),
+   which would otherwise beat the UA default `[hidden]{display:none}` and
+   keep a hidden element showing. Same override every other game carries. */
 [hidden] {
   display: none !important;
 }
 
-/* Global, not scoped to .lobby-view — .lobby-action-btn and friends get
-   reused on the reveal/voting/results views too (all siblings of
-   .lobby-view, not descendants), and var() silently resolves to nothing
-   outside the scope it's defined in. */
 :root {
   --blue: #067bc2;
   --light-blue: #84bcda;

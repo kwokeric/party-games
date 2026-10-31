@@ -14,35 +14,6 @@
   margin-top: 1rem;
 }
 
-/* Shared ready/rematch indicator, used in both the per-round results list
-   and the final results table. */
-.status-dot {
-  width: 21px;
-  height: 21px;
-  border-radius: 999px;
-  flex-shrink: 0;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  border: 1.5px solid rgba(0, 0, 0, 0.15);
-  background: transparent;
-  transition: background 0.15s ease, border-color 0.15s ease;
-}
-
-.status-dot.on {
-  background: #3fb27f;
-  border-color: #3fb27f;
-}
-
-.status-dot svg {
-  opacity: 0;
-  transition: opacity 0.1s ease;
-}
-
-.status-dot.on svg {
-  opacity: 1;
-}
-
 /* The chameleon is shared by the playing stage (one, walking, then facing
    forward once time runs out) and the results lineup (one per player,
    standing still, facing forward). Its three body-part shades come from a
