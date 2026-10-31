@@ -1,4 +1,5 @@
 import { attachDrawingCanvas, renderStrokes } from "./drawing.js";
+import { setupLobby, renderLobbyPlayers } from "/shared/lobby.js";
 
 const params = new URLSearchParams(location.search);
 const room = params.get("room");
@@ -25,6 +26,8 @@ if (room) {
 }
 
 const el = (id) => document.getElementById(id);
+
+setupLobby("telestrations");
 
 const lobbyView = el("lobby-view");
 const playingView = el("playing-view");
@@ -189,37 +192,7 @@ function sendSettings(next) {
 }
 
 function renderPlayers() {
-  lobbyPlayerListEl.innerHTML = "";
-  for (const p of players) {
-    const li = document.createElement("li");
-    li.className = "lobby-player-row";
-
-    const avatar = document.createElement("span");
-    avatar.className = "lobby-avatar";
-    avatar.textContent = p.name.trim().charAt(0) || "?";
-
-    const nameEl = document.createElement("span");
-    nameEl.className = "lobby-player-name";
-    nameEl.textContent = p.name + (p.id === myId ? " (you)" : "") + (p.connected === false ? " (left)" : "");
-
-    li.append(avatar, nameEl);
-
-    if (p.isHost) {
-      const badge = document.createElement("span");
-      badge.className = "lobby-host-badge";
-      badge.textContent = "HOST";
-      li.append(badge);
-    } else if (p.ready) {
-      const tag = document.createElement("span");
-      tag.className = "lobby-ready-tag";
-      tag.innerHTML =
-        '<svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="#067bc2" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"></polyline></svg>';
-      tag.append("Ready");
-      li.append(tag);
-    }
-
-    lobbyPlayerListEl.appendChild(li);
-  }
+  renderLobbyPlayers(lobbyPlayerListEl, players, { myId, maxPlayers });
 
   if (phase === "lobby") {
     const amHost = isHost();
@@ -510,7 +483,7 @@ copyCodeBtn.addEventListener("click", async () => {
     await navigator.clipboard.writeText(room);
     const original = copyCodeBtn.innerHTML;
     copyCodeBtn.innerHTML =
-      '<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#067bc2" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"></polyline></svg>';
+      '<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><polyline points="20 6 9 17 4 12"></polyline></svg>Copied';
     setTimeout(() => (copyCodeBtn.innerHTML = original), 1200);
   } catch {
     // Clipboard access can fail (permissions, insecure context); the code

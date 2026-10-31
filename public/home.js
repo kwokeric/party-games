@@ -7,23 +7,11 @@ const joinForm = document.getElementById("join-form");
 const joinBtn = document.getElementById("join-btn");
 const joinError = document.getElementById("join-error");
 
-// Purely presentational, so it lives here rather than in the shared game
-// registry: each card's icon sits on its own tilted pastel tile.
-const TILES = {
-  "hues-and-clues": { tint: "#F6DCE4", tilt: "-8deg" },
-  imposter: { tint: "#DCE7F6", tilt: "6deg" },
-  telestrations: { tint: "#FCE7C8", tilt: "-3deg" },
-  "secret-hitler": { tint: "#E6E2DA", tilt: "9deg" },
-  "match-the-color": { tint: "#D9EEDF", tilt: "-6deg" },
-  "guess-the-size": { tint: "#E8E0F4", tilt: "4deg" },
-};
-const DEFAULT_TILE = { tint: "#ECEAE5", tilt: "0deg" };
-
 const ARROW_ICON =
   '<svg class="host-arrow" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M5 12h14M13 6l6 6-6 6"></path></svg>';
 
 for (const game of GAMES) {
-  const tile = TILES[game.id] ?? DEFAULT_TILE;
+  const { tile } = game;
   const card = document.createElement("article");
   card.className = "game-card";
   card.innerHTML = `

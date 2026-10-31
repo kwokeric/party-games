@@ -1,0 +1,972 @@
+/* Shared lobby look for every game, matching the home page: warm off-white
+   page, white rounded cards, Bricolage headings and one blue accent.
+   Loaded after each game's own lobby.css; everything is scoped under
+   .lobby-view so it restyles the lobby without touching in-game screens
+   that reuse classes like .lobby-action-btn.
+
+   Desktop: banner on top, then intro + settings on the left and players on
+   the right. Phones: one column (settings before players), players as a
+   3-up tile grid and the Start / Ready button pinned to the bottom. */
+
+@import url("https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:opsz,wght@12..96,500;12..96,700;12..96,800&family=Inter:wght@400;500;600;700&display=swap");
+
+.lobby-view {
+  --lb-accent: #1f6feb;
+  --lb-accent-dark: #164eaa;
+  --lb-accent-soft: #e8f0fd;
+  --lb-page: #f7f6f3;
+  --lb-line: #eceae5;
+  --lb-field: #faf9f7;
+  --lb-field-line: #e4e1da;
+  --lb-ink: #1f1d1a;
+  --lb-ink-soft: #5c5850;
+  --lb-ink-faint: #8a857c;
+  --lb-ready: #1e9e5a;
+  --lb-ready-ink: #145f38;
+  --lb-ready-soft: #eaf7ef;
+  --lb-display: "Bricolage Grotesque", system-ui, sans-serif;
+
+  min-height: 100vh;
+  /* Cancel .page's bottom padding so the old body color never shows. */
+  margin-bottom: -2rem;
+  background: var(--lb-page);
+  color: var(--lb-ink);
+  font-family: Inter, system-ui, -apple-system, sans-serif;
+  padding-bottom: 0;
+}
+
+.lobby-view .lobby-shell {
+  max-width: 1160px;
+  margin: 0 auto;
+  padding: 24px 24px 64px;
+  box-sizing: border-box;
+  display: flex;
+  flex-direction: column;
+  gap: 24px;
+}
+
+/* --- Top bar ------------------------------------------------------------ */
+
+.lobby-view .lobby-topbar {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+
+.lobby-view .lobby-back-btn {
+  width: 44px;
+  height: 44px;
+  padding: 0;
+  border-radius: 14px;
+  border: 1px solid var(--lb-line);
+  background: #ffffff;
+  color: var(--lb-ink);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+}
+
+.lobby-view .lobby-back-btn:hover {
+  background: var(--lb-field);
+}
+
+.lobby-view .lobby-logo {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  color: var(--lb-ink);
+  text-decoration: none;
+  font-family: var(--lb-display);
+  font-size: 20px;
+  font-weight: 800;
+  letter-spacing: -0.03em;
+}
+
+.lobby-view .lobby-logo svg rect {
+  fill: var(--lb-accent);
+}
+
+/* --- Banner: game + room code ------------------------------------------- */
+
+.lobby-view .lobby-banner {
+  position: relative;
+  overflow: hidden;
+  background: #ffffff;
+  border: 1px solid var(--lb-line);
+  border-radius: 32px;
+  padding: clamp(24px, 4vw, 40px);
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: space-between;
+  gap: 28px;
+}
+
+.lobby-view .lobby-banner::before {
+  content: "";
+  position: absolute;
+  right: -40px;
+  top: -60px;
+  width: 160px;
+  height: 160px;
+  border-radius: 999px;
+  background: rgba(31, 111, 235, 0.1);
+}
+
+.lobby-view .lobby-banner-game {
+  position: relative;
+  display: flex;
+  align-items: center;
+  gap: 20px;
+  flex: 1 1 320px;
+  min-width: 0;
+}
+
+.lobby-view .lobby-game-tile {
+  flex: 0 0 72px;
+  height: 72px;
+  border-radius: 22px;
+  background: #eceae5;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.lobby-view .lobby-game-tile svg {
+  width: 36px;
+  height: 36px;
+}
+
+/* The registry icons are drawn in the old brand blue; ink them instead. */
+.lobby-view .lobby-game-tile svg [stroke]:not([stroke="none"]) {
+  stroke: var(--lb-ink);
+}
+.lobby-view .lobby-game-tile svg [fill]:not([fill="none"]),
+.lobby-view .lobby-game-tile svg[fill]:not([fill="none"]) {
+  fill: var(--lb-ink);
+}
+
+.lobby-view .lobby-banner h1 {
+  margin: 0;
+  font-family: var(--lb-display);
+  font-size: clamp(32px, 4.5vw, 52px);
+  line-height: 0.95;
+  font-weight: 800;
+  letter-spacing: -0.045em;
+}
+
+.lobby-view .lobby-banner p {
+  margin: 6px 0 0;
+  font-size: 15px;
+  color: var(--lb-ink-soft);
+}
+
+.lobby-view .lobby-game-range {
+  color: var(--lb-accent);
+  font-weight: 600;
+}
+
+.lobby-view .lobby-code {
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.lobby-view .lobby-code-label {
+  font-size: 13px;
+  font-weight: 600;
+}
+
+.lobby-view .lobby-code-row {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.lobby-view .lobby-code-box {
+  height: 56px;
+  padding: 0 20px;
+  box-sizing: border-box;
+  border-radius: 14px;
+  border: 2px solid var(--lb-field-line);
+  background: var(--lb-field);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-family: var(--lb-display);
+  font-size: 26px;
+  font-weight: 800;
+  letter-spacing: 0.18em;
+  /* Letter-spacing also pads after the last letter; even it out. */
+  text-indent: 0.18em;
+}
+
+/* Fixed width so swapping "Copy" for "Copied" never shifts the layout. */
+.lobby-view .lobby-copy-btn {
+  width: 116px;
+  height: 56px;
+  padding: 0;
+  justify-content: center;
+  border-radius: 16px;
+  border: 2px solid var(--lb-ink);
+  background: #ffffff;
+  color: var(--lb-ink);
+  box-shadow: 0 3px 0 var(--lb-ink);
+  font-family: var(--lb-display);
+  font-size: 15px;
+  font-weight: 700;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  cursor: pointer;
+}
+
+.lobby-view .lobby-copy-btn:active {
+  transform: translateY(2px);
+  box-shadow: 0 1px 0 var(--lb-ink);
+}
+
+/* --- Columns and cards -------------------------------------------------- */
+
+.lobby-view .lobby-columns {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: flex-start;
+  gap: 24px;
+}
+
+.lobby-view .lobby-main {
+  flex: 999 1 540px;
+  min-width: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 24px;
+}
+
+.lobby-view .lobby-panel {
+  margin: 0;
+  background: #ffffff;
+  border: 1px solid var(--lb-line);
+  border-radius: 28px;
+  padding: 24px;
+}
+
+.lobby-view .lobby-panel h3 {
+  margin: 0 0 10px;
+  font-family: var(--lb-display);
+  font-size: 22px;
+  font-weight: 800;
+  letter-spacing: -0.03em;
+  text-transform: none;
+  color: var(--lb-ink);
+}
+
+/* --- Preview / How to play ---------------------------------------------- */
+
+.lobby-view .lobby-intro-card {
+  display: flex;
+  flex-direction: column;
+  gap: 18px;
+}
+
+/* Tabs at every width; both panes share one grid cell (see each game's
+   lobby.css), so the card is always as tall as the taller pane. */
+.lobby-view .lobby-intro-tabs {
+  display: flex;
+  align-self: flex-start;
+  gap: 4px;
+  margin: 0;
+  padding: 4px;
+  border-radius: 999px;
+  background: #f2f0eb;
+}
+
+.lobby-view .lobby-intro-tabs button {
+  flex: none;
+  min-height: 40px;
+  padding: 0 18px;
+  border: none;
+  border-radius: 999px;
+  background: transparent;
+  color: var(--lb-ink-soft);
+  font-family: var(--lb-display);
+  font-size: 15px;
+  font-weight: 700;
+  cursor: pointer;
+}
+
+.lobby-view .lobby-intro-tabs button.is-active {
+  background: #ffffff;
+  color: var(--lb-ink);
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.12);
+}
+
+.lobby-view .lobby-intro-panes {
+  display: grid;
+  grid-template-columns: 1fr;
+  gap: 0;
+}
+
+.lobby-view .lobby-intro-pane {
+  grid-area: 1 / 1;
+  visibility: hidden;
+}
+
+.lobby-view .lobby-intro-pane.is-active {
+  visibility: visible;
+}
+
+.lobby-view .lobby-intro-pane h3 {
+  display: none;
+}
+
+.lobby-view .lobby-preview-stage {
+  border-radius: 20px;
+}
+
+.lobby-view .lobby-howto-list {
+  margin: 0;
+  padding: 0;
+  list-style: none;
+  counter-reset: howto;
+  display: flex;
+  flex-direction: column;
+  gap: 14px;
+}
+
+.lobby-view .lobby-howto-list li {
+  counter-increment: howto;
+  display: flex;
+  align-items: flex-start;
+  gap: 14px;
+  font-size: 15px;
+  line-height: 1.5;
+  color: #3a3732;
+}
+
+.lobby-view .lobby-howto-list li::before {
+  content: counter(howto);
+  flex: 0 0 30px;
+  height: 30px;
+  margin-top: -3px;
+  border-radius: 10px;
+  background: var(--lb-accent-soft);
+  color: var(--lb-accent);
+  font-family: var(--lb-display);
+  font-size: 15px;
+  font-weight: 800;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+/* --- Settings ----------------------------------------------------------- */
+
+.lobby-view .lobby-settings-panel,
+.lobby-view #lobby-settings-panel {
+  display: flex;
+  flex-direction: column;
+}
+
+.lobby-view #lobby-settings-panel[hidden] {
+  display: none;
+}
+
+.lobby-view .lobby-settings-row,
+.lobby-view .imp-set-row {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 16px;
+  margin: 0;
+  padding: 12px 0;
+  border-top: 1px solid #f0eee9;
+}
+
+.lobby-view .lobby-settings-row + .lobby-settings-row,
+.lobby-view .imp-set-row + .imp-set-row {
+  margin: 0;
+}
+
+.lobby-view .lobby-settings-label,
+.lobby-view .imp-set-label {
+  font-family: inherit;
+  font-size: 15px;
+  font-weight: 600;
+  color: var(--lb-ink);
+}
+
+.lobby-view .imp-set-sub {
+  margin-top: 2px;
+  font-size: 13px;
+  color: var(--lb-ink-soft);
+}
+
+.lobby-view .lobby-settings-summary,
+.lobby-view #lobby-settings-summary {
+  margin: -12px 0 0;
+  font-size: 13px;
+  color: var(--lb-ink-soft);
+  text-align: center;
+}
+
+.lobby-view .lobby-stepper {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+  padding: 4px;
+  border-radius: 14px;
+  background: #f2f0eb;
+}
+
+.lobby-view .lobby-stepper-btn {
+  width: 40px;
+  height: 40px;
+  padding: 0;
+  border: none;
+  border-radius: 11px;
+  background: #ffffff;
+  color: var(--lb-ink);
+  font-family: inherit;
+  font-size: 20px;
+  font-weight: 600;
+  cursor: pointer;
+}
+
+.lobby-view .lobby-stepper-btn:disabled {
+  opacity: 0.4;
+  cursor: default;
+}
+
+.lobby-view .lobby-stepper-val {
+  min-width: 36px;
+  text-align: center;
+  font-family: var(--lb-display);
+  font-size: 20px;
+  font-weight: 800;
+  color: var(--lb-ink);
+}
+
+.lobby-view .lobby-dropdown-chip {
+  width: auto;
+  min-width: 120px;
+  height: 44px;
+  padding: 0 14px 0 16px;
+  border-radius: 14px;
+  border: 2px solid var(--lb-field-line);
+  background: var(--lb-field);
+  color: var(--lb-ink);
+  font-family: inherit;
+  font-size: 15px;
+  font-weight: 600;
+  gap: 8px;
+}
+
+.lobby-view .lobby-dropdown-chip span {
+  text-align: left;
+  white-space: nowrap;
+}
+
+.lobby-view .lobby-dropdown-chip svg path {
+  stroke: var(--lb-ink);
+}
+
+.lobby-view .lobby-dropdown-popover {
+  border-color: var(--lb-line);
+  border-radius: 16px;
+}
+
+.lobby-view .lobby-dropdown-option {
+  font-family: inherit;
+  font-size: 14px;
+  color: var(--lb-ink-soft);
+}
+
+.lobby-view .lobby-dropdown-option:hover {
+  background: var(--lb-field);
+}
+
+.lobby-view .lobby-dropdown-option.is-selected {
+  color: var(--lb-accent-dark);
+  background: var(--lb-accent-soft);
+}
+
+.lobby-view .imp-toggle[aria-checked="true"] {
+  background: var(--lb-accent);
+}
+
+.lobby-view .imp-cats-head {
+  padding-top: 12px;
+  border-top: 1px solid #f0eee9;
+}
+
+.lobby-view .imp-link-btn {
+  color: var(--lb-accent);
+  font-family: inherit;
+}
+
+.lobby-view .imp-chip {
+  min-height: 40px;
+  padding: 0 14px;
+  border-radius: 999px;
+  border: 2px solid var(--lb-field-line);
+  background: #ffffff;
+  color: var(--lb-ink-soft);
+  font-family: inherit;
+  font-size: 14px;
+  font-weight: 600;
+}
+
+.lobby-view .imp-chip.is-selected {
+  border-color: var(--lb-accent);
+  background: var(--lb-accent-soft);
+  color: var(--lb-accent-dark);
+}
+
+/* --- Players ------------------------------------------------------------ */
+
+.lobby-view .lobby-players-panel {
+  flex: 1 1 340px;
+  min-width: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 14px;
+}
+
+.lobby-view .lobby-players-head {
+  display: flex;
+  align-items: baseline;
+  justify-content: space-between;
+  gap: 8px;
+}
+
+.lobby-view .lobby-players-head h3 {
+  margin: 0;
+}
+
+.lobby-view .lobby-player-count {
+  font-size: 13px;
+  font-weight: 600;
+  color: var(--lb-ink-soft);
+}
+
+.lobby-view .lobby-player-list {
+  margin: 0;
+  padding: 0;
+  list-style: none;
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.lobby-view .lobby-player-row {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 8px 12px 8px 8px;
+  border-radius: 16px;
+  border: 2px dashed #d9d5cc;
+  background: var(--lb-field);
+}
+
+.lobby-view .lobby-player-row.is-ready {
+  border-style: solid;
+  border-color: #bfe6cd;
+  background: var(--lb-ready-soft);
+}
+
+.lobby-view .lobby-player-row.is-left {
+  opacity: 0.55;
+}
+
+.lobby-view .lobby-avatar {
+  flex: 0 0 40px;
+  width: 40px;
+  height: 40px;
+  border-radius: 13px;
+  transform: rotate(var(--tilt, 0deg));
+  font-family: var(--lb-display);
+  font-size: 17px;
+  font-weight: 800;
+  color: #ffffff;
+}
+
+.lobby-view .lobby-player-row:not(.is-ready) .lobby-avatar {
+  opacity: 0.5;
+}
+
+/* Full names, never truncated: long ones wrap instead. */
+.lobby-view .lobby-player-name {
+  flex: 1;
+  min-width: 0;
+  font-family: inherit;
+  font-size: 15px;
+  font-weight: 600;
+  letter-spacing: 0;
+  text-transform: none;
+  white-space: normal;
+  overflow: visible;
+  text-overflow: clip;
+  overflow-wrap: anywhere;
+  color: var(--lb-ink);
+}
+
+.lobby-view .lobby-player-note {
+  font-weight: 500;
+  color: var(--lb-ink-soft);
+}
+
+.lobby-view .lobby-host-badge {
+  flex-shrink: 0;
+  padding: 4px 10px;
+  border-radius: 999px;
+  background: #fce7c8;
+  color: var(--lb-ink);
+  font-size: 11px;
+  font-weight: 700;
+  letter-spacing: 0.04em;
+}
+
+.lobby-view .lobby-player-status {
+  flex-shrink: 0;
+  display: flex;
+  align-items: center;
+  gap: 4px;
+  font-size: 13px;
+  font-weight: 600;
+  color: var(--lb-ink-faint);
+}
+
+.lobby-view .is-ready .lobby-player-status {
+  height: 28px;
+  padding: 0 10px;
+  border-radius: 999px;
+  background: var(--lb-ready);
+  color: #ffffff;
+  font-weight: 700;
+}
+
+/* --- Start bar ---------------------------------------------------------- */
+
+.lobby-view .lobby-start-bar {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  margin-top: 6px;
+}
+
+.lobby-view .lobby-start-status {
+  order: 1;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 2px;
+  text-align: center;
+}
+
+.lobby-view .lobby-start-status:not(:has(> :not([hidden]))) {
+  display: none;
+}
+
+.lobby-view .lobby-ready-count {
+  font-family: var(--lb-display);
+  font-size: 15px;
+  font-weight: 800;
+  color: var(--lb-ready);
+}
+
+.lobby-view .lobby-hint,
+.lobby-view .lobby-waiting {
+  margin: 0;
+  font-size: 13px;
+  color: var(--lb-ink-soft);
+  text-align: inherit;
+}
+
+.lobby-view .lobby-action-btn {
+  height: 58px;
+  border-radius: 16px;
+  background: var(--lb-accent);
+  box-shadow: 0 4px 0 var(--lb-accent-dark);
+  font-family: var(--lb-display);
+  font-size: 19px;
+  font-weight: 700;
+}
+
+.lobby-view .lobby-action-btn:active:not(:disabled) {
+  transform: translateY(2px);
+  box-shadow: 0 2px 0 var(--lb-accent-dark);
+}
+
+.lobby-view .lobby-action-btn.is-ready {
+  background: #ffffff;
+  color: var(--lb-ink);
+  box-shadow: 0 3px 0 var(--lb-ink);
+  border: 2px solid var(--lb-ink);
+}
+
+.lobby-view .lobby-action-btn:disabled {
+  background: #c9c5bc;
+  box-shadow: none;
+}
+
+.lobby-view .lobby-action-btn[hidden] {
+  display: none;
+}
+
+/* --- Phones ------------------------------------------------------------- */
+
+@media (max-width: 720px) {
+  .lobby-view .lobby-shell {
+    padding: 12px 12px 120px;
+    gap: 12px;
+  }
+
+  .lobby-view .lobby-back-btn {
+    width: 38px;
+    height: 38px;
+    border-radius: 12px;
+  }
+
+  .lobby-view .lobby-logo {
+    font-size: 18px;
+  }
+
+  .lobby-view .lobby-logo svg {
+    width: 26px;
+    height: 26px;
+  }
+
+  .lobby-view .lobby-banner {
+    border-radius: 24px;
+    padding: 16px;
+    gap: 14px;
+  }
+
+  .lobby-view .lobby-banner-game {
+    gap: 14px;
+    flex-basis: 100%;
+  }
+
+  .lobby-view .lobby-game-tile {
+    flex-basis: 52px;
+    height: 52px;
+    border-radius: 16px;
+  }
+
+  .lobby-view .lobby-game-tile svg {
+    width: 30px;
+    height: 30px;
+  }
+
+  .lobby-view .lobby-banner h1 {
+    font-size: 28px;
+  }
+
+  .lobby-view .lobby-banner p {
+    margin-top: 4px;
+    font-size: 13px;
+  }
+
+  .lobby-view .lobby-code {
+    flex: 1 1 100%;
+  }
+
+  .lobby-view .lobby-code-label {
+    display: none;
+  }
+
+  .lobby-view .lobby-code-box {
+    flex: 1;
+    height: 46px;
+    border-radius: 12px;
+    font-size: 22px;
+  }
+
+  .lobby-view .lobby-copy-btn {
+    width: 108px;
+    height: 46px;
+    border-radius: 12px;
+  }
+
+  .lobby-view .lobby-columns,
+  .lobby-view .lobby-main {
+    gap: 12px;
+  }
+
+  .lobby-view .lobby-settings-summary,
+  .lobby-view #lobby-settings-summary {
+    margin-top: -2px;
+  }
+
+  .lobby-view .lobby-panel {
+    border-radius: 22px;
+    padding: 16px;
+  }
+
+  .lobby-view .lobby-panel h3 {
+    margin-bottom: 4px;
+    font-size: 20px;
+  }
+
+  .lobby-view .lobby-intro-card {
+    gap: 12px;
+  }
+
+  .lobby-view .lobby-intro-tabs button {
+    min-height: 34px;
+    padding: 0 16px;
+    font-size: 14px;
+  }
+
+  .lobby-view .lobby-howto-list {
+    gap: 8px;
+  }
+
+  .lobby-view .lobby-howto-list li {
+    gap: 10px;
+    font-size: 14px;
+    line-height: 1.4;
+  }
+
+  .lobby-view .lobby-howto-list li::before {
+    flex-basis: 24px;
+    height: 24px;
+    margin-top: -2px;
+    border-radius: 8px;
+    font-size: 13px;
+  }
+
+  .lobby-view .lobby-settings-row,
+  .lobby-view .imp-set-row {
+    padding: 8px 0;
+  }
+
+  .lobby-view .lobby-stepper-btn {
+    width: 34px;
+    height: 34px;
+  }
+
+  .lobby-view .lobby-dropdown-chip {
+    height: 38px;
+    min-width: 0;
+    border-radius: 12px;
+  }
+
+  .lobby-view .lobby-players-panel {
+    gap: 12px;
+  }
+
+  /* Players as a 3-up tile grid: avatar, full name, then status. */
+  .lobby-view .lobby-player-list {
+    display: grid;
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+    gap: 8px;
+  }
+
+  .lobby-view .lobby-player-row {
+    position: relative;
+    flex-direction: column;
+    gap: 6px;
+    padding: 12px 6px 10px;
+    text-align: center;
+  }
+
+  .lobby-view .lobby-player-row.is-ready {
+    border-color: var(--lb-ready);
+  }
+
+  .lobby-view .lobby-avatar {
+    flex: none;
+    width: 44px;
+    height: 44px;
+    border-radius: 14px;
+    font-size: 19px;
+  }
+
+  /* Break only names too long for a tile, never ordinary ones. */
+  .lobby-view .lobby-player-name {
+    flex: none;
+    max-width: 100%;
+    font-size: 12px;
+    font-weight: 700;
+    line-height: 1.2;
+    overflow-wrap: break-word;
+  }
+
+  .lobby-view .lobby-player-note {
+    display: block;
+  }
+
+  .lobby-view .lobby-host-badge {
+    position: absolute;
+    top: 6px;
+    left: 6px;
+    padding: 2px 6px;
+    font-size: 9px;
+  }
+
+  .lobby-view .lobby-player-status,
+  .lobby-view .is-ready .lobby-player-status {
+    height: auto;
+    padding: 0;
+    background: none;
+    font-size: 12px;
+  }
+
+  .lobby-view .is-ready .lobby-player-status {
+    color: var(--lb-ready);
+  }
+
+  /* Start / Ready pinned to the bottom of the screen. */
+  .lobby-view .lobby-start-bar {
+    position: fixed;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    z-index: 10;
+    margin: 0;
+    padding: 12px 12px calc(16px + env(safe-area-inset-bottom));
+    flex-direction: row;
+    align-items: center;
+    gap: 12px;
+    background: rgba(247, 246, 243, 0.94);
+    border-top: 1px solid var(--lb-line);
+    box-shadow: 0 -6px 16px rgba(0, 0, 0, 0.05);
+    backdrop-filter: blur(8px);
+  }
+
+  .lobby-view .lobby-start-status {
+    order: 0;
+    flex: 1;
+    min-width: 0;
+    align-items: flex-start;
+    text-align: left;
+  }
+
+  .lobby-view .lobby-ready-count {
+    font-size: 16px;
+  }
+
+  .lobby-view .lobby-hint,
+  .lobby-view .lobby-waiting {
+    font-size: 12px;
+  }
+
+  .lobby-view .lobby-action-btn {
+    order: 1;
+    width: auto;
+    flex: 0 0 auto;
+    height: 52px;
+    padding: 0 22px;
+    font-size: 17px;
+  }
+
+  /* With nothing to say on the left, the button takes the full bar. */
+  .lobby-view .lobby-start-status:not(:has(> :not([hidden]))) + .lobby-action-btn,
+  .lobby-view .lobby-start-status:not(:has(> :not([hidden]))) ~ .lobby-action-btn {
+    flex: 1;
+  }
+}

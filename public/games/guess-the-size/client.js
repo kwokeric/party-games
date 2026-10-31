@@ -1,3 +1,5 @@
+import { setupLobby, renderLobbyPlayers } from "/shared/lobby.js";
+
 const params = new URLSearchParams(location.search);
 const room = params.get("room");
 const isHostUrl = params.get("host") === "1";
@@ -23,6 +25,8 @@ if (room) {
 }
 
 const el = (id) => document.getElementById(id);
+
+setupLobby("guess-the-size");
 
 const lobbyView = el("lobby-view");
 const guessingView = el("guessing-view");
@@ -170,37 +174,7 @@ function isHost() {
 }
 
 function renderPlayers() {
-  lobbyPlayerListEl.innerHTML = "";
-  for (const p of players) {
-    const li = document.createElement("li");
-    li.className = "lobby-player-row";
-
-    const avatar = document.createElement("span");
-    avatar.className = "lobby-avatar";
-    avatar.textContent = p.name.trim().charAt(0) || "?";
-
-    const nameEl = document.createElement("span");
-    nameEl.className = "lobby-player-name";
-    nameEl.textContent = p.name + (p.id === myId ? " (you)" : "") + (p.connected === false ? " (left)" : "");
-
-    li.append(avatar, nameEl);
-
-    if (p.isHost) {
-      const badge = document.createElement("span");
-      badge.className = "lobby-host-badge";
-      badge.textContent = "HOST";
-      li.append(badge);
-    } else if (p.ready) {
-      const tag = document.createElement("span");
-      tag.className = "lobby-ready-tag";
-      tag.innerHTML =
-        '<svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="#067bc2" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"></polyline></svg>';
-      tag.append("Ready");
-      li.append(tag);
-    }
-
-    lobbyPlayerListEl.appendChild(li);
-  }
+  renderLobbyPlayers(lobbyPlayerListEl, players, { myId });
 
   guessAvatarStackEl.innerHTML = "";
   for (const p of players) {
@@ -407,19 +381,6 @@ async function renderLobbyPreview() {
   applySize(objB, sizeStyle(pxPerMeter, { axis: "width" }, 4.11));
 }
 renderLobbyPreview();
-
-// Mobile: Preview / How to play tabs live in one card (desktop shows both
-// panes at once and hides the tabs — see the min-width:721px rule in
-// lobby.css — so this listener is a no-op there, which is fine).
-const lobbyIntroTabs = el("lobby-intro-tabs");
-lobbyIntroTabs?.addEventListener("click", (event) => {
-  const btn = event.target.closest("button[data-pane]");
-  if (!btn) return;
-  for (const b of lobbyIntroTabs.querySelectorAll("button")) b.classList.toggle("is-active", b === btn);
-  for (const pane of document.querySelectorAll(".lobby-intro-pane")) {
-    pane.classList.toggle("is-active", pane.dataset.pane === btn.dataset.pane);
-  }
-});
 
 function renderObjectA() {
   if (!round) return;
@@ -856,7 +817,7 @@ copyCodeBtn.addEventListener("click", async () => {
     await navigator.clipboard.writeText(room);
     const original = copyCodeBtn.innerHTML;
     copyCodeBtn.innerHTML =
-      '<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#067bc2" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"></polyline></svg>';
+      '<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><polyline points="20 6 9 17 4 12"></polyline></svg>Copied';
     setTimeout(() => (copyCodeBtn.innerHTML = original), 1200);
   } catch {
     // Clipboard access can fail (permissions, insecure context); the code

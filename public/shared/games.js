@@ -48,7 +48,7 @@ const MASK_ICON = `
   </svg>
 `;
 
-/** @type {{id: string, title: string, description: string, path: string, badge: string, icon: string}[]} */
+/** @type {{id: string, title: string, description: string, path: string, badge: string, icon: string, tile: {tint: string, tilt: string}}[]} */
 export const GAMES = [
   {
     id: "guess-the-size",
@@ -58,6 +58,7 @@ export const GAMES = [
     path: "/games/guess-the-size/",
     badge: "1+ Players",
     icon: RULER_ICON,
+    tile: { tint: "#E8E0F4", tilt: "4deg" },
   },
   {
     id: "match-the-color",
@@ -67,6 +68,7 @@ export const GAMES = [
     path: "/games/match-the-color/",
     badge: "1+ Players",
     icon: DROPLET_ICON,
+    tile: { tint: "#D9EEDF", tilt: "-6deg" },
   },
   {
     id: "secret-hitler",
@@ -76,6 +78,7 @@ export const GAMES = [
     path: "/games/secret-hitler/",
     badge: "5-10 Players",
     icon: HITLER_ICON,
+    tile: { tint: "#E6E2DA", tilt: "9deg" },
   },
   {
     id: "telestrations",
@@ -85,6 +88,7 @@ export const GAMES = [
     path: "/games/telestrations/",
     badge: "4-8 Players",
     icon: PENCIL_ICON,
+    tile: { tint: "#FCE7C8", tilt: "-3deg" },
   },
   {
     id: "hues-and-clues",
@@ -94,6 +98,7 @@ export const GAMES = [
     path: "/games/hues-and-clues/",
     badge: "3-8 Players",
     icon: PALETTE_ICON,
+    tile: { tint: "#F6DCE4", tilt: "-8deg" },
   },
   {
     id: "imposter",
@@ -103,5 +108,6 @@ export const GAMES = [
     path: "/games/imposter/",
     badge: "3-12 Players",
     icon: MASK_ICON,
+    tile: { tint: "#DCE7F6", tilt: "6deg" },
   },
 ];

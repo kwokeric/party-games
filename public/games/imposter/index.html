@@ -7,101 +7,123 @@
     <link rel="icon" href="/favicon.ico" sizes="any" />
     <link rel="stylesheet" href="/normalize.css" />
     <link rel="stylesheet" href="/styles.css" />
-    <link rel="stylesheet" href="/shared/app-shell.css" />
     <link rel="stylesheet" href="./lobby.css" />
+    <link rel="stylesheet" href="/shared/lobby.css" />
     <link rel="stylesheet" href="./game.css" />
   </head>
   <body>
     <main class="page">
       <section id="lobby-view" class="view lobby-view">
-        <div class="app-topbar">
-          <span class="app-topbar-dot"></span>
-          <span class="app-topbar-word">PARTY GAMES</span>
-        </div>
-        <div class="app-shell">
-          <div class="app-pagehead">
-            <div class="app-pagehead-left">
-              <button class="app-back-btn js-back" type="button" aria-label="Back to home">
-                <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="#111" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><line x1="19" y1="12" x2="5" y2="12"></line><polyline points="12 19 5 12 12 5"></polyline></svg>
-              </button>
-              <div class="app-pagehead-titles">
+        <div class="lobby-shell">
+          <header class="lobby-topbar">
+            <button id="back-btn" class="lobby-back-btn" type="button" aria-label="Back to home">
+              <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M19 12H5M11 18l-6-6 6-6"></path></svg>
+            </button>
+            <a class="lobby-logo" href="/">
+              <svg width="30" height="30" viewBox="0 0 34 34" aria-hidden="true"><rect x="3" y="3" width="28" height="28" rx="9" transform="rotate(-8 17 17)"></rect><circle cx="12.5" cy="15" r="2.4" fill="#ffffff"></circle><circle cx="21.5" cy="15" r="2.4" fill="#ffffff"></circle><path d="M12 21c2.8 2.2 7.2 2.2 10 0" stroke="#ffffff" stroke-width="2.2" fill="none" stroke-linecap="round"></path></svg>
+              Party Games
+            </a>
+          </header>
+
+          <section class="lobby-banner">
+            <div class="lobby-banner-game">
+              <div id="lobby-game-tile" class="lobby-game-tile" aria-hidden="true"></div>
+              <div>
                 <h1>Imposter</h1>
-                <p id="lobby-subtitle">Waiting for players to join</p>
+                <p><span id="lobby-subtitle">Waiting for players to join</span> · <span id="lobby-game-range" class="lobby-game-range"></span></p>
               </div>
             </div>
-            <button id="copy-code-btn" class="app-code-chip lobby-code-chip" type="button" aria-label="Copy room code">
-              <span class="js-room-code">-</span>
-              <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="9" y="9" width="13" height="13" rx="2"></rect><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"></path></svg>
-            </button>
-          </div>
-
-          <div class="lobby-panel lobby-intro-card">
-            <div class="lobby-intro-tabs" id="lobby-intro-tabs">
-              <button type="button" class="is-active" data-pane="preview">Preview</button>
-              <button type="button" data-pane="howto">How to play</button>
+            <div class="lobby-code">
+              <span class="lobby-code-label">Room code</span>
+              <div class="lobby-code-row">
+                <span id="lobby-room-code" class="lobby-code-box js-room-code">-</span>
+                <button id="copy-code-btn" class="lobby-copy-btn" type="button" aria-label="Copy room code">
+                  <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="9" y="9" width="13" height="13" rx="2"></rect><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"></path></svg>
+                  Copy
+                </button>
+              </div>
             </div>
-            <div class="lobby-intro-panes">
-              <div class="lobby-intro-pane is-active" data-pane="preview">
-                <h3>Preview</h3>
-                <div class="lobby-preview-stage">
-                  <div class="imp-preview-card is-word is-left"><small>The word</small><b>PIZZA</b></div>
-                  <div class="imp-preview-card is-word is-imposter"><small>You're the</small><b>IMPOSTER</b></div>
-                  <div class="imp-preview-card is-word is-right"><small>The word</small><b>PIZZA</b></div>
+          </section>
+
+          <div class="lobby-columns">
+            <div class="lobby-main">
+              <div class="lobby-panel lobby-intro-card">
+                <div class="lobby-intro-tabs" id="lobby-intro-tabs">
+                  <button type="button" class="is-active" data-pane="preview">Preview</button>
+                  <button type="button" data-pane="howto">How to play</button>
+                </div>
+                <div class="lobby-intro-panes">
+                  <div class="lobby-intro-pane is-active" data-pane="preview">
+                    <h3>Preview</h3>
+                    <div class="lobby-preview-stage">
+                      <div class="imp-preview-card is-word is-left"><small>The word</small><b>PIZZA</b></div>
+                      <div class="imp-preview-card is-word is-imposter"><small>You're the</small><b>IMPOSTER</b></div>
+                      <div class="imp-preview-card is-word is-right"><small>The word</small><b>PIZZA</b></div>
+                    </div>
+                  </div>
+                  <div class="lobby-intro-pane" data-pane="howto">
+                    <h3>How to play</h3>
+                    <ol class="lobby-howto-list">
+                      <li>Everyone gets the same secret word except the imposter, who only gets a loosely related hint.</li>
+                      <li>Go around the circle in person. Each player says one word related to the secret word.</li>
+                      <li>Then everyone votes on who the imposter is. The imposter wins by staying hidden, or by guessing the word once caught.</li>
+                    </ol>
+                  </div>
                 </div>
               </div>
-              <div class="lobby-intro-pane" data-pane="howto">
-                <h3>How to play</h3>
-                <ul class="lobby-howto-list">
-                  <li>Everyone gets the same secret word except the imposter, who only gets a loosely related hint.</li>
-                  <li>Go around the circle in person. Each player says one word related to the secret word.</li>
-                  <li>Then everyone votes on who the imposter is. The imposter wins by staying hidden, or by guessing the word once caught.</li>
-                </ul>
-              </div>
-            </div>
-          </div>
 
-          <div id="lobby-settings-panel" class="lobby-panel" hidden>
-            <h3>Round settings</h3>
-            <div class="imp-set-row">
-              <div>
-                <div class="imp-set-label">Imposters</div>
-                <div class="imp-set-sub" id="imposter-count-sub"></div>
+              <div id="lobby-settings-panel" class="lobby-panel" hidden>
+                <h3>Round settings</h3>
+                <div class="imp-set-row">
+                  <div>
+                    <div class="imp-set-label">Imposters</div>
+                    <div class="imp-set-sub" id="imposter-count-sub"></div>
+                  </div>
+                  <div class="lobby-stepper">
+                    <button id="imposter-minus" class="lobby-stepper-btn" type="button" aria-label="Fewer imposters">−</button>
+                    <span id="imposter-count" class="lobby-stepper-val">1</span>
+                    <button id="imposter-plus" class="lobby-stepper-btn" type="button" aria-label="More imposters">+</button>
+                  </div>
+                </div>
+                <div class="imp-set-row">
+                  <div>
+                    <div class="imp-set-label">Imposter gets a hint</div>
+                    <div class="imp-set-sub">A loosely related word, like "Italy" for Pizza</div>
+                  </div>
+                  <button id="hint-toggle" class="imp-toggle" type="button" role="switch" aria-label="Imposter gets a hint"></button>
+                </div>
+                <div class="imp-set-row">
+                  <div>
+                    <div class="imp-set-label">Show category</div>
+                    <div class="imp-set-sub">Everyone, imposter included, sees the category</div>
+                  </div>
+                  <button id="category-toggle" class="imp-toggle" type="button" role="switch" aria-label="Show category"></button>
+                </div>
+                <div class="imp-cats-head">
+                  <div class="imp-set-label">Categories</div>
+                  <button id="categories-all-btn" class="imp-link-btn" type="button">Select all</button>
+                </div>
+                <div id="category-chips" class="imp-chips"></div>
               </div>
-              <div class="lobby-stepper">
-                <button id="imposter-minus" class="lobby-stepper-btn" type="button" aria-label="Fewer imposters">−</button>
-                <span id="imposter-count" class="lobby-stepper-val">1</span>
-                <button id="imposter-plus" class="lobby-stepper-btn" type="button" aria-label="More imposters">+</button>
-              </div>
-            </div>
-            <div class="imp-set-row">
-              <div>
-                <div class="imp-set-label">Imposter gets a hint</div>
-                <div class="imp-set-sub">A loosely related word, like "Italy" for Pizza</div>
-              </div>
-              <button id="hint-toggle" class="imp-toggle" type="button" role="switch" aria-label="Imposter gets a hint"></button>
-            </div>
-            <div class="imp-set-row">
-              <div>
-                <div class="imp-set-label">Show category</div>
-                <div class="imp-set-sub">Everyone, imposter included, sees the category</div>
-              </div>
-              <button id="category-toggle" class="imp-toggle" type="button" role="switch" aria-label="Show category"></button>
-            </div>
-            <div class="imp-cats-head">
-              <div class="imp-set-label">Categories</div>
-              <button id="categories-all-btn" class="imp-link-btn" type="button">Select all</button>
-            </div>
-            <div id="category-chips" class="imp-chips"></div>
-          </div>
 
-          <p id="lobby-settings-summary" class="lobby-settings-summary" hidden></p>
+              <p id="lobby-settings-summary" class="lobby-settings-summary" hidden></p>
+            </div>
 
-          <div class="lobby-panel lobby-players-panel">
-            <h3 id="players-heading">Players</h3>
-            <ul id="lobby-player-list" class="lobby-player-list"></ul>
-            <button id="start-btn" class="lobby-action-btn" type="button" hidden>Start round</button>
-            <button id="ready-btn" class="lobby-action-btn" type="button" hidden>Ready up</button>
-            <p id="lobby-hint" class="lobby-hint"></p>
+            <aside class="lobby-panel lobby-players-panel">
+              <div class="lobby-players-head">
+                <h3>Players</h3>
+                <span id="lobby-player-count" class="lobby-player-count"></span>
+              </div>
+              <ul id="lobby-player-list" class="lobby-player-list"></ul>
+              <div class="lobby-start-bar">
+                <div class="lobby-start-status">
+                  <strong id="lobby-ready-count" class="lobby-ready-count" hidden></strong>
+                  <p id="lobby-hint" class="lobby-hint"></p>
+                </div>
+                <button id="start-btn" class="lobby-action-btn" type="button" hidden>Start round</button>
+                <button id="ready-btn" class="lobby-action-btn" type="button" hidden>Ready up</button>
+              </div>
+            </aside>
           </div>
         </div>
       </section>

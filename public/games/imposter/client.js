@@ -1,3 +1,5 @@
+import { setupLobby, renderLobbyPlayers } from "/shared/lobby.js";
+
 const params = new URLSearchParams(location.search);
 const room = params.get("room");
 const isHostUrl = params.get("host") === "1";
@@ -22,6 +24,8 @@ if (room) {
 
 const el = (id) => document.getElementById(id);
 
+setupLobby("imposter");
+
 const lobbyView = el("lobby-view");
 const revealView = el("reveal-view");
 const votingView = el("voting-view");
@@ -29,7 +33,6 @@ const resultsView = el("results-view");
 
 const lobbySubtitleEl = el("lobby-subtitle");
 const copyCodeBtn = el("copy-code-btn");
-const introTabsEl = el("lobby-intro-tabs");
 const settingsPanel = el("lobby-settings-panel");
 const settingsSummaryEl = el("lobby-settings-summary");
 const imposterCountEl = el("imposter-count");
@@ -40,7 +43,6 @@ const hintToggle = el("hint-toggle");
 const categoryToggle = el("category-toggle");
 const categoriesAllBtn = el("categories-all-btn");
 const categoryChipsEl = el("category-chips");
-const playersHeadingEl = el("players-heading");
 const lobbyPlayerListEl = el("lobby-player-list");
 const startBtn = el("start-btn");
 const readyBtn = el("ready-btn");
@@ -184,27 +186,7 @@ function renderLobby() {
   settingsSummaryEl.hidden = amHost && !spectating;
   renderSettings(count);
 
-  playersHeadingEl.textContent = `Players · ${count}`;
-  lobbyPlayerListEl.innerHTML = "";
-  for (const p of players) {
-    const li = h("li", "lobby-player-row");
-    const nameEl = h(
-      "span",
-      "lobby-player-name",
-      p.name + (p.id === myId ? " (you)" : "") + (p.connected === false ? " (left)" : "")
-    );
-    li.append(h("span", "lobby-avatar", initialOf(p.name)), nameEl);
-    if (p.isHost) {
-      li.append(h("span", "lobby-host-badge", "HOST"));
-    } else if (p.ready && !spectating) {
-      const tag = h("span", "lobby-ready-tag");
-      tag.innerHTML =
-        '<svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="#067bc2" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"></polyline></svg>';
-      tag.append("Ready");
-      li.append(tag);
-    }
-    lobbyPlayerListEl.appendChild(li);
-  }
+  renderLobbyPlayers(lobbyPlayerListEl, players, { myId, maxPlayers, showReady: !spectating });
 
   const inRange = count >= minPlayers && count <= maxPlayers;
   const hasCategories = settings.categories.length > 0;
@@ -311,15 +293,6 @@ categoryChipsEl.addEventListener("click", (event) => {
 categoriesAllBtn.addEventListener("click", () => {
   const allSelected = categories.every((c) => settings.categories.includes(c.id));
   sendSettings({ categories: allSelected ? [] : categories.map((c) => c.id) });
-});
-
-introTabsEl.addEventListener("click", (event) => {
-  const tab = event.target.closest("button");
-  if (!tab) return;
-  for (const btn of introTabsEl.querySelectorAll("button")) btn.classList.toggle("is-active", btn === tab);
-  for (const pane of document.querySelectorAll(".lobby-intro-pane")) {
-    pane.classList.toggle("is-active", pane.dataset.pane === tab.dataset.pane);
-  }
 });
 
 startBtn.addEventListener("click", () => {
@@ -567,7 +540,7 @@ copyCodeBtn.addEventListener("click", async () => {
     await navigator.clipboard.writeText(room);
     const original = copyCodeBtn.innerHTML;
     copyCodeBtn.innerHTML =
-      '<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#067bc2" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"></polyline></svg>';
+      '<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><polyline points="20 6 9 17 4 12"></polyline></svg>Copied';
     setTimeout(() => (copyCodeBtn.innerHTML = original), 1200);
   } catch {
     // Clipboard access can fail (permissions, insecure context); the code

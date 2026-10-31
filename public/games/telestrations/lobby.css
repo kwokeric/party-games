@@ -267,3 +267,67 @@
   color: var(--ink-faint);
   text-align: center;
 }
+
+/* Lobby preview: a prompt, someone's drawing of it, and the next guess. */
+.tele-preview {
+  height: 200px;
+  padding: 0 12px;
+  box-sizing: border-box;
+  background: #f4efe6;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+}
+
+.tele-preview-card {
+  flex: 1 1 0;
+  min-width: 0;
+  max-width: 130px;
+  aspect-ratio: 1;
+  box-sizing: border-box;
+  padding: 12px;
+  border-radius: 16px;
+  background: #ffffff;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.06);
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+}
+
+.tele-preview-card small {
+  font-size: 11px;
+  font-weight: 600;
+  color: #5c5850;
+}
+
+.tele-preview-card b {
+  font-family: "Bricolage Grotesque", system-ui, sans-serif;
+  font-size: clamp(13px, 3.4vw, 20px);
+  font-weight: 800;
+  line-height: 1;
+  color: #1f1d1a;
+}
+
+.tele-preview-card.is-prompt {
+  transform: rotate(-4deg);
+}
+
+.tele-preview-card.is-guess {
+  transform: rotate(4deg);
+}
+
+.tele-preview-card.is-guess b {
+  color: #1f6feb;
+}
+
+.tele-preview-card.is-drawing {
+  padding: 10px;
+  justify-content: center;
+  color: #1f1d1a;
+}
+
+.tele-preview-arrow {
+  flex: none;
+  color: #5c5850;
+}
