@@ -1,98 +1,50 @@
-.reveal-view {
-  margin: -2rem calc(50% - 50vw) 0;
-  padding-bottom: 32px;
+/* Reveal screen: the true size against your guess, then everyone's result. */
+
+.play-view .gts-reveal-card {
+  padding: 12px;
 }
 
-/* .guess-status-card (shared with the guessing view) lays its children out
-   as a single flex row; the reveal header needs two stacked rows instead
-   (the round label/connection line, then the progress track below it). */
-.reveal-status-card {
-  flex-direction: column;
-  align-items: stretch;
-  gap: 8px;
-}
-
-.reveal-status-top {
+.gts-reveal-top {
   display: flex;
   align-items: center;
-  gap: 8px;
+  gap: 10px;
 }
 
-.reveal-round-label {
-  font-family: "Fredoka", system-ui, sans-serif;
-  font-weight: 600;
-  font-size: 14.5px;
-  color: rgba(0, 0, 0, 0.85);
+.gts-reveal-top .round-track {
   flex: 1;
-}
-
-.round-track {
-  /* Spacing above this comes from the parent's flex `gap`, not a margin here
-     — a margin-top would stack on top of that gap and make the reveal
-     header noticeably taller than the guessing view's status card. */
-  display: flex;
-  gap: 4px;
-}
-
-.round-track span {
-  height: 5px;
-  flex: 1;
-  border-radius: 999px;
-  background: rgba(6, 123, 194, 0.14);
-}
-
-.round-track span.done {
-  background: #067bc2;
-}
-
-.reveal-body {
-  max-width: 1000px;
-  margin: 0 auto;
-  padding: 0 20px;
-  box-sizing: border-box;
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  flex: 1;
-  min-height: 0;
 }
 
 .reveal-stage {
-  width: 100%;
-  margin-top: 16px;
-  background: #e6e4dc;
+  border-radius: 16px;
+  background: #f3efe7;
 }
 
-.reveal-stage .baseline {
-  border-top-color: rgba(6, 123, 194, 0.18);
-}
-
+/* Your guess is a translucent blue ghost; the true size is solid ink. */
 .obj-guess {
-  color: #84bcda;
-  opacity: 0.55;
+  color: rgba(31, 111, 235, 0.3);
 }
 
 .obj-true {
-  color: #d56062;
+  color: var(--pv-ink);
 }
 
 .true-line {
   /* left/top/width are set from JS — they depend on the object's axis
      and the true size's rendered pixel length, computed at reveal time. */
   position: absolute;
-  border-top: 2px dashed #d56062;
+  border-top: 2px dashed var(--pv-ink);
 }
 
 .reveal-true-pill {
   position: absolute;
   left: 0;
   top: -30px;
-  background: #d56062;
-  color: #ffffff;
-  font-size: 11px;
-  font-weight: 600;
   padding: 3px 8px;
   border-radius: 999px;
+  background: var(--pv-ink);
+  color: #ffffff;
+  font-size: 11px;
+  font-weight: 700;
   white-space: nowrap;
 }
 
@@ -114,167 +66,57 @@
   background: rgba(0, 0, 0, 0.28);
 }
 
-.reveal-marker .reveal-marker-chip {
+.reveal-marker .play-avatar {
   width: 20px;
   height: 20px;
-  border-radius: 999px;
-  background: #ffffff;
-  color: rgba(0, 0, 0, 0.65);
-  font-family: "Fredoka", system-ui, sans-serif;
-  font-weight: 600;
-  font-size: 9.5px;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  border: 1.5px solid rgba(0, 0, 0, 0.18);
-  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.12);
-}
-
-.reveal-summary {
-  width: 100%;
-  margin: 14px 0 0;
-  font-size: 14px;
-  line-height: 1.5;
-  color: rgba(0, 0, 0, 0.65);
-}
-
-.reveal-summary strong {
-  color: rgba(0, 0, 0, 0.85);
-}
-
-.reveal-results-section {
-  width: 100%;
-  margin-top: 18px;
-  display: flex;
-  flex-direction: column;
-  gap: 8px;
-}
-
-.reveal-results-heading {
-  font-family: "Fredoka", system-ui, sans-serif;
-  font-size: 16px;
-  font-weight: 600;
-  color: rgba(0, 0, 0, 0.85);
-}
-
-.reveal-results-card {
-  width: 100%;
-  background: #ffffff;
-  border-radius: 16px;
-  padding: 0 16px;
-  box-sizing: border-box;
-  box-shadow: 0 8px 20px rgba(6, 123, 194, 0.12);
-}
-
-.roster-col-heads {
-  display: flex;
-  align-items: center;
-  gap: 10px;
-  padding: 10px 0 6px;
+  border-radius: 7px;
+  border: 2px solid #ffffff;
   font-size: 10px;
-  font-weight: 600;
-  letter-spacing: 0.04em;
-  text-transform: uppercase;
-  color: rgba(0, 0, 0, 0.32);
+  transform: none;
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.15);
 }
 
-.roster-col-sp {
-  flex: 1;
-}
-
-.roster-col.guess-col {
-  width: 60px;
-  text-align: right;
-}
-
-.roster-col.score-col {
-  width: 34px;
-  text-align: right;
-}
-
-.roster-col.ready-col {
-  width: 21px;
-}
-
-.reveal-results-list {
-  list-style: none;
-  margin: 0;
-  padding: 0;
-}
-
-.reveal-result-row {
+.gts-stats {
   display: flex;
-  align-items: center;
-  gap: 10px;
-  padding: 10px 0;
-  border-bottom: 1px solid rgba(0, 0, 0, 0.06);
+  gap: 6px;
 }
 
-.reveal-result-row:last-child {
-  border-bottom: none;
-}
-
-.reveal-avatar {
-  width: 32px;
-  height: 32px;
-  border-radius: 999px;
-  background: #84bcda;
-  color: rgba(0, 0, 0, 0.8);
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  font-family: "Fredoka", system-ui, sans-serif;
-  font-weight: 600;
-  font-size: 12px;
-  flex-shrink: 0;
-}
-
-.reveal-result-name {
-  font-size: 14.5px;
-  color: rgba(0, 0, 0, 0.8);
+.gts-stat {
   flex: 1;
   min-width: 0;
-  white-space: nowrap;
-  overflow: hidden;
-  text-overflow: ellipsis;
+  padding: 10px;
+  border-radius: 14px;
+  background: var(--pv-field);
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
 }
 
-.reveal-result-row.is-you .reveal-result-name {
-  font-weight: 600;
+.gts-stat span {
+  font-size: 11px;
+  color: var(--pv-ink-soft);
 }
 
-.reveal-result-name .you-tag {
-  font-weight: 400;
-  color: rgba(0, 0, 0, 0.4);
-  font-size: 12.5px;
+.gts-stat strong {
+  font-family: var(--pv-display);
+  font-size: 18px;
+  font-weight: 800;
+  font-variant-numeric: tabular-nums;
+}
+
+.gts-stat.is-guess strong {
+  color: var(--pv-accent);
+}
+
+.gts-stat.is-off strong {
+  color: var(--pv-danger);
 }
 
 .reveal-result-guess {
-  width: 60px;
+  flex: none;
+  width: 56px;
   text-align: right;
   font-size: 13px;
-  color: rgba(0, 0, 0, 0.45);
+  color: var(--pv-ink-soft);
   font-variant-numeric: tabular-nums;
-  flex-shrink: 0;
-}
-
-.reveal-result-score {
-  width: 34px;
-  text-align: right;
-  font-family: "Fredoka", system-ui, sans-serif;
-  font-weight: 700;
-  font-size: 14.5px;
-  color: rgba(0, 0, 0, 0.6);
-  font-variant-numeric: tabular-nums;
-  flex-shrink: 0;
-}
-
-.reveal-result-score.top {
-  color: #067bc2;
-}
-
-.reveal-cta-area {
-  width: 100%;
-  margin-top: auto;
-  padding-top: 20px;
 }

@@ -1,0 +1,423 @@
+/* Shared in-game look ("cards" direction), matching the lobby and home
+   page: warm off-white page, white rounded cards, Bricolage headings, one
+   blue accent and green for ready/done. Each game's own CSS only adds what's
+   specific to its screens. Everything is scoped under .play-view.
+
+   Layout: a slim header (back, game + step, room code), a single centered
+   column of cards, and the main action pinned to the bottom of the screen. */
+
+@import url("https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:opsz,wght@12..96,500;12..96,700;12..96,800&family=Inter:wght@400;500;600;700&display=swap");
+
+.play-view {
+  --pv-accent: #1f6feb;
+  --pv-accent-dark: #164eaa;
+  --pv-accent-soft: #e8f0fd;
+  --pv-page: #f7f6f3;
+  --pv-line: #eceae5;
+  --pv-field: #faf9f7;
+  --pv-field-line: #e4e1da;
+  --pv-ink: #1f1d1a;
+  --pv-ink-soft: #5c5850;
+  --pv-ink-faint: #8a857c;
+  --pv-ready: #1e9e5a;
+  --pv-danger: #c0392b;
+  --pv-display: "Bricolage Grotesque", system-ui, sans-serif;
+
+  /* Full-bleed out of .page's padding. */
+  margin: -2rem calc(50% - 50vw) -2rem;
+  min-height: 100vh;
+  background: var(--pv-page);
+  color: var(--pv-ink);
+  font-family: Inter, system-ui, -apple-system, sans-serif;
+}
+
+.play-view .play-shell {
+  max-width: 720px;
+  margin: 0 auto;
+  /* Bottom room for the pinned action bar. */
+  padding: 12px 12px 120px;
+  box-sizing: border-box;
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+
+/* --- Header ------------------------------------------------------------- */
+
+.play-view .play-topbar {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding-bottom: 2px;
+}
+
+.play-view .play-back-btn {
+  flex: none;
+  width: 38px;
+  height: 38px;
+  padding: 0;
+  border-radius: 12px;
+  border: 1px solid var(--pv-line);
+  background: #ffffff;
+  color: var(--pv-ink);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+}
+
+.play-view .play-title {
+  flex: 1;
+  min-width: 0;
+}
+
+.play-view .play-title h1 {
+  margin: 0;
+  font-family: var(--pv-display);
+  font-size: 18px;
+  font-weight: 800;
+  letter-spacing: -0.03em;
+  line-height: 1.1;
+}
+
+.play-view .play-title p {
+  margin: 0;
+  font-size: 12px;
+  color: var(--pv-ink-soft);
+}
+
+.play-view .play-code {
+  flex: none;
+  height: 34px;
+  padding: 0 12px;
+  box-sizing: border-box;
+  border-radius: 10px;
+  border: 2px solid var(--pv-field-line);
+  background: var(--pv-field);
+  display: flex;
+  align-items: center;
+  font-family: var(--pv-display);
+  font-size: 15px;
+  font-weight: 800;
+  letter-spacing: 0.14em;
+}
+
+/* --- Cards -------------------------------------------------------------- */
+
+.play-view .play-card {
+  margin: 0;
+  background: #ffffff;
+  border: 1px solid var(--pv-line);
+  border-radius: 22px;
+  padding: 16px;
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+
+.play-view .play-card-head {
+  display: flex;
+  align-items: baseline;
+  justify-content: space-between;
+  gap: 8px;
+}
+
+.play-view .play-card-head h2 {
+  margin: 0;
+  font-family: var(--pv-display);
+  font-size: 20px;
+  font-weight: 800;
+  letter-spacing: -0.03em;
+}
+
+.play-view .play-card-head span {
+  font-size: 12px;
+  color: var(--pv-ink-soft);
+}
+
+.play-view .play-label {
+  font-size: 12px;
+  font-weight: 700;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+  color: var(--pv-ink-soft);
+}
+
+/* Small "connected" indicator tucked into a card. */
+.play-view .play-connection {
+  display: flex;
+  align-items: center;
+  gap: 5px;
+  font-size: 12px;
+  color: var(--pv-ink-faint);
+}
+
+/* --- Avatars, ranks, ready --------------------------------------------- */
+
+.play-view .play-avatar {
+  flex: none;
+  width: 30px;
+  height: 30px;
+  border-radius: 10px;
+  background: #9a958c;
+  transform: rotate(var(--tilt, 0deg));
+  color: #ffffff;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  font-family: var(--pv-display);
+  font-size: 14px;
+  font-weight: 800;
+}
+
+/* Overlapping avatar row, e.g. who has guessed so far. */
+.play-view .play-stack {
+  display: inline-flex;
+}
+
+.play-view .play-stack .play-avatar {
+  width: 24px;
+  height: 24px;
+  margin-right: -5px;
+  border-radius: 8px;
+  border: 2px solid #ffffff;
+  font-size: 11px;
+  transform: none;
+}
+
+.play-view .play-stack .play-avatar.is-pending {
+  opacity: 0.35;
+}
+
+.play-view .play-rank {
+  flex: none;
+  width: 24px;
+  height: 24px;
+  border-radius: 8px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-family: var(--pv-display);
+  font-size: 13px;
+  font-weight: 800;
+  color: var(--pv-ink-faint);
+}
+
+.play-view .play-rank.r1 {
+  background: #f6c445;
+  color: var(--pv-ink);
+}
+
+.play-view .play-rank.r2 {
+  background: #d9d6cf;
+  color: var(--pv-ink);
+}
+
+.play-view .play-rank.r3 {
+  background: #e8b48a;
+  color: var(--pv-ink);
+}
+
+/* Ready / done check, filled green when on. */
+.play-view .status-dot {
+  flex: none;
+  width: 22px;
+  height: 22px;
+  box-sizing: border-box;
+  border-radius: 999px;
+  border: 2px dashed #cfcac0;
+  background: transparent;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.play-view .status-dot.on {
+  border: none;
+  background: var(--pv-ready);
+}
+
+.play-view .status-dot svg {
+  opacity: 0;
+}
+
+.play-view .status-dot.on svg {
+  opacity: 1;
+}
+
+/* A ranked row in a results / standings list. */
+.play-view .play-list {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+
+.play-view .play-row {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 7px 10px 7px 8px;
+  border-radius: 14px;
+  background: var(--pv-field);
+}
+
+.play-view .play-row.is-you {
+  background: var(--pv-accent-soft);
+}
+
+/* No min-width: 0, so ordinary names never break mid-word; only a name
+   too long for the row wraps. */
+.play-view .play-row-name {
+  flex: 1;
+  font-size: 14px;
+  font-weight: 600;
+  overflow-wrap: break-word;
+}
+
+.play-view .play-row-name .you-tag {
+  font-weight: 500;
+  color: var(--pv-ink-soft);
+}
+
+.play-view .play-score {
+  flex: none;
+  min-width: 40px;
+  padding: 3px 0;
+  border-radius: 9px;
+  background: #ffffff;
+  text-align: center;
+  font-family: var(--pv-display);
+  font-size: 15px;
+  font-weight: 800;
+  font-variant-numeric: tabular-nums;
+}
+
+.play-view .play-score.top {
+  background: #f6c445;
+}
+
+/* --- Round progress and timer ------------------------------------------ */
+
+.play-view .round-track {
+  display: flex;
+  gap: 4px;
+}
+
+.play-view .round-track span {
+  flex: 1;
+  height: 6px;
+  border-radius: 999px;
+  background: var(--pv-field-line);
+}
+
+.play-view .round-track span.done {
+  background: var(--pv-accent);
+}
+
+.play-view .countdown-ring {
+  --pct: 100;
+  --ring-color: var(--pv-accent);
+  flex: none;
+  width: 46px;
+  height: 46px;
+  border-radius: 999px;
+  background: conic-gradient(var(--ring-color) calc(var(--pct) * 1%), var(--pv-accent-soft) 0);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.play-view .countdown-ring-inner {
+  width: 36px;
+  height: 36px;
+  border-radius: 999px;
+  background: #ffffff;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-family: var(--pv-display);
+  font-size: 16px;
+  font-weight: 800;
+  color: var(--pv-ink);
+}
+
+/* --- Pinned action bar -------------------------------------------------- */
+
+.play-view .play-cta {
+  position: fixed;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  z-index: 10;
+  padding: 12px 12px calc(16px + env(safe-area-inset-bottom));
+  background: rgba(247, 246, 243, 0.94);
+  border-top: 1px solid var(--pv-line);
+  box-shadow: 0 -6px 16px rgba(0, 0, 0, 0.05);
+  backdrop-filter: blur(8px);
+}
+
+.play-view .play-cta-inner {
+  max-width: 696px;
+  margin: 0 auto;
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+
+.play-view .play-cta-note {
+  flex: 0 1 auto;
+  min-width: 0;
+  margin: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 1px;
+}
+
+.play-view .play-cta-note strong {
+  font-family: var(--pv-display);
+  font-size: 15px;
+  font-weight: 800;
+  color: var(--pv-ready);
+}
+
+.play-view .play-cta-note span {
+  font-size: 12px;
+  color: var(--pv-ink-soft);
+}
+
+.play-view .play-btn {
+  flex: 1;
+  height: 54px;
+  padding: 0 18px;
+  border: none;
+  border-radius: 16px;
+  background: var(--pv-accent);
+  color: #ffffff;
+  box-shadow: 0 4px 0 var(--pv-accent-dark);
+  font-family: var(--pv-display);
+  font-size: 18px;
+  font-weight: 700;
+  cursor: pointer;
+}
+
+.play-view .play-btn:active:not(:disabled) {
+  transform: translateY(2px);
+  box-shadow: 0 2px 0 var(--pv-accent-dark);
+}
+
+.play-view .play-btn.is-secondary {
+  flex: 0 0 110px;
+  border: 2px solid var(--pv-ink);
+  background: #ffffff;
+  color: var(--pv-ink);
+  box-shadow: 0 3px 0 var(--pv-ink);
+}
+
+.play-view .play-btn:disabled {
+  background: #d6d2c9;
+  box-shadow: none;
+  cursor: default;
+}

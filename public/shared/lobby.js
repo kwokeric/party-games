@@ -9,6 +9,15 @@ import { GAMES } from "./games.js";
 const AVATAR_COLORS = ["#1f6feb", "#e07a5f", "#4fae8f", "#8c6fd1", "#e8a73a", "#d35d8a", "#3b9ab2", "#7a8b3c"];
 const AVATAR_TILTS = ["-6deg", "5deg", "-3deg", "7deg", "-5deg", "4deg", "-7deg", "3deg"];
 
+/** A player's avatar color and tilt, by their position in the player list. */
+export function playerColor(index) {
+  return AVATAR_COLORS[index % AVATAR_COLORS.length];
+}
+
+export function playerTilt(index) {
+  return AVATAR_TILTS[index % AVATAR_TILTS.length];
+}
+
 const CHECK_SVG =
   '<svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><polyline points="20 6 9 17 4 12"></polyline></svg>';
 
@@ -57,8 +66,8 @@ export function renderLobbyPlayers(listEl, players, { myId, colorOf, maxPlayers,
     const avatar = document.createElement("span");
     avatar.className = "lobby-avatar";
     avatar.textContent = p.name.trim().charAt(0) || "?";
-    avatar.style.background = colorOf?.(p) ?? AVATAR_COLORS[i % AVATAR_COLORS.length];
-    avatar.style.setProperty("--tilt", AVATAR_TILTS[i % AVATAR_TILTS.length]);
+    avatar.style.background = colorOf?.(p) ?? playerColor(i);
+    avatar.style.setProperty("--tilt", playerTilt(i));
 
     const nameEl = document.createElement("span");
     nameEl.className = "lobby-player-name";

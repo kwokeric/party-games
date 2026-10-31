@@ -10,6 +10,7 @@
     <link rel="stylesheet" href="./game.css" />
     <link rel="stylesheet" href="./lobby.css" />
     <link rel="stylesheet" href="/shared/lobby.css" />
+    <link rel="stylesheet" href="/shared/play.css" />
     <link rel="stylesheet" href="./guessing.css" />
     <link rel="stylesheet" href="./reveal.css" />
     <link rel="stylesheet" href="./final.css" />
@@ -125,164 +126,182 @@
         </div>
       </section>
 
-      <section id="guessing-view" class="view guessing-view" hidden>
-        <div class="guess-banner">
-          <button id="guess-back-btn" class="guess-icon-btn" type="button" aria-label="Back to home">
-            <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="#ffffff" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><line x1="19" y1="12" x2="5" y2="12"></line><polyline points="12 19 5 12 12 5"></polyline></svg>
-          </button>
-          <div class="guess-banner-title">Guess the size</div>
-          <div class="guess-room-pill" id="guess-room-code">-</div>
-        </div>
-
-        <div class="guess-status-card">
-          <div id="guess-countdown-ring" class="countdown-ring" hidden>
-            <div class="countdown-ring-inner" id="guess-countdown-num">-</div>
-          </div>
-          <span id="guess-avatar-stack" class="guess-avatar-stack"></span>
-          <span id="guess-status-text" class="guess-status-text"></span>
-          <span class="guess-connection">
-            <span id="guess-connection-dot" class="guess-dot"></span>
-            <span id="guess-connection-text">Connecting…</span>
-          </span>
-        </div>
-
-        <div class="guessing-body">
-          <p class="guess-instruction">
-            Reference: <span id="object-a-article"></span> <strong id="object-a-name"></strong> is <strong id="object-a-size"></strong>.
-            <br />
-            How big is <span id="object-b-article"></span> <strong id="object-b-name"></strong>?
-          </p>
-
-          <div class="guess-toolbar">
-            <span id="guess-readout">Your guess: - </span>
-            <span class="zoom-controls">
-              <button id="zoom-out" type="button" aria-label="Zoom out">
-                <svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="10.5" cy="10.5" r="7"></circle><line x1="8" y1="10.5" x2="13" y2="10.5"></line><line x1="20" y1="20" x2="15.5" y2="15.5"></line></svg>
-              </button>
-              <button id="zoom-in" type="button" aria-label="Zoom in">
-                <svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="10.5" cy="10.5" r="7"></circle><line x1="8" y1="10.5" x2="13" y2="10.5"></line><line x1="10.5" y1="8" x2="10.5" y2="13"></line><line x1="20" y1="20" x2="15.5" y2="15.5"></line></svg>
-              </button>
-            </span>
-          </div>
-
-          <div id="stage" class="stage guessing-stage">
-            <div class="baseline"></div>
-            <div id="object-a" class="obj">
-              <span id="object-a-img" class="obj-visual"></span>
-              <span class="obj-label" id="object-a-stage-label"></span>
+      <section id="guessing-view" class="view play-view" hidden>
+        <div class="play-shell">
+          <header class="play-topbar">
+            <button id="guess-back-btn" class="play-back-btn" type="button" aria-label="Back to home">
+              <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M19 12H5M11 18l-6-6 6-6"></path></svg>
+            </button>
+            <div class="play-title">
+              <h1>Guess the Size</h1>
+              <p id="guess-round-label"></p>
             </div>
-            <div id="object-b" class="obj">
-              <span id="object-b-img" class="obj-visual"></span>
-              <span class="obj-label" id="object-b-stage-label"></span>
-              <div id="resize-handle" class="resize-handle">
-                <svg width="14" height="14" viewBox="0 0 512 512" fill="none" stroke="currentColor" stroke-width="56" stroke-linecap="round" stroke-linejoin="round">
-                  <polyline points="304 96 416 96 416 208"></polyline>
-                  <line x1="405.77" y1="106.2" x2="111.98" y2="400.02"></line>
-                  <polyline points="208 416 96 416 96 304"></polyline>
-                </svg>
+            <span class="play-code" id="guess-room-code">-</span>
+          </header>
+
+          <section class="play-card gts-status">
+            <div id="guess-countdown-ring" class="countdown-ring" hidden>
+              <div class="countdown-ring-inner" id="guess-countdown-num">-</div>
+            </div>
+            <div class="gts-status-main">
+              <span id="guess-avatar-stack" class="play-stack"></span>
+              <span id="guess-status-text" class="gts-status-text"></span>
+            </div>
+            <span class="play-connection">
+              <span id="guess-connection-dot" class="guess-dot"></span>
+              <span id="guess-connection-text">Connecting…</span>
+            </span>
+          </section>
+
+          <section class="play-card gts-question">
+            <p class="gts-question-ref">
+              Reference: <span id="object-a-article"></span> <strong id="object-a-name"></strong> is <strong id="object-a-size"></strong>.
+            </p>
+            <h2 class="gts-question-title">
+              How big is <span id="object-b-article"></span> <span id="object-b-name" class="gts-accent"></span>?
+            </h2>
+          </section>
+
+          <section class="play-card gts-stage-card">
+            <div id="stage" class="stage guessing-stage">
+              <div class="baseline"></div>
+              <div id="object-a" class="obj">
+                <span id="object-a-img" class="obj-visual"></span>
+                <span class="obj-label" id="object-a-stage-label"></span>
+              </div>
+              <div id="object-b" class="obj">
+                <span id="object-b-img" class="obj-visual"></span>
+                <span class="obj-label" id="object-b-stage-label"></span>
+                <div id="resize-handle" class="resize-handle">
+                  <svg width="12" height="12" viewBox="0 0 512 512" fill="none" stroke="currentColor" stroke-width="56" stroke-linecap="round" stroke-linejoin="round">
+                    <polyline points="304 96 416 96 416 208"></polyline>
+                    <line x1="405.77" y1="106.2" x2="111.98" y2="400.02"></line>
+                    <polyline points="208 416 96 416 96 304"></polyline>
+                  </svg>
+                </div>
               </div>
             </div>
-          </div>
 
-          <p id="waiting-message" class="waiting-message" hidden>
-            Guess submitted — waiting for other players…
-          </p>
-
-          <button id="submit-btn" class="guess-submit-btn" type="button">Submit guess</button>
-        </div>
-      </section>
-
-      <section id="reveal-view" class="view reveal-view" hidden>
-        <div class="guess-banner">
-          <button id="reveal-back-btn" class="guess-icon-btn" type="button" aria-label="Back to home">
-            <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="#ffffff" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><line x1="19" y1="12" x2="5" y2="12"></line><polyline points="12 19 5 12 12 5"></polyline></svg>
-          </button>
-          <div class="guess-banner-title">Guess the size</div>
-          <div class="guess-room-pill" id="reveal-room-code">-</div>
-        </div>
-
-        <div class="guess-status-card reveal-status-card">
-          <div class="reveal-status-top">
-            <span class="reveal-round-label" id="reveal-round-label">Round 1 of 10</span>
-            <span class="guess-connection">
-              <span id="reveal-connection-dot" class="guess-dot"></span>
-              <span id="reveal-connection-text">Connecting…</span>
-            </span>
-          </div>
-          <div class="round-track" id="reveal-round-track"></div>
-        </div>
-
-        <div class="reveal-body">
-          <div id="reveal-stage" class="stage reveal-stage">
-            <div class="baseline"></div>
-            <div id="reveal-true-line" class="true-line">
-              <span id="reveal-true-label" class="reveal-true-pill"></span>
-            </div>
-            <div id="reveal-object-b-guess" class="obj obj-guess">
-              <span id="reveal-guess-img" class="obj-visual"></span>
-            </div>
-            <div id="reveal-object-b-true" class="obj obj-true">
-              <span id="reveal-true-img" class="obj-visual"></span>
-            </div>
-            <div id="reveal-markers"></div>
-          </div>
-
-          <p id="reveal-summary" class="reveal-summary"></p>
-
-          <div class="reveal-results-section">
-            <div class="reveal-results-heading">Results</div>
-            <div class="reveal-results-card">
-              <div class="roster-col-heads">
-                <span class="roster-col-sp"></span>
-                <span class="roster-col guess-col">Guess</span>
-                <span class="roster-col score-col">Score</span>
-                <span class="roster-col ready-col"></span>
+            <div class="guess-toolbar">
+              <div class="gts-readout">
+                <span>Your guess</span>
+                <strong id="guess-readout">-</strong>
               </div>
-              <ol id="results-list" class="reveal-results-list"></ol>
+              <span class="zoom-controls">
+                <button id="zoom-out" type="button" aria-label="Zoom out">−</button>
+                <button id="zoom-in" type="button" aria-label="Zoom in">+</button>
+              </span>
             </div>
-          </div>
+          </section>
+        </div>
 
-          <div class="reveal-cta-area">
-            <button id="reveal-ready-btn" class="guess-submit-btn" type="button">Ready</button>
+        <div class="play-cta">
+          <div class="play-cta-inner">
+            <p id="waiting-message" class="play-cta-note" hidden>
+              <strong>Locked in</strong>
+              <span>Waiting for everyone else…</span>
+            </p>
+            <button id="submit-btn" class="play-btn" type="button">Lock in guess</button>
           </div>
         </div>
       </section>
 
-      <section id="final-view" class="view final-view" hidden>
-        <div class="guess-banner">
-          <button id="final-back-btn" class="guess-icon-btn" type="button" aria-label="Back to home">
-            <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="#ffffff" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><line x1="19" y1="12" x2="5" y2="12"></line><polyline points="12 19 5 12 12 5"></polyline></svg>
-          </button>
-          <div class="guess-banner-title">Guess the size</div>
-          <div class="guess-room-pill" id="final-room-code">-</div>
-        </div>
-
-        <div class="guess-status-card final-status-card">
-          <div class="final-status-top">
-            <span class="final-status-label">Game complete</span>
-            <span class="final-status-sub" id="final-status-sub">10 rounds played</span>
-          </div>
-          <div class="final-divider"></div>
-          <div class="final-winner-spot">
-            <span class="final-winner-avatar" id="final-winner-avatar"></span>
-            <span class="final-winner-text">
-              <span class="final-winner-tag">Winner</span>
-              <span class="final-winner-name" id="final-winner-name"></span>
-              <span class="final-winner-score"><b id="final-winner-score"></b> avg score</span>
-            </span>
-          </div>
-        </div>
-
-        <div class="reveal-body final-body">
-          <div class="reveal-results-section">
-            <div class="reveal-results-heading">Final standings</div>
-            <div class="reveal-results-card">
-              <ol id="final-standings-list" class="reveal-results-list"></ol>
+      <section id="reveal-view" class="view play-view" hidden>
+        <div class="play-shell">
+          <header class="play-topbar">
+            <button id="reveal-back-btn" class="play-back-btn" type="button" aria-label="Back to home">
+              <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M19 12H5M11 18l-6-6 6-6"></path></svg>
+            </button>
+            <div class="play-title">
+              <h1>Guess the Size</h1>
+              <p id="reveal-round-label"></p>
             </div>
-          </div>
+            <span class="play-code" id="reveal-room-code">-</span>
+          </header>
 
-          <div class="reveal-cta-area">
-            <button id="final-play-again-btn" class="guess-submit-btn" type="button">Play again</button>
+          <section class="play-card gts-reveal-card">
+            <div class="gts-reveal-top">
+              <div class="round-track" id="reveal-round-track"></div>
+              <span class="play-connection">
+                <span id="reveal-connection-dot" class="guess-dot"></span>
+                <span id="reveal-connection-text">Connecting…</span>
+              </span>
+            </div>
+            <div id="reveal-stage" class="stage reveal-stage">
+              <div class="baseline"></div>
+              <div id="reveal-true-line" class="true-line">
+                <span id="reveal-true-label" class="reveal-true-pill"></span>
+              </div>
+              <div id="reveal-object-b-guess" class="obj obj-guess">
+                <span id="reveal-guess-img" class="obj-visual"></span>
+              </div>
+              <div id="reveal-object-b-true" class="obj obj-true">
+                <span id="reveal-true-img" class="obj-visual"></span>
+              </div>
+              <div id="reveal-markers"></div>
+            </div>
+            <div class="gts-stats">
+              <div class="gts-stat is-guess"><span>Your guess</span><strong id="reveal-stat-guess">-</strong></div>
+              <div class="gts-stat"><span>True size</span><strong id="reveal-stat-true">-</strong></div>
+              <div class="gts-stat is-off"><span>Off by</span><strong id="reveal-stat-off">-</strong></div>
+            </div>
+          </section>
+
+          <section class="play-card">
+            <div class="play-card-head">
+              <h2>Results</h2>
+              <span>Guess · Score</span>
+            </div>
+            <ol id="results-list" class="play-list"></ol>
+          </section>
+        </div>
+
+        <div class="play-cta">
+          <div class="play-cta-inner">
+            <p class="play-cta-note">
+              <strong id="reveal-ready-count"></strong>
+              <span id="reveal-next-label"></span>
+            </p>
+            <button id="reveal-ready-btn" class="play-btn" type="button">Ready</button>
+          </div>
+        </div>
+      </section>
+
+      <section id="final-view" class="view play-view" hidden>
+        <div class="play-shell">
+          <header class="play-topbar">
+            <button id="final-back-btn" class="play-back-btn" type="button" aria-label="Back to home">
+              <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M19 12H5M11 18l-6-6 6-6"></path></svg>
+            </button>
+            <div class="play-title">
+              <h1>Guess the Size</h1>
+              <p id="final-status-sub"></p>
+            </div>
+            <span class="play-code" id="final-room-code">-</span>
+          </header>
+
+          <section class="play-card gts-podium-card">
+            <div class="gts-winner">
+              <span class="play-label">Winner</span>
+              <h2 id="final-winner-name"></h2>
+              <p><b id="final-winner-score"></b> average score</p>
+            </div>
+            <div id="final-podium" class="gts-podium"></div>
+          </section>
+
+          <section class="play-card">
+            <div class="play-card-head">
+              <h2>Final standings</h2>
+              <span>Avg score</span>
+            </div>
+            <ol id="final-standings-list" class="play-list"></ol>
+          </section>
+        </div>
+
+        <div class="play-cta">
+          <div class="play-cta-inner">
+            <button id="final-leave-btn" class="play-btn is-secondary" type="button">Leave</button>
+            <button id="final-play-again-btn" class="play-btn" type="button">Play again</button>
           </div>
         </div>
       </section>

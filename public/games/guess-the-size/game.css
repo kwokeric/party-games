@@ -14,28 +14,11 @@
   margin-top: 1rem;
 }
 
-.zoom-controls {
-  display: flex;
-  gap: 0.5rem;
-}
-
-.zoom-controls button {
-  width: 2.25rem;
-  height: 2.25rem;
-  padding: 0;
-  border-radius: 999px;
-  background: #84bcda;
-  color: #067bc2;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-}
-
 .stage {
   position: relative;
   height: 340px;
-  background: #12141a;
-  border-radius: 8px;
+  background: #f3efe7;
+  border-radius: 16px;
   overflow: visible;
 }
 
@@ -44,13 +27,13 @@
   left: 0;
   right: 0;
   bottom: 48px;
-  border-top: 2px solid #445;
+  border-top: 2px solid rgba(0, 0, 0, 0.12);
 }
 
 .obj {
   position: absolute;
   bottom: 48px;
-  color: #f4a261;
+  color: #3a3732;
 }
 
 .obj-visual {
@@ -73,7 +56,7 @@
   left: 0;
   white-space: nowrap;
   font-size: 0.8rem;
-  color: #ccc;
+  color: #5c5850;
   margin-top: 4px;
   /* Prevents a drag that passes over the label from turning into a native
      text selection on desktop, which otherwise steals the drag. */
@@ -104,13 +87,15 @@
 
 .resize-handle {
   position: absolute;
-  right: -12px;
-  top: -12px;
-  width: 24px;
-  height: 24px;
+  right: -15px;
+  top: -15px;
+  width: 30px;
+  height: 30px;
+  box-sizing: border-box;
   border-radius: 50%;
-  background: #d56062;
-  border: 2px solid #fff;
+  background: #1f6feb;
+  border: 3px solid #fff;
+  box-shadow: 0 2px 6px rgba(0, 0, 0, 0.2);
   color: #fff;
   display: flex;
   align-items: center;
@@ -140,43 +125,10 @@
   cursor: grabbing;
 }
 
-.waiting-message {
-  color: #6ee7a7;
-}
-
 .obj-guess {
   left: 30px;
 }
 
 .obj-true {
   left: 30px;
-}
-
-/* Shared ready/rematch indicator, used in both the per-round results list
-   and the final standings list. */
-.status-dot {
-  width: 21px;
-  height: 21px;
-  border-radius: 999px;
-  flex-shrink: 0;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  border: 1.5px solid rgba(0, 0, 0, 0.15);
-  background: transparent;
-  transition: background 0.15s ease, border-color 0.15s ease;
-}
-
-.status-dot.on {
-  background: #3fb27f;
-  border-color: #3fb27f;
-}
-
-.status-dot svg {
-  opacity: 0;
-  transition: opacity 0.1s ease;
-}
-
-.status-dot.on svg {
-  opacity: 1;
 }

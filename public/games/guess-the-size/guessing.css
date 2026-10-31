@@ -1,95 +1,44 @@
-.guessing-view {
-  margin: -2rem calc(50% - 50vw) 0;
-  padding-bottom: 32px;
-}
+/* Guessing screen. The page chrome (header, cards, pinned button, timer
+   ring, avatar stack) comes from /shared/play.css. */
 
-.guess-banner {
-  background: #067bc2;
-  padding: 16px 20px;
-  box-sizing: border-box;
-  display: flex;
+.play-view .gts-status {
+  flex-direction: row;
   align-items: center;
   gap: 12px;
+  padding: 12px 14px;
 }
 
-.guess-icon-btn {
-  border: none;
-  cursor: pointer;
-  width: 32px;
-  height: 32px;
-  border-radius: 999px;
-  background: rgba(255, 255, 255, 0.2);
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  flex-shrink: 0;
-  padding: 0;
-}
-
-.guess-banner-title {
-  font-family: "Fredoka", system-ui, sans-serif;
-  font-weight: 600;
-  font-size: 17px;
-  color: #ffffff;
+.gts-status-main {
   flex: 1;
+  min-width: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
 }
 
-.guess-room-pill {
-  background: rgba(255, 255, 255, 0.16);
-  font-family: "Fredoka", system-ui, sans-serif;
-  font-weight: 600;
+.gts-status-text {
   font-size: 13px;
-  letter-spacing: 1.5px;
-  color: #ffffff;
-  padding: 5px 10px;
-  border-radius: 999px;
+  font-weight: 600;
 }
 
-.guess-status-card {
-  /* width+margin:auto (not the old margin:0 20px) so this centers within
-     the full-bleed .guessing-view/.reveal-view/.final-view on wide desktop
-     screens, while still keeping the same 20px gutter on narrow ones. */
-  width: calc(100% - 40px);
-  max-width: calc(1000px - 40px);
-  min-height: 50px;
-  margin: 0 auto;
-  background: #ffffff;
-  border-radius: 0 0 16px 16px;
-  padding: 10px 14px;
-  box-sizing: border-box;
-  box-shadow: 0 8px 16px rgba(6, 123, 194, 0.1);
-  display: flex;
-  align-items: center;
-  gap: 10px;
+.gts-status-text b {
+  color: var(--pv-ready);
 }
 
-/* Hidden unless the host turns a timer on for the round — when off (the
-   default), the status card looks exactly as it always has. */
-.countdown-ring {
-  --pct: 100;
-  --ring-color: #067bc2;
-  width: 34px;
-  height: 34px;
+.guess-dot {
+  width: 7px;
+  height: 7px;
   border-radius: 999px;
+  background: #9aa0ab;
   flex-shrink: 0;
-  background: conic-gradient(var(--ring-color) calc(var(--pct) * 1%), rgba(0, 0, 0, 0.1) 0);
-  display: flex;
-  align-items: center;
-  justify-content: center;
 }
 
-.countdown-ring-inner {
-  width: 27px;
-  height: 27px;
-  border-radius: 999px;
-  background: #ffffff;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  font-family: "Fredoka", system-ui, sans-serif;
-  font-weight: 700;
-  font-size: 11px;
-  color: var(--ring-color);
+.guess-dot.connected {
+  background: var(--pv-ready);
+}
+
+.guess-dot.disconnected {
+  background: var(--pv-danger);
 }
 
 .countdown-ring.urgent {
@@ -112,128 +61,104 @@
   }
 }
 
-.guess-avatar-stack {
-  display: flex;
-  align-items: center;
+.play-view .gts-question {
+  gap: 6px;
 }
 
-.guess-avatar {
-  width: 26px;
-  height: 26px;
-  border-radius: 999px;
-  background: #84bcda;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  font-family: "Fredoka", system-ui, sans-serif;
-  font-weight: 600;
-  font-size: 10px;
-  color: rgba(0, 0, 0, 0.8);
-  border: 2px solid #ffffff;
-  margin-left: -13px;
+.gts-question-ref {
+  margin: 0;
+  font-size: 13px;
+  color: var(--pv-ink-soft);
 }
 
-.guess-avatar:first-child {
-  margin-left: 0;
+.gts-question-ref strong {
+  color: var(--pv-ink);
 }
 
-.guess-status-text {
-  font-size: 12.5px;
-  color: rgba(0, 0, 0, 0.5);
-  flex: 1;
+.gts-question-title {
+  margin: 0;
+  font-family: var(--pv-display);
+  font-size: 26px;
+  line-height: 1.05;
+  font-weight: 800;
+  letter-spacing: -0.035em;
 }
 
-.guess-connection {
-  display: flex;
-  align-items: center;
-  gap: 5px;
-  font-size: 12px;
-  color: rgba(0, 0, 0, 0.5);
+.gts-accent {
+  color: var(--pv-accent);
 }
 
-.guess-dot {
-  width: 7px;
-  height: 7px;
-  border-radius: 999px;
-  background: #9aa0ab;
-  flex-shrink: 0;
-}
-
-.guess-dot.connected {
-  background: #3fb27f;
-}
-
-.guess-dot.disconnected {
-  background: #d56062;
-}
-
-.guessing-body {
-  max-width: 1000px;
-  margin: 0 auto;
-  padding: 0 20px;
-  box-sizing: border-box;
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-}
-
-.guess-instruction {
-  width: 100%;
-  margin: 16px 0 0;
-  font-size: 15px;
-  line-height: 1.4;
-  color: rgba(0, 0, 0, 0.7);
-}
-
-.guess-instruction strong {
-  color: rgba(0, 0, 0, 0.85);
-}
-
-.guess-toolbar {
-  width: 100%;
-  display: flex;
-  align-items: center;
-  gap: 10px;
-  margin-top: 14px;
-}
-
-#guess-readout {
-  font-size: 14px;
-  color: rgba(0, 0, 0, 0.6);
-  flex: 1;
+.play-view .gts-stage-card {
+  padding: 10px;
 }
 
 .guessing-stage {
-  width: 100%;
-  margin-top: 16px;
-  background: #e6e4dc;
-}
-
-.guessing-stage .baseline {
-  border-top-color: rgba(6, 123, 194, 0.18);
+  border-radius: 16px;
+  background: #f3efe7;
 }
 
 .guessing-stage .obj {
-  color: #067bc2;
+  color: #3a3732;
+}
+
+.guessing-stage #object-b {
+  color: var(--pv-accent);
 }
 
 .guessing-stage .obj-label {
-  color: rgba(0, 0, 0, 0.6);
-}
-
-.guessing-view .waiting-message {
-  color: #067bc2;
-  margin: 12px 0 0;
-}
-
-.guess-submit-btn {
-  width: 100%;
-  height: 52px;
-  margin-top: 16px;
-  border-radius: 15px;
-  background: #067bc2;
-  color: #ffffff;
-  font-family: "Fredoka", system-ui, sans-serif;
-  font-size: 16px;
+  color: var(--pv-ink-soft);
   font-weight: 600;
+}
+
+.guessing-stage #object-b-stage-label {
+  color: var(--pv-accent);
+}
+
+.guess-toolbar {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 0 4px 2px;
+}
+
+.gts-readout {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+}
+
+.gts-readout span {
+  font-size: 12px;
+  color: var(--pv-ink-soft);
+}
+
+.gts-readout strong {
+  font-family: var(--pv-display);
+  font-size: 26px;
+  font-weight: 800;
+  letter-spacing: -0.03em;
+  line-height: 1;
+  color: var(--pv-accent);
+  font-variant-numeric: tabular-nums;
+}
+
+.zoom-controls {
+  display: flex;
+  gap: 4px;
+  padding: 4px;
+  border-radius: 14px;
+  background: #f2f0eb;
+}
+
+.zoom-controls button {
+  width: 38px;
+  height: 38px;
+  padding: 0;
+  border: none;
+  border-radius: 10px;
+  background: #ffffff;
+  color: var(--pv-ink);
+  font-size: 20px;
+  font-weight: 600;
+  cursor: pointer;
 }

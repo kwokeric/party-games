@@ -1,4 +1,4 @@
-import { setupLobby, renderLobbyPlayers } from "/shared/lobby.js";
+import { setupLobby, renderLobbyPlayers, playerColor, playerTilt } from "/shared/lobby.js";
 
 const params = new URLSearchParams(location.search);
 const room = params.get("room");
@@ -57,6 +57,7 @@ const guessAvatarStackEl = el("guess-avatar-stack");
 const guessStatusTextEl = el("guess-status-text");
 const guessConnectionDotEl = el("guess-connection-dot");
 const guessConnectionTextEl = el("guess-connection-text");
+const guessRoundLabelEl = el("guess-round-label");
 
 const objectAArticleEl = el("object-a-article");
 const objectANameEl = el("object-a-name");
@@ -89,14 +90,19 @@ const revealTrueImg = el("reveal-true-img");
 const revealTrueLine = el("reveal-true-line");
 const revealTrueLabel = el("reveal-true-label");
 const revealMarkersEl = el("reveal-markers");
-const revealSummary = el("reveal-summary");
+const revealStatGuessEl = el("reveal-stat-guess");
+const revealStatTrueEl = el("reveal-stat-true");
+const revealStatOffEl = el("reveal-stat-off");
+const revealReadyCountEl = el("reveal-ready-count");
+const revealNextLabelEl = el("reveal-next-label");
 const resultsList = el("results-list");
 const revealReadyBtn = el("reveal-ready-btn");
 
 const finalBackBtn = el("final-back-btn");
 const finalRoomCodeEl = el("final-room-code");
 const finalStatusSubEl = el("final-status-sub");
-const finalWinnerAvatarEl = el("final-winner-avatar");
+const finalPodiumEl = el("final-podium");
+const finalLeaveBtn = el("final-leave-btn");
 const finalWinnerNameEl = el("final-winner-name");
 const finalWinnerScoreEl = el("final-winner-score");
 const finalStandingsListEl = el("final-standings-list");
@@ -169,6 +175,25 @@ function renderRoundTrack(container, roundNumber, maxRounds) {
   }
 }
 
+// A player's avatar tile, colored by their place in the player list so it
+// matches the lobby. Players who've left fall back to a neutral gray.
+function avatarEl(id, name) {
+  const index = players.findIndex((p) => p.id === id);
+  const span = document.createElement("span");
+  span.className = "play-avatar";
+  span.textContent = name.trim().charAt(0) || "?";
+  span.style.background = index >= 0 ? playerColor(index) : "#9a958c";
+  if (index >= 0) span.style.setProperty("--tilt", playerTilt(index));
+  return span;
+}
+
+function rankEl(place) {
+  const span = document.createElement("span");
+  span.className = `play-rank r${place}`;
+  span.textContent = String(place);
+  return span;
+}
+
 function isHost() {
   return players.find((p) => p.id === myId)?.isHost ?? false;
 }
@@ -178,13 +203,14 @@ function renderPlayers() {
 
   guessAvatarStackEl.innerHTML = "";
   for (const p of players) {
-    const span = document.createElement("span");
-    span.className = "guess-avatar";
-    span.textContent = p.name.trim().charAt(0) || "?";
-    guessAvatarStackEl.appendChild(span);
+    const avatar = avatarEl(p.id, p.name);
+    avatar.classList.toggle("is-pending", !p.hasGuessed);
+    guessAvatarStackEl.appendChild(avatar);
   }
   const guessedCount = players.filter((p) => p.hasGuessed).length;
-  guessStatusTextEl.textContent = `${guessedCount} of ${players.length} guessed`;
+  const guessedCountEl = document.createElement("b");
+  guessedCountEl.textContent = `${guessedCount} of ${players.length}`;
+  guessStatusTextEl.replaceChildren(guessedCountEl, " guessed");
 
   if (phase === "lobby") {
     const amHost = isHost();
@@ -204,13 +230,15 @@ function renderPlayers() {
   if (phase === "reveal") {
     const me = players.find((p) => p.id === myId);
     revealReadyBtn.disabled = Boolean(me?.ready);
-    revealReadyBtn.textContent = me?.ready ? "Waiting for others…" : "Ready";
+    revealReadyBtn.textContent = me?.ready ? "Waiting…" : "Ready";
+    const readyCount = players.filter((p) => p.ready).length;
+    revealReadyCountEl.textContent = `${readyCount} of ${players.length} ready`;
   }
 
   if (phase === "final") {
     const me = players.find((p) => p.id === myId);
     finalPlayAgainBtn.disabled = Boolean(me?.ready);
-    finalPlayAgainBtn.textContent = me?.ready ? "Waiting for others…" : "Play again";
+    finalPlayAgainBtn.textContent = me?.ready ? "Waiting…" : "Play again";
   }
 
   updateReadyDots();
@@ -311,7 +339,7 @@ function tickCountdown() {
   const urgent = remainingMs > 0 && remainingS <= 5;
   guessCountdownNum.textContent = String(remainingS);
   guessCountdownRing.style.setProperty("--pct", String(Math.round((remainingMs / roundDurationMs) * 100)));
-  guessCountdownRing.style.setProperty("--ring-color", urgent ? "#d56062" : "#067bc2");
+  guessCountdownRing.style.setProperty("--ring-color", urgent ? "#c0392b" : "#1f6feb");
 
   if (urgent) {
     if (remainingS !== lastPulseSecond) {
@@ -393,11 +421,13 @@ function renderObjectB() {
   applySize(objectBImg, sizeStyle(basePxPerMeter * zoom, round.objectB, guessLength));
   objectBStageLabel.textContent = round.objectB.name;
   resizeHandle.className = `resize-handle axis-${round.objectB.axis}`;
-  guessReadout.textContent = `Your guess: ${formatMeters(guessLength)}`;
+  guessReadout.textContent = formatMeters(guessLength);
 }
 
 // Matches .baseline{bottom:48px} in game.css.
 const BASELINE_OFFSET = 48;
+// A reveal marker's tick plus its avatar chip (see reveal.css).
+const MARKER_HEIGHT = 34;
 
 // Object B starts just to the right of wherever object A actually ends,
 // rather than a fixed offset, so a small reference object leaves more
@@ -431,7 +461,7 @@ function autoFitZoom() {
   positionObjectB();
 }
 
-async function startGuessing(objectA, objectB, durationMs, endsAt) {
+async function startGuessing(objectA, objectB, durationMs, endsAt, roundNumber, maxRounds) {
   round = { objectA, objectB };
   phase = "guessing";
   hasSubmitted = false;
@@ -444,9 +474,10 @@ async function startGuessing(objectA, objectB, durationMs, endsAt) {
   objectASizeEl.textContent = formatMeters(objectA.length_m);
   objectBArticleEl.textContent = article(objectB.name);
   objectBNameEl.textContent = objectB.name;
+  guessRoundLabelEl.textContent = roundNumber ? `Round ${roundNumber} of ${maxRounds}` : "";
 
   submitBtn.disabled = false;
-  submitBtn.textContent = "Submit guess";
+  submitBtn.textContent = "Lock in guess";
   waitingMessage.hidden = true;
 
   stopCountdown();
@@ -495,7 +526,8 @@ async function showReveal(roundNumber, maxRounds, objectBTrueLength_m, guesses) 
   // a hidden element reports 0, which broke the height-axis tick position.
   showView("reveal");
 
-  revealRoundLabelEl.textContent = `Round ${roundNumber} of ${maxRounds}`;
+  revealRoundLabelEl.textContent = `Round ${roundNumber} of ${maxRounds} · Results`;
+  revealNextLabelEl.textContent = roundNumber < maxRounds ? `Next: round ${roundNumber + 1}` : "Final results next";
   renderRoundTrack(revealRoundTrackEl, roundNumber, maxRounds);
 
   applySize(revealGuessImg, sizeStyle(revealPxPerMeter, round.objectB, myGuess));
@@ -540,15 +572,14 @@ async function showReveal(roundNumber, maxRounds, objectBTrueLength_m, guesses) 
 
     const tick = document.createElement("span");
     tick.className = "reveal-marker-tick";
-    const chip = document.createElement("span");
-    chip.className = "reveal-marker-chip";
-    chip.textContent = g.name.trim().charAt(0) || "?";
-    marker.append(tick, chip);
+    marker.append(tick, avatarEl(g.id, g.name));
 
     const px = g.guess_m * revealPxPerMeter;
     if (round.objectB.axis === "width") {
+      // Hung just below the ground line (tick pointing up at the guess), so
+      // the chips never cover the silhouettes standing on it.
       marker.style.left = `${26 + px}px`;
-      marker.style.bottom = `${BASELINE_OFFSET}px`;
+      marker.style.bottom = `${BASELINE_OFFSET - MARKER_HEIGHT}px`;
     } else {
       marker.style.left = `${40 + index * 18}px`;
       marker.style.bottom = `${BASELINE_OFFSET + px}px`;
@@ -556,102 +587,99 @@ async function showReveal(roundNumber, maxRounds, objectBTrueLength_m, guesses) 
     revealMarkersEl.appendChild(marker);
   });
 
+  revealStatTrueEl.textContent = formatMeters(objectBTrueLength_m);
   if (mine) {
     const pctOff = Math.round((Math.abs(myGuess - objectBTrueLength_m) / objectBTrueLength_m) * 100);
-    // Safe to use innerHTML here: every interpolated value is a number we
-    // formatted ourselves, never raw user text (unlike player names below).
-    revealSummary.innerHTML = `Your guess <strong>${formatMeters(myGuess)}</strong> · True size <strong>${formatMeters(
-      objectBTrueLength_m
-    )}</strong> · off by ${pctOff}%`;
+    revealStatGuessEl.textContent = formatMeters(myGuess);
+    revealStatOffEl.textContent = `${pctOff}%`;
   } else {
-    revealSummary.textContent = `True size: ${formatMeters(objectBTrueLength_m)}`;
+    revealStatGuessEl.textContent = "-";
+    revealStatOffEl.textContent = "-";
   }
 
   resultsList.innerHTML = "";
   guesses.forEach((g, index) => {
-    const li = document.createElement("li");
-    li.className = "reveal-result-row" + (g.id === myId ? " is-you" : "");
-    li.dataset.playerId = g.id;
-
-    const avatar = document.createElement("span");
-    avatar.className = "reveal-avatar";
-    avatar.textContent = g.name.trim().charAt(0) || "?";
-
-    const nameEl = document.createElement("span");
-    nameEl.className = "reveal-result-name";
-    nameEl.textContent = g.name;
-    if (g.id === myId) {
-      const tag = document.createElement("span");
-      tag.className = "you-tag";
-      tag.textContent = " (you)";
-      nameEl.appendChild(tag);
-    }
-
     const guessEl = document.createElement("span");
     guessEl.className = "reveal-result-guess";
     guessEl.textContent = typeof g.guess_m === "number" ? formatMeters(g.guess_m) : "-";
-
-    const scoreEl = document.createElement("span");
-    scoreEl.className = index === 0 ? "reveal-result-score top" : "reveal-result-score";
-    scoreEl.textContent = String(g.score);
-
-    const readyDot = document.createElement("span");
-    readyDot.className = "status-dot";
-    readyDot.innerHTML = READY_CHECK_SVG;
-
-    li.append(avatar, nameEl, guessEl, scoreEl, readyDot);
-    resultsList.appendChild(li);
+    resultsList.appendChild(resultRow(g, index, guessEl, String(g.score)));
   });
 
   renderPlayers();
+}
+
+// One ranked row in the results / final standings: rank, avatar, name, any
+// extra columns, the score, then a ready dot that updateReadyDots() flips.
+function resultRow(player, index, extra, score) {
+  const li = document.createElement("li");
+  li.className = "play-row" + (player.id === myId ? " is-you" : "");
+  li.dataset.playerId = player.id;
+
+  const nameEl = document.createElement("span");
+  nameEl.className = "play-row-name";
+  nameEl.textContent = player.name;
+  if (player.id === myId) {
+    const tag = document.createElement("span");
+    tag.className = "you-tag";
+    tag.textContent = " (you)";
+    nameEl.appendChild(tag);
+  }
+
+  const scoreEl = document.createElement("span");
+  scoreEl.className = index === 0 ? "play-score top" : "play-score";
+  scoreEl.textContent = score;
+
+  const readyDot = document.createElement("span");
+  readyDot.className = "status-dot";
+  readyDot.innerHTML = READY_CHECK_SVG;
+
+  li.append(rankEl(index + 1), avatarEl(player.id, player.name), nameEl);
+  if (extra) li.append(extra);
+  li.append(scoreEl, readyDot);
+  return li;
+}
+
+// Top three on steps, laid out 2nd, 1st, 3rd so the winner is centered.
+// With fewer than three players the missing steps are simply left out.
+function renderPodium(standings) {
+  finalPodiumEl.innerHTML = "";
+  for (const place of [2, 1, 3]) {
+    const s = standings[place - 1];
+    if (!s) continue;
+    const slot = document.createElement("div");
+    slot.className = `gts-podium-slot place-${place}`;
+
+    const name = document.createElement("span");
+    name.className = "gts-podium-name";
+    name.textContent = s.name;
+
+    const step = document.createElement("div");
+    step.className = "gts-podium-step";
+    const rank = document.createElement("b");
+    rank.textContent = String(place);
+    const avg = document.createElement("span");
+    avg.textContent = `${s.avgScore.toFixed(1)} avg`;
+    step.append(rank, avg);
+
+    slot.append(avatarEl(s.id, s.name), name, step);
+    finalPodiumEl.appendChild(slot);
+  }
 }
 
 function showFinal(maxRounds, standings) {
   phase = "final";
   showView("final");
 
-  finalStatusSubEl.textContent = `${maxRounds} round${maxRounds === 1 ? "" : "s"} played`;
+  finalStatusSubEl.textContent = `Game over · ${maxRounds} round${maxRounds === 1 ? "" : "s"}`;
 
   const winner = standings[0];
-  finalWinnerAvatarEl.textContent = winner?.name.trim().charAt(0) || "?";
   finalWinnerNameEl.textContent = winner?.name ?? "-";
   finalWinnerScoreEl.textContent = winner ? winner.avgScore.toFixed(1) : "-";
+  renderPodium(standings);
 
   finalStandingsListEl.innerHTML = "";
   standings.forEach((s, index) => {
-    const li = document.createElement("li");
-    li.className =
-      "reveal-result-row" + (s.id === myId ? " is-you" : "") + (index === 0 ? " champ" : "");
-    li.dataset.playerId = s.id;
-
-    const rank = document.createElement("span");
-    rank.className = `roster-rank r${index + 1}`;
-    rank.textContent = String(index + 1);
-
-    const avatar = document.createElement("span");
-    avatar.className = "reveal-avatar";
-    avatar.textContent = s.name.trim().charAt(0) || "?";
-
-    const nameEl = document.createElement("span");
-    nameEl.className = "reveal-result-name";
-    nameEl.textContent = s.name;
-    if (s.id === myId) {
-      const tag = document.createElement("span");
-      tag.className = "you-tag";
-      tag.textContent = " (you)";
-      nameEl.appendChild(tag);
-    }
-
-    const scoreEl = document.createElement("span");
-    scoreEl.className = index === 0 ? "reveal-result-score top" : "reveal-result-score";
-    scoreEl.textContent = s.avgScore.toFixed(1);
-
-    const readyDot = document.createElement("span");
-    readyDot.className = "status-dot";
-    readyDot.innerHTML = READY_CHECK_SVG;
-
-    li.append(rank, avatar, nameEl, scoreEl, readyDot);
-    finalStandingsListEl.appendChild(li);
+    finalStandingsListEl.appendChild(resultRow(s, index, null, s.avgScore.toFixed(1)));
   });
 
   renderPlayers();
@@ -782,7 +810,7 @@ submitBtn.addEventListener("click", () => {
   if (hasSubmitted) return;
   hasSubmitted = true;
   submitBtn.disabled = true;
-  submitBtn.textContent = "Submitted";
+  submitBtn.textContent = "Locked in";
   waitingMessage.hidden = false;
   socket.send(JSON.stringify({ type: "guess", length_m: guessLength }));
 });
@@ -809,6 +837,9 @@ revealBackBtn.addEventListener("click", () => {
   location.href = "/";
 });
 finalBackBtn.addEventListener("click", () => {
+  location.href = "/";
+});
+finalLeaveBtn.addEventListener("click", () => {
   location.href = "/";
 });
 copyCodeBtn.addEventListener("click", async () => {
@@ -871,7 +902,7 @@ if (!room) {
         if (phase === "lobby") showView("lobby");
         break;
       case "round-start":
-        startGuessing(data.objectA, data.objectB, data.durationMs, data.endsAt);
+        startGuessing(data.objectA, data.objectB, data.durationMs, data.endsAt, data.roundNumber, data.maxRounds);
         break;
       case "reveal":
         showReveal(data.roundNumber, data.maxRounds, data.objectBTrueLength_m, data.guesses);

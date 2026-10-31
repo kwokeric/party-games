@@ -1,127 +1,121 @@
-.final-view {
-  margin: -2rem calc(50% - 50vw) 0;
-  padding-bottom: 32px;
-}
+/* Final screen: the winner on a podium, then everyone's standings. */
 
-/* .guess-status-card (shared with the guessing view) lays its children out
-   as a single flex row and centers them, which squeezed the meta line and
-   the winner spotlight into one cramped strip. This page needs them
-   stacked instead, with real padding around the whole card. */
-.final-status-card {
-  flex-direction: column;
-  align-items: stretch;
-  padding: 18px 20px;
-}
-
-.final-status-top {
-  display: flex;
-  align-items: baseline;
-  justify-content: space-between;
-}
-
-.final-divider {
-  height: 1px;
-  background: rgba(0, 0, 0, 0.08);
-  margin: 14px 0;
-}
-
-.final-status-label {
-  font-family: "Fredoka", system-ui, sans-serif;
-  font-weight: 600;
-  font-size: 14.5px;
-  color: rgba(0, 0, 0, 0.85);
-}
-
-.final-status-sub {
-  font-size: 11.5px;
-  color: rgba(0, 0, 0, 0.45);
-}
-
-.final-winner-spot {
-  display: flex;
-  align-items: center;
+.play-view .gts-podium-card {
   gap: 14px;
-  margin-top: 10px;
+  background: linear-gradient(160deg, #fff8ec, #ffffff 55%);
 }
 
-.final-winner-avatar {
-  width: 52px;
-  height: 52px;
-  border-radius: 999px;
-  background: #84bcda;
-  color: rgba(0, 0, 0, 0.8);
-  font-family: "Fredoka", system-ui, sans-serif;
-  font-weight: 600;
-  font-size: 19px;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  box-shadow: 0 0 0 3px #ffffff, 0 0 0 5px #d56062;
-  flex-shrink: 0;
-}
-
-.final-winner-text {
-  min-width: 0;
+.gts-winner {
   display: flex;
   flex-direction: column;
-}
-
-.final-winner-tag {
-  font-family: "Fredoka", system-ui, sans-serif;
-  font-size: 10.5px;
-  font-weight: 600;
-  letter-spacing: 0.06em;
-  text-transform: uppercase;
-  color: #d56062;
-}
-
-.final-winner-name {
-  font-family: "Fredoka", system-ui, sans-serif;
-  font-size: 18px;
-  font-weight: 600;
-  color: rgba(0, 0, 0, 0.88);
-  white-space: nowrap;
-  overflow: hidden;
-  text-overflow: ellipsis;
-}
-
-.final-winner-score {
-  font-size: 12.5px;
-  color: rgba(0, 0, 0, 0.5);
-}
-
-.final-winner-score b {
-  font-family: "Fredoka", system-ui, sans-serif;
-  color: #067bc2;
-  font-size: 13.5px;
-}
-
-.final-body {
-  margin-top: 20px;
-}
-
-.roster-rank {
-  font-family: "Fredoka", system-ui, sans-serif;
-  font-weight: 600;
-  font-size: 13px;
-  color: rgba(0, 0, 0, 0.35);
-  width: 16px;
-  flex-shrink: 0;
+  align-items: center;
   text-align: center;
 }
 
-.roster-rank.r1 {
-  color: #c98a1f;
+.gts-winner .play-label {
+  color: #b7791f;
 }
 
-.roster-rank.r2 {
-  color: #7c8794;
+.gts-winner h2 {
+  margin: 2px 0 0;
+  font-family: var(--pv-display);
+  font-size: 34px;
+  font-weight: 800;
+  letter-spacing: -0.035em;
+  line-height: 1;
+  overflow-wrap: anywhere;
 }
 
-.roster-rank.r3 {
-  color: #a56331;
+.gts-winner p {
+  margin: 4px 0 0;
+  font-size: 13px;
+  color: var(--pv-ink-soft);
 }
 
-.reveal-result-row.champ .reveal-result-score {
-  color: #067bc2;
+.gts-winner b {
+  color: var(--pv-ink);
+}
+
+/* Slots are laid out 2nd, 1st, 3rd so the winner stands in the middle. */
+.gts-podium {
+  display: flex;
+  align-items: flex-end;
+  justify-content: center;
+  gap: 8px;
+}
+
+.gts-podium-slot {
+  flex: 1;
+  max-width: 140px;
+  min-width: 0;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 6px;
+}
+
+.gts-podium-slot .play-avatar {
+  width: 44px;
+  height: 44px;
+  border-radius: 14px;
+  border: 3px solid #ffffff;
+  font-size: 19px;
+  box-shadow: 0 2px 6px rgba(0, 0, 0, 0.08);
+}
+
+.gts-podium-slot.place-1 .play-avatar {
+  width: 54px;
+  height: 54px;
+  border-radius: 17px;
+  font-size: 23px;
+}
+
+.gts-podium-name {
+  max-width: 100%;
+  font-size: 13px;
+  font-weight: 700;
+  text-align: center;
+  overflow-wrap: anywhere;
+}
+
+.gts-podium-step {
+  width: 100%;
+  box-sizing: border-box;
+  padding-top: 10px;
+  border-radius: 16px 16px 0 0;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+}
+
+.gts-podium-step b {
+  font-family: var(--pv-display);
+  font-size: 30px;
+  font-weight: 800;
+  line-height: 1;
+}
+
+.gts-podium-step span {
+  font-size: 12px;
+  font-weight: 600;
+  color: var(--pv-ink-soft);
+}
+
+.place-1 .gts-podium-step {
+  height: 130px;
+  background: #f6c445;
+}
+
+.place-2 .gts-podium-step {
+  height: 96px;
+  background: #e4e1da;
+}
+
+.place-3 .gts-podium-step {
+  height: 72px;
+  background: #ecc9a8;
+}
+
+.place-1 .gts-podium-step span {
+  color: var(--pv-ink);
 }
