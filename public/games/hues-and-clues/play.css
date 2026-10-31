@@ -1,10 +1,10 @@
 /* In-game screens. The header and pinned bottom bar come from
    /shared/play.css; the content in between sits straight on a full-bleed
-   stage in the game's tint (no cards): fanned color cards, an edge-to-edge
-   board, the reveal and the podium. */
+   white stage (no cards): fanned color cards, an edge-to-edge board, the
+   reveal and the podium. */
 
 .play-view.hc-view {
-  --hc-stage: #f6dce4;
+  --hc-stage: #ffffff;
   background: var(--hc-stage);
 }
 
@@ -455,7 +455,7 @@
   gap: 10px;
   padding: 8px 10px;
   border-radius: 14px;
-  background: rgba(255, 255, 255, 0.72);
+  background: var(--pv-field);
 }
 
 .play-view .hc-row.is-you {
