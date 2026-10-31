@@ -1,5 +1,6 @@
-import { buildGrid, initPanZoom, cellColor } from "./grid.js";
+import { buildGrid, initPanZoom, cellColor, COL_LETTERS } from "./grid.js";
 import { setupLobby, renderLobbyPlayers } from "/shared/lobby.js";
+import { avatarEl as playAvatarEl, renderPodium } from "/shared/play.js";
 
 const params = new URLSearchParams(location.search);
 const room = params.get("room");
@@ -52,67 +53,90 @@ const durationPopover = el("duration-popover");
 
 const turnBackBtn = el("turn-back-btn");
 const turnRoomCodeEl = el("turn-room-code");
+const turnStepLabelEl = el("turn-step-label");
 const turnCountdownRing = el("turn-countdown-ring");
 const turnCountdownNum = el("turn-countdown-num");
-const turnStatusTextEl = el("turn-status-text");
+const turnCta = el("turn-cta");
 const cardDrawBody = el("card-draw-body");
 const cardGridEl = el("card-grid");
+const cardPickNote = el("card-pick-note");
+const cardPickSwatch = el("card-pick-swatch");
+const cardPickLabel = el("card-pick-label");
 const confirmCardBtn = el("confirm-card-btn");
 const giveClueBody = el("give-clue-body");
 const mineViewport = el("mine-viewport");
 const mineGrid = el("mine-grid");
+const mineSwatch = el("mine-swatch");
 const mineZoomInBtn = el("mine-zoom-in");
 const mineZoomOutBtn = el("mine-zoom-out");
 const clueInput = el("clue-input");
 const submitClueBtn = el("submit-clue-btn");
 const waitingForClueBody = el("waiting-for-clue-body");
+const turnWaitingAvatarEl = el("turn-waiting-avatar");
 const waitingForClueTextEl = el("waiting-for-clue-text");
 
 const clue2BackBtn = el("clue2-back-btn");
 const clue2RoomCodeEl = el("clue2-room-code");
+const clue2StepLabelEl = el("clue2-step-label");
 const clue2CountdownRing = el("clue2-countdown-ring");
 const clue2CountdownNum = el("clue2-countdown-num");
-const clue2StatusTextEl = el("clue2-status-text");
+const clue2Cta = el("clue2-cta");
+const clue2Viewport = el("clue2-viewport");
+const clue2Grid = el("clue2-grid");
+const clue2ZoomInBtn = el("clue2-zoom-in");
+const clue2ZoomOutBtn = el("clue2-zoom-out");
+const clue2MapNoteEl = el("clue2-map-note");
 const giveClue2Body = el("give-clue2-body");
+const clue2Swatch = el("clue2-swatch");
 const clue2Clue1BannerEl = el("clue2-clue1-banner");
 const clue2Input = el("clue2-input");
 const submitClue2Btn = el("submit-clue2-btn");
 const waitingForClue2Body = el("waiting-for-clue2-body");
+const clue2WaitingAvatarEl = el("clue2-waiting-avatar");
 const waitingForClue2TextEl = el("waiting-for-clue2-text");
 
 const guessingBackBtn = el("guessing-back-btn");
 const guessingRoomCodeEl = el("guessing-room-code");
+const guessingStepLabelEl = el("guessing-step-label");
 const guessingCountdownRing = el("guessing-countdown-ring");
 const guessingCountdownNum = el("guessing-countdown-num");
-const guessingStatusTextEl = el("guessing-status-text");
 const clueBannerEl = el("clue-banner");
 const turnTrackerEl = el("turn-tracker");
-const guessInteractiveBody = el("guess-interactive-body");
 const guessViewport = el("guess-viewport");
 const guessGridEl = el("guess-grid");
 const guessZoomInBtn = el("guess-zoom-in");
 const guessZoomOutBtn = el("guess-zoom-out");
+const guessMapNoteEl = el("guess-map-note");
+const guessPickNote = el("guess-pick-note");
+const guessPickSwatch = el("guess-pick-swatch");
+const guessPickKicker = el("guess-pick-kicker");
+const guessPickLabel = el("guess-pick-label");
 const lockGuessBtn = el("lock-guess-btn");
-const guessWaitingBody = el("guess-waiting-body");
-const guessWaitViewport = el("guess-wait-viewport");
-const guessWaitGridEl = el("guess-wait-grid");
-const guessWaitZoomInBtn = el("guess-wait-zoom-in");
-const guessWaitZoomOutBtn = el("guess-wait-zoom-out");
-const guessWaitingTextEl = el("guess-waiting-text");
 
 const revealBackBtn = el("reveal-back-btn");
 const revealRoomCodeEl = el("reveal-room-code");
-const revealStatusTextEl = el("reveal-status-text");
+const revealStepLabelEl = el("reveal-step-label");
+const revealSwatchEl = el("reveal-swatch");
+const revealKickerEl = el("reveal-kicker");
+const revealTitleEl = el("reveal-title");
+const revealCluesEl = el("reveal-clues");
 const revealViewport = el("reveal-viewport");
 const revealGridEl = el("reveal-grid");
 const revealZoomInBtn = el("reveal-zoom-in");
 const revealZoomOutBtn = el("reveal-zoom-out");
 const resultsListEl = el("results-list");
+const revealReadyCountEl = el("reveal-ready-count");
+const revealNextLabelEl = el("reveal-next-label");
 const continueBtn = el("continue-btn");
 
 const finalBackBtn = el("final-back-btn");
 const finalRoomCodeEl = el("final-room-code");
+const finalStepLabelEl = el("final-step-label");
+const finalTitleEl = el("final-title");
+const finalPodiumEl = el("final-podium");
+const finalMeEl = el("final-me");
 const standingsListEl = el("standings-list");
+const finalLeaveBtn = el("final-leave-btn");
 const playAgainBtn = el("play-again-btn");
 
 lobbyRoomCodeEl.textContent = room ?? "(none)";
@@ -345,6 +369,8 @@ function renderPlayers() {
     }
     renderSettings(amHost);
   }
+
+  if (phase === "reveal" || phase === "final") renderReadyState();
 }
 
 function stopCountdown() {
@@ -360,6 +386,7 @@ function tickCountdown(ringEl, numEl) {
   numEl.textContent = String(remainingS);
   const pct = roundDurationMs ? Math.max(0, Math.min(100, (remainingMs / roundDurationMs) * 100)) : 100;
   ringEl.style.setProperty("--pct", String(pct));
+  ringEl.style.setProperty("--ring-color", remainingS <= 5 ? "#c0392b" : "#1f6feb");
   if (remainingMs <= 0) stopCountdown();
 }
 
@@ -369,61 +396,113 @@ function startCountdown(ringEl, numEl) {
   countdownTimer = setInterval(() => tickCountdown(ringEl, numEl), 250);
 }
 
+// A player's avatar tile, in their game-long color (globalColorMap) so it
+// matches the pins on the board and the lobby.
+function avatarEl(id, name) {
+  const tile = playAvatarEl(name ?? nameOf(id), players.findIndex((p) => p.id === id));
+  if (globalColorMap[id]) tile.style.background = globalColorMap[id];
+  return tile;
+}
+
+function nameOf(id) {
+  return players.find((p) => p.id === id)?.name ?? "Someone";
+}
+
+// "Column U · Row 12", matching the board's edge labels.
+function cellLabel(cell) {
+  return `Column ${COL_LETTERS[cell.col]} · Row ${cell.row + 1}`;
+}
+
+function pointsText(n) {
+  return `${n} pt${n === 1 ? "" : "s"}`;
+}
+
+function ordinal(n) {
+  const suffix = n % 100 >= 11 && n % 100 <= 13 ? "th" : ["th", "st", "nd", "rd"][n % 10] ?? "th";
+  return `${n}${suffix}`;
+}
+
 // ---- pan/zoom viewports, each initialized exactly once (buildGrid only
 // ever touches the content's children, never its transform, so re-running
 // buildGrid to update markers never needs to re-init these) ----
 
-const minePanZoom = initPanZoom(mineViewport, mineGrid);
+const minePanZoom = initPanZoom(mineViewport, mineGrid, { fit: true });
 mineZoomInBtn.addEventListener("click", () => minePanZoom.zoomIn());
 mineZoomOutBtn.addEventListener("click", () => minePanZoom.zoomOut());
 
+const clue2PanZoom = initPanZoom(clue2Viewport, clue2Grid, { fit: true });
+clue2ZoomInBtn.addEventListener("click", () => clue2PanZoom.zoomIn());
+clue2ZoomOutBtn.addEventListener("click", () => clue2PanZoom.zoomOut());
+
 const guessPanZoom = initPanZoom(guessViewport, guessGridEl, {
+  fit: true,
   onTap: (cell) => {
     if (phase !== "guessing" || guessLocked) return;
     if (currentGuesserId !== myId) return;
     if (isOccupiedByOther(cell)) return;
     selectedGuessCell = cell;
-    lockGuessBtn.disabled = false;
     renderGuessGrid();
+    renderGuessPick();
   },
 });
 guessZoomInBtn.addEventListener("click", () => guessPanZoom.zoomIn());
 guessZoomOutBtn.addEventListener("click", () => guessPanZoom.zoomOut());
 
-const guessWaitPanZoom = initPanZoom(guessWaitViewport, guessWaitGridEl);
-guessWaitZoomInBtn.addEventListener("click", () => guessWaitPanZoom.zoomIn());
-guessWaitZoomOutBtn.addEventListener("click", () => guessWaitPanZoom.zoomOut());
-
-const revealPanZoom = initPanZoom(revealViewport, revealGridEl);
+const revealPanZoom = initPanZoom(revealViewport, revealGridEl, { fit: true });
 revealZoomInBtn.addEventListener("click", () => revealPanZoom.zoomIn());
 revealZoomOutBtn.addEventListener("click", () => revealPanZoom.zoomOut());
+
+// ---- clue-giver: pick a card, then clue it ----
+
+function renderCardPick() {
+  const cell = pickedCardIndex === null ? null : cardOptions[pickedCardIndex];
+  cardPickSwatch.style.background = cell ? cellColor(cell.col, cell.row) : "";
+  cardPickLabel.textContent = cell ? cellLabel(cell) : "Tap a card";
+  confirmCardBtn.disabled = !cell;
+}
 
 function renderCardOptions() {
   cardGridEl.innerHTML = "";
   cardOptions.forEach((cell, i) => {
-    const card = document.createElement("div");
-    card.className = "color-card";
+    const card = document.createElement("button");
+    card.type = "button";
+    card.className = "hc-card";
+    card.setAttribute("aria-label", cellLabel(cell));
     card.style.background = cellColor(cell.col, cell.row);
 
-    const check = document.createElement("div");
+    const check = document.createElement("span");
     check.className = "check";
     check.textContent = "✓";
     card.appendChild(check);
 
     card.addEventListener("click", () => {
       pickedCardIndex = i;
-      confirmCardBtn.disabled = false;
-      cardGridEl.querySelectorAll(".color-card").forEach((c) => c.classList.remove("selected"));
+      cardGridEl.querySelectorAll(".hc-card").forEach((c) => c.classList.remove("selected"));
       card.classList.add("selected");
+      renderCardPick();
     });
 
     cardGridEl.appendChild(card);
   });
+  renderCardPick();
+}
+
+// The clue-giver's own board: their color starred, plus any first-round
+// pins already placed (shown while they think up the second clue).
+function giverMarkers(pins) {
+  const markers = pickedCard ? [{ col: pickedCard.col, row: pickedCard.row, type: "flag" }] : [];
+  for (const pin of pins) {
+    markers.push({ col: pin.col, row: pin.row, type: "player", label: initialOf(pin.name), color: globalColorMap[pin.id] });
+  }
+  return markers;
 }
 
 function renderMineGrid() {
-  buildGrid(mineGrid, pickedCard ? [{ col: pickedCard.col, row: pickedCard.row, type: "dot" }] : [], false);
+  buildGrid(mineGrid, giverMarkers([]), false);
+  mineSwatch.style.background = pickedCard ? cellColor(pickedCard.col, pickedCard.row) : "";
 }
+
+// ---- guessing ----
 
 function renderGuessGrid() {
   const markers = pinsAsMarkers();
@@ -431,31 +510,32 @@ function renderGuessGrid() {
     const me = players.find((p) => p.id === myId);
     markers.push({ col: selectedGuessCell.col, row: selectedGuessCell.row, type: "self", label: initialOf(me?.name), color: globalColorMap[myId] });
   }
-  buildGrid(guessGridEl, markers, true);
+  buildGrid(guessGridEl, markers, currentGuesserId === myId && !guessLocked);
+}
+
+// The bottom bar while it's your turn: the cell you've tapped so far.
+function renderGuessPick() {
+  guessPickKicker.textContent = "Your pin";
+  guessPickSwatch.style.background = selectedGuessCell ? cellColor(selectedGuessCell.col, selectedGuessCell.row) : "";
+  guessPickLabel.textContent = selectedGuessCell ? cellLabel(selectedGuessCell) : "Tap the board";
+  lockGuessBtn.disabled = !selectedGuessCell || guessLocked;
 }
 
 function renderTurnTracker(order, turnIndex) {
   turnTrackerEl.innerHTML = "";
   order.forEach((entry, i) => {
     const chip = document.createElement("div");
-    chip.className = "turn-chip" + (i < turnIndex ? " done" : i === turnIndex ? " active" : "");
-
-    const avatar = document.createElement("span");
-    avatar.className = "turn-chip-avatar";
-    avatar.textContent = initialOf(entry.name);
-    avatar.style.background = globalColorMap[entry.id] ?? "#84bcda";
-
+    chip.className = "hc-tracker-chip" + (i < turnIndex ? " done" : i === turnIndex ? " active" : "");
     const label = document.createElement("span");
-    label.className = "turn-chip-label";
-    label.textContent = entry.name;
-
-    chip.append(avatar, label);
+    label.textContent = entry.id === myId ? "You" : entry.name;
+    chip.append(avatarEl(entry.id, entry.name), label);
     turnTrackerEl.appendChild(chip);
   });
 }
 
 function startTurn(data) {
   phase = "turn";
+  clueGiverId = data.clueGiverId ?? clueGiverId;
   roundDurationMs = data.durationMs;
   roundEndsAt = data.endsAt;
   clue1 = "";
@@ -464,27 +544,32 @@ function startTurn(data) {
   round2Pins = [];
   showView("turn");
 
-  turnStatusTextEl.textContent = `Round ${data.round} of ${data.totalRounds}`;
-
   cardDrawBody.hidden = true;
   giveClueBody.hidden = true;
   waitingForClueBody.hidden = true;
 
   if (data.isClueGiver) {
+    turnStepLabelEl.textContent = `Round ${data.round} of ${data.totalRounds} · Clue-giver`;
     cardOptions = data.cardOptions ?? [];
     pickedCardIndex = null;
     pickedCard = null;
-    confirmCardBtn.disabled = true;
     cardDrawBody.hidden = false;
     renderCardOptions();
 
+    turnCta.hidden = false;
+    cardPickNote.hidden = false;
+    confirmCardBtn.hidden = false;
+    submitClueBtn.hidden = true;
     clueInput.value = "";
     clueInput.disabled = false;
     submitClueBtn.disabled = true;
     submitClueBtn.textContent = "Send clue";
   } else {
+    turnStepLabelEl.textContent = `Round ${data.round} of ${data.totalRounds}`;
     waitingForClueBody.hidden = false;
-    waitingForClueTextEl.textContent = `Waiting for ${data.clueGiverName} to pick a color and give a clue…`;
+    turnWaitingAvatarEl.replaceChildren(avatarEl(clueGiverId, data.clueGiverName));
+    waitingForClueTextEl.textContent = `${data.clueGiverName} is picking a color`;
+    turnCta.hidden = true;
   }
 
   startCountdown(turnCountdownRing, turnCountdownNum);
@@ -495,33 +580,44 @@ function startClue2(data) {
   roundDurationMs = data.durationMs;
   roundEndsAt = data.endsAt;
   clue1 = data.clue1;
+  guessRound = 1;
+  round1Pins = data.round1Pins ?? round1Pins;
   showView("clue2");
 
-  clue2StatusTextEl.textContent = `Round ${data.round} of ${data.totalRounds} — clue 2 of 2`;
+  clue2StepLabelEl.textContent = `Round ${data.round} of ${data.totalRounds} · Clue 2 of 2`;
 
   giveClue2Body.hidden = !data.isClueGiver;
   waitingForClue2Body.hidden = data.isClueGiver;
+  clue2Cta.hidden = !data.isClueGiver;
 
+  // Everyone sees where the first guesses landed; the clue-giver also sees
+  // their own color, to steer the second clue.
   if (data.isClueGiver) {
-    clue2Clue1BannerEl.innerHTML = "";
-    const label = document.createElement("span");
-    label.textContent = "Your first clue was:";
-    const strong = document.createElement("strong");
-    strong.textContent = data.clue1;
-    clue2Clue1BannerEl.append(label, strong);
+    buildGrid(clue2Grid, giverMarkers(round1Pins), false);
+    clue2MapNoteEl.textContent = "Your color is starred ★";
+    clue2Swatch.style.background = pickedCard ? cellColor(pickedCard.col, pickedCard.row) : "";
+    const first = document.createElement("b");
+    first.textContent = data.clue1;
+    clue2Clue1BannerEl.replaceChildren("First clue: ", first, " · you can reuse it");
 
     clue2Input.value = "";
     clue2Input.disabled = false;
     submitClue2Btn.disabled = true;
-    submitClue2Btn.textContent = "Send second clue";
+    submitClue2Btn.textContent = "Send clue";
   } else {
-    waitingForClue2TextEl.textContent = "Everyone's placed their first guess — waiting for the second clue…";
+    buildGrid(clue2Grid, pinsAsMarkers(), false);
+    clue2MapNoteEl.textContent = "Everyone's first guesses";
+    const giverName = nameOf(clueGiverId);
+    clue2WaitingAvatarEl.replaceChildren(avatarEl(clueGiverId, giverName));
+    waitingForClue2TextEl.textContent = `${giverName} is thinking of a second clue`;
   }
+  clue2PanZoom.reset();
 
   startCountdown(clue2CountdownRing, clue2CountdownNum);
 }
 
 function startGuessTurn(data) {
+  const isNewRound = phase !== "guessing" || guessRound !== data.guessRound;
   phase = "guessing";
   roundDurationMs = data.durationMs;
   roundEndsAt = data.endsAt;
@@ -533,38 +629,43 @@ function startGuessTurn(data) {
   round2Pins = data.round2Pins ?? [];
   showView("guessing");
 
-  guessingStatusTextEl.textContent = `Round ${data.round} of ${data.totalRounds} — guess ${data.guessRound} of 2`;
+  guessingStepLabelEl.textContent = `Round ${data.round} of ${data.totalRounds} · Guess ${data.guessRound} of 2`;
 
-  clueBannerEl.innerHTML = "";
-  const label = document.createElement("span");
-  label.textContent = data.guessRound === 2 ? "Clues:" : "Clue:";
-  const strong = document.createElement("strong");
-  strong.textContent = data.guessRound === 2 ? `${data.clue1} → ${data.clue2}` : data.clue1;
-  clueBannerEl.append(label, strong);
+  const giverName = clueGiverId === myId ? "Your" : `${nameOf(clueGiverId)}'s`;
+  const kicker = document.createElement("small");
+  kicker.textContent = data.guessRound === 2 ? `${giverName} clues` : `${giverName} clue`;
+  const clueText = document.createElement("b");
+  if (data.guessRound === 2) {
+    const old = document.createElement("span");
+    old.className = "hc-clue-old";
+    old.textContent = `${data.clue1} → `;
+    clueText.append(old, data.clue2);
+  } else {
+    clueText.textContent = data.clue1;
+  }
+  clueBannerEl.replaceChildren(kicker, clueText);
 
   renderTurnTracker(data.order, data.turnIndex);
 
   const isMyTurn = currentGuesserId === myId;
-  guessInteractiveBody.hidden = !isMyTurn;
-  guessWaitingBody.hidden = isMyTurn;
+  selectedGuessCell = null;
+  guessLocked = false;
+  renderGuessGrid();
+  // Keep everyone's pan/zoom as pins land one by one; only re-home the
+  // board when a new guess round starts.
+  if (isNewRound || isMyTurn) guessPanZoom.reset();
 
+  lockGuessBtn.hidden = !isMyTurn;
   if (isMyTurn) {
-    selectedGuessCell = null;
-    guessLocked = false;
-    lockGuessBtn.disabled = true;
-    lockGuessBtn.textContent = `Lock in guess ${data.guessRound}`;
-    renderGuessGrid();
-    guessPanZoom.reset();
+    guessMapNoteEl.textContent = "Tap a cell to place your pin";
+    lockGuessBtn.textContent = "Lock in pin";
+    renderGuessPick();
   } else {
-    buildGrid(guessWaitGridEl, pinsAsMarkers(), false);
-    guessWaitPanZoom.reset();
-
-    if (myId === clueGiverId) {
-      guessWaitingTextEl.textContent = "Everyone's guessing your color now…";
-    } else {
-      const guesserName = data.order.find((o) => o.id === currentGuesserId)?.name ?? "someone";
-      guessWaitingTextEl.textContent = `Waiting for ${guesserName} to guess (${data.turnIndex + 1} of ${data.order.length})…`;
-    }
+    guessMapNoteEl.textContent = "";
+    const guesserName = data.order.find((o) => o.id === currentGuesserId)?.name ?? "Someone";
+    guessPickSwatch.style.background = globalColorMap[currentGuesserId] ?? "";
+    guessPickKicker.textContent = myId === clueGiverId ? "Everyone's guessing your color" : `Guess ${data.turnIndex + 1} of ${data.order.length}`;
+    guessPickLabel.textContent = `${guesserName} is placing a pin…`;
   }
 
   // "No limit" (the server sends durationMs: null) means there's nothing
@@ -572,11 +673,68 @@ function startGuessTurn(data) {
   // that never actually ends anything.
   const timed = Boolean(data.durationMs);
   guessingCountdownRing.hidden = !timed;
-  guessingCountdownNum.hidden = !timed;
   if (timed) {
     startCountdown(guessingCountdownRing, guessingCountdownNum);
   } else {
     stopCountdown();
+  }
+}
+
+// ---- reveal / final ----
+
+function rowEl(id, name, { rank, extra, pts, scored, giver }) {
+  const li = document.createElement("li");
+  li.className = "hc-row" + (id === myId ? " is-you" : "") + (giver ? " is-giver" : "");
+
+  const nameEl = document.createElement("span");
+  nameEl.className = "hc-row-name";
+  nameEl.textContent = name;
+  if (id === myId) {
+    const tag = document.createElement("span");
+    tag.className = "you-tag";
+    tag.textContent = " (you)";
+    nameEl.appendChild(tag);
+  }
+
+  if (rank !== undefined) {
+    const rankEl = document.createElement("span");
+    rankEl.className = "hc-row-rank";
+    rankEl.textContent = String(rank);
+    li.appendChild(rankEl);
+  }
+  li.append(avatarEl(id, name), nameEl);
+  if (extra) {
+    const extraEl = document.createElement("span");
+    extraEl.className = "hc-row-dist";
+    extraEl.textContent = extra;
+    li.appendChild(extraEl);
+  }
+  const ptsEl = document.createElement("span");
+  ptsEl.className = "hc-row-pts" + (scored ? " is-scored" : "");
+  ptsEl.textContent = pts;
+  li.appendChild(ptsEl);
+  return li;
+}
+
+function distanceText(r) {
+  if (r.isClueGiver) return "Clue-giver";
+  if (r.distance === null) return "No guess";
+  if (r.distance === 0) return "Bullseye!";
+  return r.distance === 1 ? "1 away" : `${r.distance} away`;
+}
+
+// The ready count in the bottom bar, shared by reveal and final.
+function renderReadyState() {
+  const me = players.find((p) => p.id === myId);
+  const live = players.filter((p) => p.connected !== false);
+  const readyCount = live.filter((p) => p.ready).length;
+  if (phase === "reveal") {
+    revealReadyCountEl.textContent = `${readyCount} of ${live.length} ready`;
+    continueBtn.disabled = Boolean(me?.ready);
+    continueBtn.textContent = me?.ready ? "Waiting…" : "Ready";
+  } else if (phase === "final") {
+    playAgainBtn.disabled = Boolean(me?.ready);
+    playAgainBtn.textContent = me?.ready ? `${readyCount} of ${live.length} ready` : "Play again";
   }
 }
 
@@ -585,8 +743,21 @@ function renderReveal(data) {
   showView("reveal");
   stopCountdown();
 
+  revealStepLabelEl.textContent = `Round ${data.round} of ${data.totalRounds} · Results`;
+  revealNextLabelEl.textContent = data.round < data.totalRounds ? `Next: round ${data.round + 1}` : "Final results next";
+
+  const mine = data.results.find((r) => r.id === myId);
+  revealSwatchEl.style.background = data.target ? cellColor(data.target.col, data.target.row) : "";
+  if (mine?.isClueGiver) {
+    revealKickerEl.textContent = "Your color";
+  } else if (mine) {
+    revealKickerEl.textContent = mine.distance === null ? "No guess" : mine.distance === 0 ? "Bullseye" : `${mine.distance} cell${mine.distance === 1 ? "" : "s"} away`;
+  } else {
+    revealKickerEl.textContent = `${data.clueGiverName}'s color`;
+  }
+  revealTitleEl.textContent = mine ? `+${mine.points} for you` : data.target ? cellLabel(data.target) : "";
   const clueText = data.clue2 ? `${data.clue1} → ${data.clue2}` : data.clue1;
-  revealStatusTextEl.textContent = `Round ${data.round} of ${data.totalRounds} — ${data.clueGiverName}'s color (${clueText})`;
+  revealCluesEl.textContent = `${mine?.isClueGiver ? "Your" : `${data.clueGiverName}'s`} clues: ${clueText.toUpperCase()}`;
 
   const markers = [];
   if (data.target) markers.push({ col: data.target.col, row: data.target.row, type: "flag" });
@@ -598,75 +769,55 @@ function renderReveal(data) {
     markers.push({ col: r.col, row: r.row, type: "player", label: initialOf(r.name), color: globalColorMap[r.id] });
   }
   buildGrid(revealGridEl, markers, false);
-  revealPanZoom.reset();
+  if (data.target) revealPanZoom.centerOn(data.target, 2.2);
+  else revealPanZoom.reset();
 
   resultsListEl.innerHTML = "";
   const sorted = [...data.results].sort((a, b) => b.points - a.points);
   for (const r of sorted) {
-    const li = document.createElement("li");
-    li.className = "results-row";
-
-    const rank = document.createElement("span");
-    rank.className = "results-rank";
-    rank.textContent = `#${sorted.indexOf(r) + 1}`;
-
-    const avatar = document.createElement("span");
-    avatar.className = "results-avatar";
-    avatar.textContent = initialOf(r.name);
-    avatar.style.background = globalColorMap[r.id] ?? "#84bcda";
-
-    const name = document.createElement("span");
-    name.className = "results-name";
-    name.textContent = r.name;
-
-    const dist = document.createElement("span");
-    dist.className = "results-dist";
-    dist.textContent = r.isClueGiver ? "Clue-giver" : r.distance === null ? "No guess" : r.distance === 0 ? "Right on!" : r.distance === 1 ? "1 away" : `${r.distance} away`;
-
-    const pts = document.createElement("span");
-    pts.className = "results-pts";
-    pts.textContent = `+${r.points}`;
-
-    li.append(rank, avatar, name, dist, pts);
-    resultsListEl.appendChild(li);
+    resultsListEl.appendChild(
+      rowEl(r.id, r.name, { extra: distanceText(r), pts: `+${r.points}`, scored: r.points > 0, giver: r.isClueGiver })
+    );
   }
 
-  continueBtn.disabled = false;
-  continueBtn.textContent = "Continue";
+  renderReadyState();
 }
 
 function renderFinal(standings) {
   phase = "final";
   showView("final");
+  stopCountdown();
+
+  finalStepLabelEl.textContent = `Game over · ${standings.length} round${standings.length === 1 ? "" : "s"}`;
+  const winners = standings.filter((s) => s.score === standings[0]?.score);
+  finalTitleEl.textContent = winners.length > 1 ? "It's a tie!" : `${standings[0]?.name ?? "Nobody"} wins!`;
+  renderPodium(
+    finalPodiumEl,
+    standings.map((s) => ({ ...s, score: pointsText(s.score) })),
+    (entry) => avatarEl(entry.id, entry.name)
+  );
+
+  // Your own placing up top, then everyone the podium doesn't show.
+  const myIndex = standings.findIndex((s) => s.id === myId);
+  finalMeEl.innerHTML = "";
+  if (myIndex >= 0) {
+    const text = document.createElement("div");
+    const line = document.createElement("b");
+    // Ties share a place: 1 + however many scored strictly more.
+    const place = standings.filter((st) => st.score > standings[myIndex].score).length + 1;
+    line.textContent = `You placed ${ordinal(place)}`;
+    const pts = document.createElement("span");
+    pts.textContent = pointsText(standings[myIndex].score);
+    text.append(line, pts);
+    finalMeEl.append(avatarEl(myId, standings[myIndex].name), text);
+  }
 
   standingsListEl.innerHTML = "";
-  standings.forEach((s, i) => {
-    const li = document.createElement("li");
-    li.className = "standings-row" + (i === 0 ? " is-winner" : "");
-
-    const rank = document.createElement("span");
-    rank.className = "standings-rank";
-    rank.textContent = `#${i + 1}`;
-
-    const avatar = document.createElement("span");
-    avatar.className = "standings-avatar";
-    avatar.textContent = initialOf(s.name);
-    avatar.style.background = globalColorMap[s.id] ?? "#84bcda";
-
-    const name = document.createElement("span");
-    name.className = "standings-name";
-    name.textContent = s.name + (s.id === myId ? " (you)" : "");
-
-    const score = document.createElement("span");
-    score.className = "standings-score";
-    score.textContent = `${s.score} pts`;
-
-    li.append(rank, avatar, name, score);
-    standingsListEl.appendChild(li);
+  standings.slice(3).forEach((s, i) => {
+    standingsListEl.appendChild(rowEl(s.id, s.name, { rank: i + 4, pts: pointsText(s.score) }));
   });
 
-  playAgainBtn.disabled = false;
-  playAgainBtn.textContent = "Play again";
+  renderReadyState();
 }
 
 confirmCardBtn.addEventListener("click", () => {
@@ -676,6 +827,9 @@ confirmCardBtn.addEventListener("click", () => {
 
   cardDrawBody.hidden = true;
   giveClueBody.hidden = false;
+  cardPickNote.hidden = true;
+  confirmCardBtn.hidden = true;
+  submitClueBtn.hidden = false;
   renderMineGrid();
   minePanZoom.reset();
 });
@@ -711,18 +865,18 @@ lockGuessBtn.addEventListener("click", () => {
   guessLocked = true;
   socket?.send(JSON.stringify({ type: "submit-guess", col: selectedGuessCell.col, row: selectedGuessCell.row }));
   lockGuessBtn.disabled = true;
-  lockGuessBtn.textContent = "Waiting for others…";
+  lockGuessBtn.textContent = "Locked in";
 });
 
 continueBtn.addEventListener("click", () => {
   continueBtn.disabled = true;
-  continueBtn.textContent = "Waiting for others…";
+  continueBtn.textContent = "Waiting…";
   socket?.send(JSON.stringify({ type: "ready" }));
 });
 
 playAgainBtn.addEventListener("click", () => {
   playAgainBtn.disabled = true;
-  playAgainBtn.textContent = "Waiting for others…";
+  playAgainBtn.textContent = "Waiting…";
   socket?.send(JSON.stringify({ type: "ready" }));
 });
 
@@ -733,7 +887,7 @@ readyBtn.addEventListener("click", () => {
   socket?.send(JSON.stringify({ type: "ready" }));
 });
 
-for (const btn of [backBtn, turnBackBtn, clue2BackBtn, guessingBackBtn, revealBackBtn, finalBackBtn]) {
+for (const btn of [backBtn, turnBackBtn, clue2BackBtn, guessingBackBtn, revealBackBtn, finalBackBtn, finalLeaveBtn]) {
   btn.addEventListener("click", () => {
     location.href = "/";
   });

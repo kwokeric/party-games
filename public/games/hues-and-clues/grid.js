@@ -7,7 +7,13 @@
 export const COLS = 26;
 export const ROWS = 16;
 const CELL = 26; // px, must match the .hc-cell size in game.css
-const COL_LETTERS = "ABCDEFGHIJKLMNOPQRSTUVWXYZ";
+// Where cell (0, 0) starts inside the grid content: the row-label column
+// (18px) or column-label row (14px), the 3px gap, then the grid's 1px
+// border — all from game.css. Cells are CELL wide with a 2px gap.
+const ORIGIN_X = 18 + 3 + 1;
+const ORIGIN_Y = 14 + 3 + 1;
+const PITCH = CELL + 2;
+export const COL_LETTERS = "ABCDEFGHIJKLMNOPQRSTUVWXYZ";
 
 // A color wheel stretched over the rectangle: hue goes around the center
 // (red at the top, then clockwise through the rainbow), and lightness falls
@@ -103,7 +109,10 @@ export function buildGrid(content, markers, tappable) {
 // the cell under the pointer via elementFromPoint, which — because it
 // reads real painted layout — accounts for the current pan/zoom transform
 // automatically, so no manual reverse-transform math is needed.
-export function initPanZoom(viewport, content, { minScale = 0.45, maxScale = 3, initialScale = 0.9, onTap } = {}) {
+//
+// With `fit`, the default view scales the whole board to the viewport's
+// width (and never lets you zoom out past that), so it can run edge to edge.
+export function initPanZoom(viewport, content, { minScale = 0.45, maxScale = 3, initialScale = 0.9, fit = false, onTap } = {}) {
   let scale = initialScale;
   let x = 0;
   let y = 0;
@@ -112,6 +121,14 @@ export function initPanZoom(viewport, content, { minScale = 0.45, maxScale = 3, 
   let pinchStartDist = null;
   let dragDistance = 0;
   let singlePointerTap = false;
+
+  // Only meaningful once the viewport is laid out (a hidden view measures 0).
+  function homeScale() {
+    if (!fit || !viewport.clientWidth || !content.offsetWidth) return initialScale;
+    const fitted = viewport.clientWidth / content.offsetWidth;
+    minScale = fitted;
+    return fitted;
+  }
 
   function apply() {
     content.style.transform = `translate(${x}px, ${y}px) scale(${scale})`;
@@ -221,9 +238,18 @@ export function initPanZoom(viewport, content, { minScale = 0.45, maxScale = 3, 
     // round should NOT call this, or the user's pan/zoom would keep
     // getting yanked back to center every time a pin updates).
     reset: () => {
-      scale = initialScale;
+      scale = homeScale();
       x = 0;
       y = 0;
+      clampPosition();
+      apply();
+    },
+    // Zooms in `factor` times past the home view, centered on one cell —
+    // e.g. the target at the reveal.
+    centerOn: ({ col, row }, factor = 2) => {
+      scale = Math.min(maxScale, homeScale() * factor);
+      x = viewport.clientWidth / 2 - (ORIGIN_X + col * PITCH + CELL / 2) * scale;
+      y = viewport.clientHeight / 2 - (ORIGIN_Y + row * PITCH + CELL / 2) * scale;
       clampPosition();
       apply();
     },

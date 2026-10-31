@@ -10,11 +10,8 @@
     <link rel="stylesheet" href="./game.css" />
     <link rel="stylesheet" href="./lobby.css" />
     <link rel="stylesheet" href="/shared/lobby.css" />
-    <link rel="stylesheet" href="./turn.css" />
-    <link rel="stylesheet" href="./clue2.css" />
-    <link rel="stylesheet" href="./guessing.css" />
-    <link rel="stylesheet" href="./reveal.css" />
-    <link rel="stylesheet" href="./final.css" />
+    <link rel="stylesheet" href="/shared/play.css" />
+    <link rel="stylesheet" href="./play.css" />
   </head>
   <body>
     <main class="page hc-page">
@@ -114,172 +111,245 @@
         </div>
       </section>
 
-      <section id="turn-view" class="view turn-view" hidden>
-        <div class="guess-banner">
-          <button id="turn-back-btn" class="guess-icon-btn" type="button" aria-label="Back to home">
-            <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="#ffffff" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><line x1="19" y1="12" x2="5" y2="12"></line><polyline points="12 19 5 12 12 5"></polyline></svg>
-          </button>
-          <div class="guess-banner-title">Hues and Clues</div>
-          <div class="guess-room-pill" id="turn-room-code">-</div>
-        </div>
+      <section id="turn-view" class="view play-view hc-view" hidden>
+        <div class="play-shell">
+          <header class="play-topbar">
+            <button id="turn-back-btn" class="play-back-btn" type="button" aria-label="Back to home">
+              <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M19 12H5M11 18l-6-6 6-6"></path></svg>
+            </button>
+            <div class="play-title">
+              <h1>Hues and Clues</h1>
+              <p id="turn-step-label"></p>
+            </div>
+            <div class="countdown-ring hc-timer" id="turn-countdown-ring">
+              <div class="countdown-ring-inner" id="turn-countdown-num">60</div>
+            </div>
+            <span class="play-code" id="turn-room-code">-</span>
+          </header>
 
-        <div class="guess-status-card">
-          <div class="countdown-bar" id="turn-countdown-ring">
-            <div class="countdown-bar-fill"></div>
+          <!-- clue-giver only: step 1, pick one of 4 cards -->
+          <div id="card-draw-body" class="hc-body" hidden>
+            <div class="hc-heading">
+              <h2>Pick your secret color</h2>
+              <p>Only you can see these four</p>
+            </div>
+            <div id="card-grid" class="hc-fan"></div>
           </div>
-          <div class="countdown-status-row">
-            <span class="countdown-num" id="turn-countdown-num">60</span>
-            <span class="guess-status-text" id="turn-status-text"></span>
-          </div>
-        </div>
 
-        <!-- clue-giver only: step 1, pick one of 4 cards -->
-        <div id="card-draw-body" class="screen-body" hidden>
-          <p class="kind-label">Pick one of these 4 colors — that's what you'll clue everyone toward</p>
-          <div id="card-grid" class="card-grid"></div>
-          <button id="confirm-card-btn" class="lobby-action-btn" type="button" disabled>Confirm color</button>
-        </div>
-
-        <!-- clue-giver only: step 2, give the clue -->
-        <div id="give-clue-body" class="screen-body" hidden>
-          <p class="kind-label">Give everyone a one-word clue for your color (clue 1 of 2)</p>
-          <div class="grid-viewport" id="mine-viewport">
-            <div class="grid-content" id="mine-grid"></div>
-            <div class="zoom-controls">
-              <button class="zoom-btn" id="mine-zoom-in" type="button" aria-label="Zoom in">+</button>
-              <button class="zoom-btn" id="mine-zoom-out" type="button" aria-label="Zoom out">–</button>
+          <!-- clue-giver only: step 2, give the clue -->
+          <div id="give-clue-body" class="hc-body" hidden>
+            <div class="hc-map" id="mine-viewport">
+              <div class="grid-content" id="mine-grid"></div>
+              <div class="zoom-controls">
+                <button class="zoom-btn" id="mine-zoom-in" type="button" aria-label="Zoom in">+</button>
+                <button class="zoom-btn" id="mine-zoom-out" type="button" aria-label="Zoom out">–</button>
+              </div>
+            </div>
+            <p class="hc-map-note">Your color is starred ★</p>
+            <div class="hc-describe">
+              <div class="hc-describe-head">
+                <span class="hc-swatch" id="mine-swatch"></span>
+                <h2>Describe it</h2>
+              </div>
+              <label class="hc-input-wrap">
+                <input id="clue-input" class="hc-input" type="text" maxlength="24" placeholder="Your clue" aria-label="Your clue" />
+                <span>One word</span>
+              </label>
             </div>
           </div>
-          <input id="clue-input" class="clue-input" type="text" maxlength="24" placeholder="One word only…" />
-          <button id="submit-clue-btn" class="guess-submit-btn" type="button" disabled>Send clue</button>
+
+          <!-- everyone else -->
+          <div id="waiting-for-clue-body" class="hc-body hc-waiting" hidden>
+            <span id="turn-waiting-avatar"></span>
+            <h2 id="waiting-for-clue-text"></h2>
+            <p>They'll give a one-word clue, then everyone takes a turn guessing</p>
+          </div>
         </div>
 
-        <!-- everyone else -->
-        <div id="waiting-for-clue-body" class="screen-body" hidden>
-          <p id="waiting-for-clue-text" class="hint-note waiting-text"></p>
+        <div class="play-cta" id="turn-cta">
+          <div class="play-cta-inner">
+            <div id="card-pick-note" class="hc-note">
+              <span class="hc-swatch" id="card-pick-swatch"></span>
+              <div>
+                <small>Selected</small>
+                <b id="card-pick-label">Tap a card</b>
+              </div>
+            </div>
+            <button id="confirm-card-btn" class="play-btn" type="button" disabled>Use this color</button>
+            <button id="submit-clue-btn" class="play-btn" type="button" disabled hidden>Send clue</button>
+          </div>
         </div>
       </section>
 
-      <section id="clue2-view" class="view clue2-view" hidden>
-        <div class="guess-banner">
-          <button id="clue2-back-btn" class="guess-icon-btn" type="button" aria-label="Back to home">
-            <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="#ffffff" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><line x1="19" y1="12" x2="5" y2="12"></line><polyline points="12 19 5 12 12 5"></polyline></svg>
-          </button>
-          <div class="guess-banner-title">Hues and Clues</div>
-          <div class="guess-room-pill" id="clue2-room-code">-</div>
-        </div>
+      <section id="clue2-view" class="view play-view hc-view" hidden>
+        <div class="play-shell">
+          <header class="play-topbar">
+            <button id="clue2-back-btn" class="play-back-btn" type="button" aria-label="Back to home">
+              <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M19 12H5M11 18l-6-6 6-6"></path></svg>
+            </button>
+            <div class="play-title">
+              <h1>Hues and Clues</h1>
+              <p id="clue2-step-label"></p>
+            </div>
+            <div class="countdown-ring hc-timer" id="clue2-countdown-ring">
+              <div class="countdown-ring-inner" id="clue2-countdown-num">45</div>
+            </div>
+            <span class="play-code" id="clue2-room-code">-</span>
+          </header>
 
-        <div class="guess-status-card">
-          <div class="countdown-bar" id="clue2-countdown-ring">
-            <div class="countdown-bar-fill"></div>
+          <div class="hc-body">
+            <div class="hc-map" id="clue2-viewport">
+              <div class="grid-content" id="clue2-grid"></div>
+              <div class="zoom-controls">
+                <button class="zoom-btn" id="clue2-zoom-in" type="button" aria-label="Zoom in">+</button>
+                <button class="zoom-btn" id="clue2-zoom-out" type="button" aria-label="Zoom out">–</button>
+              </div>
+            </div>
+            <p id="clue2-map-note" class="hc-map-note"></p>
+
+            <!-- clue-giver only -->
+            <div id="give-clue2-body" class="hc-describe" hidden>
+              <div class="hc-describe-head">
+                <span class="hc-swatch" id="clue2-swatch"></span>
+                <h2>Give a second clue</h2>
+              </div>
+              <p id="clue2-clue1-banner" class="hc-first-clue"></p>
+              <label class="hc-input-wrap">
+                <input id="clue2-input" class="hc-input" type="text" maxlength="24" placeholder="Your clue" aria-label="Your second clue" />
+                <span>Up to two words</span>
+              </label>
+            </div>
+
+            <!-- everyone else -->
+            <div id="waiting-for-clue2-body" class="hc-waiting is-inline" hidden>
+              <span id="clue2-waiting-avatar"></span>
+              <h2 id="waiting-for-clue2-text"></h2>
+              <p>Everyone gets a second guess after it</p>
+            </div>
           </div>
-          <div class="countdown-status-row">
-            <span class="countdown-num" id="clue2-countdown-num">45</span>
-            <span class="guess-status-text" id="clue2-status-text"></span>
+        </div>
+
+        <div class="play-cta" id="clue2-cta">
+          <div class="play-cta-inner">
+            <button id="submit-clue2-btn" class="play-btn" type="button" disabled>Send clue</button>
           </div>
-        </div>
-
-        <!-- clue-giver only -->
-        <div id="give-clue2-body" class="screen-body" hidden>
-          <p class="kind-label">Give a second clue — up to two words, and you can reuse your first</p>
-          <div id="clue2-clue1-banner" class="clue-banner"></div>
-          <input id="clue2-input" class="clue-input" type="text" maxlength="24" placeholder="Up to two words…" />
-          <button id="submit-clue2-btn" class="guess-submit-btn" type="button" disabled>Send second clue</button>
-        </div>
-
-        <!-- everyone else -->
-        <div id="waiting-for-clue2-body" class="screen-body" hidden>
-          <p id="waiting-for-clue2-text" class="hint-note waiting-text"></p>
         </div>
       </section>
 
-      <section id="guessing-view" class="view guessing-view" hidden>
-        <div class="guess-banner">
-          <button id="guessing-back-btn" class="guess-icon-btn" type="button" aria-label="Back to home">
-            <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="#ffffff" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><line x1="19" y1="12" x2="5" y2="12"></line><polyline points="12 19 5 12 12 5"></polyline></svg>
-          </button>
-          <div class="guess-banner-title">Hues and Clues</div>
-          <div class="guess-room-pill" id="guessing-room-code">-</div>
-        </div>
+      <section id="guessing-view" class="view play-view hc-view" hidden>
+        <div class="play-shell">
+          <header class="play-topbar">
+            <button id="guessing-back-btn" class="play-back-btn" type="button" aria-label="Back to home">
+              <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M19 12H5M11 18l-6-6 6-6"></path></svg>
+            </button>
+            <div class="play-title">
+              <h1>Hues and Clues</h1>
+              <p id="guessing-step-label"></p>
+            </div>
+            <div class="countdown-ring hc-timer" id="guessing-countdown-ring">
+              <div class="countdown-ring-inner" id="guessing-countdown-num">30</div>
+            </div>
+            <span class="play-code" id="guessing-room-code">-</span>
+          </header>
 
-        <div class="guess-status-card">
-          <div class="countdown-bar" id="guessing-countdown-ring">
-            <div class="countdown-bar-fill"></div>
-          </div>
-          <div class="countdown-status-row">
-            <span class="countdown-num" id="guessing-countdown-num">30</span>
-            <span class="guess-status-text" id="guessing-status-text"></span>
-          </div>
-        </div>
-
-        <div class="screen-body">
-          <div id="clue-banner" class="clue-banner"></div>
-
-          <div id="turn-tracker" class="turn-tracker"></div>
-
-          <div id="guess-interactive-body" hidden>
-            <div class="grid-viewport" id="guess-viewport">
+          <div class="hc-body">
+            <div id="clue-banner" class="hc-clue-card"></div>
+            <div id="turn-tracker" class="hc-tracker"></div>
+            <div class="hc-map" id="guess-viewport">
               <div class="grid-content" id="guess-grid"></div>
               <div class="zoom-controls">
                 <button class="zoom-btn" id="guess-zoom-in" type="button" aria-label="Zoom in">+</button>
                 <button class="zoom-btn" id="guess-zoom-out" type="button" aria-label="Zoom out">–</button>
               </div>
             </div>
-            <button id="lock-guess-btn" class="guess-submit-btn" type="button" disabled>Lock in guess</button>
+            <p id="guess-map-note" class="hc-map-note"></p>
           </div>
+        </div>
 
-          <div id="guess-waiting-body" hidden>
-            <div class="grid-viewport" id="guess-wait-viewport">
-              <div class="grid-content" id="guess-wait-grid"></div>
-              <div class="zoom-controls">
-                <button class="zoom-btn" id="guess-wait-zoom-in" type="button" aria-label="Zoom in">+</button>
-                <button class="zoom-btn" id="guess-wait-zoom-out" type="button" aria-label="Zoom out">–</button>
+        <div class="play-cta">
+          <div class="play-cta-inner">
+            <div id="guess-pick-note" class="hc-note">
+              <span class="hc-swatch" id="guess-pick-swatch"></span>
+              <div>
+                <small id="guess-pick-kicker">Your pin</small>
+                <b id="guess-pick-label"></b>
               </div>
             </div>
-            <p id="guess-waiting-text" class="hint-note waiting-text"></p>
+            <button id="lock-guess-btn" class="play-btn" type="button" disabled>Lock in pin</button>
           </div>
         </div>
       </section>
 
-      <section id="reveal-view" class="view reveal-view" hidden>
-        <div class="guess-banner">
-          <button id="reveal-back-btn" class="guess-icon-btn" type="button" aria-label="Back to home">
-            <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="#ffffff" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><line x1="19" y1="12" x2="5" y2="12"></line><polyline points="12 19 5 12 12 5"></polyline></svg>
-          </button>
-          <div class="guess-banner-title">Hues and Clues</div>
-          <div class="guess-room-pill" id="reveal-room-code">-</div>
-        </div>
-
-        <div class="guess-status-card">
-          <span class="guess-status-text" id="reveal-status-text"></span>
-        </div>
-
-        <div class="screen-body">
-          <div class="grid-viewport" id="reveal-viewport">
-            <div class="grid-content" id="reveal-grid"></div>
-            <div class="zoom-controls">
-              <button class="zoom-btn" id="reveal-zoom-in" type="button" aria-label="Zoom in">+</button>
-              <button class="zoom-btn" id="reveal-zoom-out" type="button" aria-label="Zoom out">–</button>
+      <section id="reveal-view" class="view play-view hc-view" hidden>
+        <div class="play-shell">
+          <header class="play-topbar">
+            <button id="reveal-back-btn" class="play-back-btn" type="button" aria-label="Back to home">
+              <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M19 12H5M11 18l-6-6 6-6"></path></svg>
+            </button>
+            <div class="play-title">
+              <h1>Hues and Clues</h1>
+              <p id="reveal-step-label"></p>
             </div>
+            <span class="play-code" id="reveal-room-code">-</span>
+          </header>
+
+          <div class="hc-body">
+            <div class="hc-reveal-head">
+              <span id="reveal-swatch" class="hc-reveal-swatch"></span>
+              <div>
+                <span id="reveal-kicker" class="play-label"></span>
+                <h2 id="reveal-title"></h2>
+                <p id="reveal-clues"></p>
+              </div>
+            </div>
+            <div class="hc-map is-short" id="reveal-viewport">
+              <div class="grid-content" id="reveal-grid"></div>
+              <div class="zoom-controls">
+                <button class="zoom-btn" id="reveal-zoom-in" type="button" aria-label="Zoom in">+</button>
+                <button class="zoom-btn" id="reveal-zoom-out" type="button" aria-label="Zoom out">–</button>
+              </div>
+            </div>
+            <ol id="results-list" class="hc-rows"></ol>
           </div>
-          <ol id="results-list" class="results-list"></ol>
-          <button id="continue-btn" class="lobby-action-btn" type="button">Continue</button>
+        </div>
+
+        <div class="play-cta">
+          <div class="play-cta-inner">
+            <p class="play-cta-note">
+              <strong id="reveal-ready-count"></strong>
+              <span id="reveal-next-label"></span>
+            </p>
+            <button id="continue-btn" class="play-btn" type="button">Ready</button>
+          </div>
         </div>
       </section>
 
-      <section id="final-view" class="view final-view" hidden>
-        <div class="guess-banner">
-          <button id="final-back-btn" class="guess-icon-btn" type="button" aria-label="Back to home">
-            <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="#ffffff" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><line x1="19" y1="12" x2="5" y2="12"></line><polyline points="12 19 5 12 12 5"></polyline></svg>
-          </button>
-          <div class="guess-banner-title">Hues and Clues</div>
-          <div class="guess-room-pill" id="final-room-code">-</div>
+      <section id="final-view" class="view play-view hc-view" hidden>
+        <div class="play-shell">
+          <header class="play-topbar">
+            <button id="final-back-btn" class="play-back-btn" type="button" aria-label="Back to home">
+              <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M19 12H5M11 18l-6-6 6-6"></path></svg>
+            </button>
+            <div class="play-title">
+              <h1>Hues and Clues</h1>
+              <p id="final-step-label"></p>
+            </div>
+            <span class="play-code" id="final-room-code">-</span>
+          </header>
+
+          <div class="hc-body">
+            <h2 id="final-title" class="hc-final-title"></h2>
+            <div id="final-podium" class="play-podium hc-podium"></div>
+            <div id="final-me" class="hc-final-me"></div>
+            <ol id="standings-list" class="hc-rows"></ol>
+          </div>
         </div>
 
-        <div class="screen-body">
-          <h2 class="final-heading">Final standings</h2>
-          <ol id="standings-list" class="standings-list"></ol>
-          <button id="play-again-btn" class="lobby-action-btn" type="button">Play again</button>
+        <div class="play-cta">
+          <div class="play-cta-inner">
+            <button id="final-leave-btn" class="play-btn is-secondary" type="button">Leave</button>
+            <button id="play-again-btn" class="play-btn" type="button">Play again</button>
+          </div>
         </div>
       </section>
     </main>

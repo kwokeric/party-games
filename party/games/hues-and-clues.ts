@@ -354,6 +354,7 @@ export default class HuesAndClues extends Server {
         type: "turn-start",
         round: this.turnIndex + 1,
         totalRounds: this.playerOrder.length,
+        clueGiverId,
         clueGiverName: this.players.get(clueGiverId ?? "")?.name ?? "?",
         isClueGiver,
         cardOptions: isClueGiver ? this.cardOptions : undefined,
@@ -439,6 +440,8 @@ export default class HuesAndClues extends Server {
       totalRounds: this.playerOrder.length,
       isClueGiver: forPlayerId === this.clueGiverId(),
       clue1: this.clue1,
+      // Where everyone's first guesses landed, to steer the second clue.
+      round1Pins: this.pinsForRound(1),
       durationMs: CLUE2_DURATION_MS,
       endsAt: this.roundEndsAt,
     };

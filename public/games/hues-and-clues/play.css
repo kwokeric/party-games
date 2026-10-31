@@ -1,0 +1,545 @@
+/* In-game screens. The header and pinned bottom bar come from
+   /shared/play.css; the content in between sits straight on a full-bleed
+   stage in the game's tint (no cards): fanned color cards, an edge-to-edge
+   board, the reveal and the podium. */
+
+.play-view.hc-view {
+  --hc-stage: #f6dce4;
+  background: var(--hc-stage);
+}
+
+.play-view .hc-timer {
+  width: 38px;
+  height: 38px;
+}
+
+.play-view .hc-timer .countdown-ring-inner {
+  width: 30px;
+  height: 30px;
+  font-size: 13px;
+}
+
+.play-view .hc-body {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+
+.play-view .hc-heading {
+  padding-top: 12px;
+  text-align: center;
+}
+
+.play-view .hc-heading h2,
+.play-view .hc-final-title {
+  margin: 0;
+  font-family: var(--pv-display);
+  font-size: 30px;
+  font-weight: 800;
+  letter-spacing: -0.035em;
+  line-height: 1.1;
+  text-align: center;
+}
+
+.play-view .hc-heading p {
+  margin: 6px 0 0;
+  font-size: 14px;
+  color: var(--pv-ink-soft);
+}
+
+.play-view .hc-swatch {
+  flex: none;
+  width: 44px;
+  height: 44px;
+  border-radius: 13px;
+  background: var(--pv-field-line);
+  box-shadow: inset 0 0 0 1px rgba(0, 0, 0, 0.06);
+}
+
+/* --- Picking a card: four colors fanned out ------------------------------ */
+
+.play-view .hc-fan {
+  display: flex;
+  justify-content: center;
+  padding: 34px 0 20px;
+}
+
+.play-view .hc-card {
+  --rot: 0deg;
+  position: relative;
+  flex: none;
+  width: 31%;
+  max-width: 170px;
+  aspect-ratio: 3 / 4;
+  margin-left: -9%;
+  padding: 0;
+  border: 4px solid #ffffff;
+  border-radius: 20px;
+  box-shadow: 0 10px 24px rgba(31, 29, 26, 0.18);
+  transform: rotate(var(--rot));
+  transition: transform 0.18s ease, box-shadow 0.18s ease;
+  cursor: pointer;
+}
+
+.play-view .hc-card:first-child {
+  margin-left: 0;
+}
+
+.play-view .hc-card:nth-child(1) {
+  --rot: -10deg;
+}
+
+.play-view .hc-card:nth-child(2) {
+  --rot: -3deg;
+  top: -10px;
+}
+
+.play-view .hc-card:nth-child(3) {
+  --rot: 3deg;
+  top: -10px;
+}
+
+.play-view .hc-card:nth-child(4) {
+  --rot: 10deg;
+}
+
+.play-view .hc-card:hover {
+  transform: rotate(var(--rot)) translateY(-6px);
+}
+
+.play-view .hc-card.selected {
+  z-index: 2;
+  transform: rotate(var(--rot)) translateY(-22px) scale(1.06);
+  box-shadow: 0 0 0 3px var(--pv-ink), 0 16px 30px rgba(31, 29, 26, 0.25);
+}
+
+.play-view .hc-card .check {
+  position: absolute;
+  top: 8px;
+  right: 8px;
+  width: 26px;
+  height: 26px;
+  border-radius: 999px;
+  background: var(--pv-ink);
+  color: #ffffff;
+  font-size: 13px;
+  font-weight: 800;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  opacity: 0;
+}
+
+.play-view .hc-card.selected .check {
+  opacity: 1;
+}
+
+/* --- The board, edge to edge -------------------------------------------- */
+
+/* Shaped like the board itself (749 x 465 px at full size, see game.css),
+   and zoomed to fit its width by default — see initPanZoom's `fit`. */
+.play-view .hc-map {
+  position: relative;
+  margin: 0 -12px;
+  aspect-ratio: 749 / 465;
+  overflow: hidden;
+  background: var(--hc-stage);
+  touch-action: none;
+  cursor: grab;
+}
+
+.play-view .hc-map.is-short {
+  aspect-ratio: 16 / 9;
+}
+
+.play-view .hc-map.panning {
+  cursor: grabbing;
+}
+
+@media (min-width: 721px) {
+  .play-view .hc-map {
+    margin: 0;
+    border-radius: 18px;
+  }
+}
+
+.play-view .hc-map-note {
+  margin: -4px 0 0;
+  font-size: 13px;
+  text-align: center;
+  color: var(--pv-ink-soft);
+}
+
+.play-view .hc-map-note:empty {
+  display: none;
+}
+
+/* --- Giving a clue ------------------------------------------------------- */
+
+.play-view .hc-describe {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  padding-top: 6px;
+}
+
+.play-view .hc-describe-head {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+
+.play-view .hc-describe-head h2 {
+  margin: 0;
+  font-family: var(--pv-display);
+  font-size: 26px;
+  font-weight: 800;
+  letter-spacing: -0.035em;
+}
+
+.play-view .hc-first-clue {
+  margin: 0;
+  font-size: 14px;
+  color: var(--pv-ink-soft);
+}
+
+.play-view .hc-first-clue b {
+  color: var(--pv-accent);
+  text-transform: uppercase;
+}
+
+.play-view .hc-input-wrap {
+  height: 56px;
+  padding: 0 16px;
+  box-sizing: border-box;
+  border-radius: 16px;
+  border: 2px solid var(--pv-field-line);
+  background: #ffffff;
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+
+.play-view .hc-input-wrap:focus-within {
+  border-color: var(--pv-accent);
+}
+
+.play-view .hc-input {
+  flex: 1;
+  min-width: 0;
+  height: 100%;
+  padding: 0;
+  border: none;
+  background: none;
+  outline: none;
+  font-family: var(--pv-display);
+  font-size: 20px;
+  font-weight: 700;
+  color: var(--pv-ink);
+}
+
+.play-view .hc-input:disabled {
+  color: var(--pv-ink-soft);
+}
+
+.play-view .hc-input-wrap span {
+  flex: none;
+  font-size: 12px;
+  color: var(--pv-ink-faint);
+}
+
+/* --- Waiting for the clue-giver ------------------------------------------ */
+
+.play-view .hc-waiting {
+  align-items: center;
+  gap: 8px;
+  padding: 70px 12px 0;
+  text-align: center;
+}
+
+.play-view .hc-waiting.is-inline {
+  display: flex;
+  flex-direction: column;
+  padding-top: 8px;
+}
+
+.play-view .hc-waiting .play-avatar {
+  width: 64px;
+  height: 64px;
+  border-radius: 20px;
+  font-size: 28px;
+  margin-bottom: 6px;
+}
+
+.play-view .hc-waiting.is-inline .play-avatar {
+  width: 44px;
+  height: 44px;
+  border-radius: 14px;
+  font-size: 19px;
+}
+
+.play-view .hc-waiting h2 {
+  margin: 0;
+  font-family: var(--pv-display);
+  font-size: 24px;
+  font-weight: 800;
+  letter-spacing: -0.03em;
+}
+
+.play-view .hc-waiting p {
+  margin: 0;
+  max-width: 300px;
+  font-size: 14px;
+  color: var(--pv-ink-soft);
+}
+
+/* --- Guessing ------------------------------------------------------------ */
+
+.play-view .hc-clue-card {
+  align-self: center;
+  max-width: 100%;
+  box-sizing: border-box;
+  padding: 10px 22px 12px;
+  border-radius: 18px;
+  background: #ffffff;
+  box-shadow: 0 6px 18px rgba(31, 29, 26, 0.08);
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  text-align: center;
+}
+
+.play-view .hc-clue-card small {
+  font-size: 12px;
+  color: var(--pv-ink-soft);
+}
+
+.play-view .hc-clue-card b {
+  font-family: var(--pv-display);
+  font-size: 30px;
+  font-weight: 800;
+  letter-spacing: -0.02em;
+  line-height: 1.1;
+  color: var(--pv-accent);
+  text-transform: uppercase;
+  overflow-wrap: break-word;
+}
+
+.play-view .hc-clue-card b .hc-clue-old {
+  color: var(--pv-ink-faint);
+  font-size: 0.6em;
+}
+
+/* Whose turn it is to place a pin, in order. */
+.play-view .hc-tracker {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: center;
+  gap: 10px 14px;
+}
+
+.play-view .hc-tracker-chip {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 4px;
+  font-size: 11px;
+  font-weight: 700;
+  color: var(--pv-ink-faint);
+}
+
+.play-view .hc-tracker-chip .play-avatar {
+  position: relative;
+  width: 30px;
+  height: 30px;
+  font-size: 13px;
+  opacity: 0.4;
+}
+
+.play-view .hc-tracker-chip.done .play-avatar,
+.play-view .hc-tracker-chip.active .play-avatar {
+  opacity: 1;
+}
+
+.play-view .hc-tracker-chip.active {
+  color: var(--pv-ink);
+}
+
+.play-view .hc-tracker-chip.active .play-avatar {
+  box-shadow: 0 0 0 3px var(--hc-stage), 0 0 0 5px var(--pv-accent);
+}
+
+.play-view .hc-tracker-chip.done .play-avatar::after {
+  content: "✓";
+  position: absolute;
+  right: -5px;
+  bottom: -5px;
+  width: 15px;
+  height: 15px;
+  border-radius: 999px;
+  border: 2px solid var(--hc-stage);
+  background: var(--pv-ready);
+  color: #ffffff;
+  font-size: 9px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+/* The bottom bar's "what you picked" readout: a swatch and a label. */
+.play-view .hc-note {
+  flex: 0 1 auto;
+  min-width: 0;
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+
+.play-view .hc-note small {
+  display: block;
+  font-size: 12px;
+  color: var(--pv-ink-soft);
+}
+
+.play-view .hc-note b {
+  display: block;
+  font-size: 15px;
+  font-weight: 700;
+}
+
+/* --- Reveal -------------------------------------------------------------- */
+
+.play-view .hc-reveal-head {
+  display: flex;
+  align-items: center;
+  gap: 16px;
+  padding: 6px 4px 0;
+}
+
+.play-view .hc-reveal-swatch {
+  flex: none;
+  width: 92px;
+  height: 92px;
+  border-radius: 26px;
+  transform: rotate(-6deg);
+  box-shadow: 0 10px 24px rgba(31, 29, 26, 0.18);
+}
+
+.play-view .hc-reveal-head h2 {
+  margin: 2px 0;
+  font-family: var(--pv-display);
+  font-size: 34px;
+  font-weight: 800;
+  letter-spacing: -0.035em;
+  line-height: 1.05;
+}
+
+.play-view .hc-reveal-head p {
+  margin: 0;
+  font-size: 13px;
+  color: var(--pv-ink-soft);
+}
+
+.play-view .hc-rows {
+  margin: 0;
+  padding: 0;
+  list-style: none;
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+
+.play-view .hc-row {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 8px 10px;
+  border-radius: 14px;
+  background: rgba(255, 255, 255, 0.72);
+}
+
+.play-view .hc-row.is-you {
+  background: var(--pv-accent-soft);
+}
+
+.play-view .hc-row.is-giver {
+  background: #fff8ec;
+}
+
+.play-view .hc-row-rank {
+  flex: none;
+  width: 18px;
+  text-align: center;
+  font-family: var(--pv-display);
+  font-size: 13px;
+  font-weight: 800;
+  color: var(--pv-ink-faint);
+}
+
+.play-view .hc-row-name {
+  flex: 1;
+  font-size: 14px;
+  font-weight: 600;
+  overflow-wrap: break-word;
+}
+
+.play-view .hc-row-name .you-tag {
+  font-weight: 500;
+  color: var(--pv-ink-soft);
+}
+
+.play-view .hc-row-dist {
+  flex: none;
+  font-size: 12px;
+  color: var(--pv-ink-soft);
+}
+
+.play-view .hc-row-pts {
+  flex: none;
+  min-width: 40px;
+  padding: 3px 0;
+  border-radius: 9px;
+  background: #ffffff;
+  text-align: center;
+  font-family: var(--pv-display);
+  font-size: 14px;
+  font-weight: 800;
+}
+
+.play-view .hc-row-pts.is-scored {
+  background: var(--pv-ready);
+  color: #ffffff;
+}
+
+/* --- Final --------------------------------------------------------------- */
+
+.play-view .hc-final-title {
+  padding-top: 10px;
+}
+
+.play-view .hc-podium {
+  padding: 8px 0 0;
+}
+
+.play-view .hc-final-me {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 12px 14px;
+  border-radius: 16px;
+  background: var(--pv-accent-soft);
+}
+
+.play-view .hc-final-me:empty {
+  display: none;
+}
+
+.play-view .hc-final-me b {
+  display: block;
+  font-size: 15px;
+}
+
+.play-view .hc-final-me span {
+  font-size: 13px;
+  color: var(--pv-ink-soft);
+}
