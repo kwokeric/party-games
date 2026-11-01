@@ -7,6 +7,21 @@ const joinForm = document.getElementById("join-form");
 const joinBtn = document.getElementById("join-btn");
 const joinError = document.getElementById("join-error");
 
+// The name is remembered in this browser, so coming back from a game (or
+// opening the site later) doesn't mean typing it again. Storage can be
+// unavailable (private mode, blocked site data), so every access is guarded.
+const NAME_KEY = "party-games:name";
+
+try {
+  nameInput.value = localStorage.getItem(NAME_KEY) ?? "";
+} catch {}
+
+nameInput.addEventListener("input", () => {
+  try {
+    localStorage.setItem(NAME_KEY, nameInput.value.trim());
+  } catch {}
+});
+
 const ARROW_ICON =
   '<svg class="host-arrow" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M5 12h14M13 6l6 6-6 6"></path></svg>';
 

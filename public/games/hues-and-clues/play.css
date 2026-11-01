@@ -6,6 +6,9 @@
 .play-view.hc-view {
   --hc-stage: #ffffff;
   background: var(--hc-stage);
+  /* Nothing on the stage (a rotated or lifted card, the board) may widen
+     the page, or it shifts sideways mid-interaction. */
+  overflow-x: clip;
 }
 
 .play-view .hc-timer {
@@ -68,10 +71,12 @@
   --rot: 0deg;
   position: relative;
   flex: none;
-  width: 31%;
-  max-width: 170px;
+  /* Narrow enough that the outer cards' rotated corners, and a lifted,
+     scaled-up pick, all stay inside the column. */
+  width: 27%;
+  max-width: 160px;
   aspect-ratio: 3 / 4;
-  margin-left: -9%;
+  margin-left: -7%;
   padding: 0;
   border: 4px solid #ffffff;
   border-radius: 20px;
@@ -387,8 +392,10 @@
 }
 
 /* The bottom bar's "what you picked" readout: a swatch and a label. */
+/* Fixed width so the button beside it doesn't shift as the label changes
+   ("Column W · Row 16" is about the widest). */
 .play-view .hc-note {
-  flex: 0 1 auto;
+  flex: 0 0 204px;
   min-width: 0;
   display: flex;
   align-items: center;
@@ -405,6 +412,7 @@
   display: block;
   font-size: 15px;
   font-weight: 700;
+  white-space: nowrap;
 }
 
 /* --- Reveal -------------------------------------------------------------- */
